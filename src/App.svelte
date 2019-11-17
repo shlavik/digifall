@@ -26,7 +26,7 @@
     if (key === '0') energy.set(100);
   }} />
 
-<div class="app">
+<div class="app" {style}>
   <span style="position: absolute">Phase: {$phase}</span>
   <Game />
 </div>

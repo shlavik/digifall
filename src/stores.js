@@ -2,6 +2,8 @@ import { writable } from "svelte/store";
 
 const score = writable(0);
 
+const hiScore = writable(0);
+
 const phase = writable("init");
 
 const blocks = writable(
@@ -9,7 +11,8 @@ const blocks = writable(
     .fill(undefined)
     .map((_, index) => ({
       type: ~~(Math.random() * 10),
-      duration: 0,
+      group: 0,
+      duration: 250,
       x: ~~(index / 7),
       y: index % 7
     }))
@@ -30,4 +33,18 @@ const field = writable(getDefaultField());
 
 const energy = writable(100);
 
-export { score, phase, blocks, field, getDefaultField, energy };
+const shake = writable(0);
+
+const sfx = writable(0);
+
+export {
+  score,
+  hiScore,
+  phase,
+  blocks,
+  field,
+  getDefaultField,
+  energy,
+  shake,
+  sfx
+};

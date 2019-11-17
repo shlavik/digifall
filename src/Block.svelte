@@ -1,6 +1,7 @@
 <script>
   export let index,
     type,
+    group,
     duration,
     x = 0,
     y = 0;
@@ -9,13 +10,13 @@
     "gray",
     "chartreuse",
     "gold",
-    "darkgoldenrod",
+    "coral",
     "red",
     "fuchsia",
     "blueviolet",
-    "blue",
-    "lightskyblue",
-    "darkcyan"
+    "dodgerblue",
+    "cyan",
+    "lightseagreen"
   ];
 
   $: style = `
@@ -26,9 +27,10 @@
   `;
 </script>
 
-<button class="btn waves-effect waves-light block" name={index} {style}>
+<button class="btn waves-effect waves-light block" {style} name={index}>
   <ul>
     <li>I:&nbsp;{index}</li>
     <li>T:&nbsp;{type}</li>
+    <li>G:&nbsp;{group}</li>
   </ul>
 </button>

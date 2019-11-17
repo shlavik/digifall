@@ -27,7 +27,7 @@
             const { type, duration, x, y } = $blocks[blockIndex];
             newBlocks[blockIndex] = {
               type,
-              duration: countY * 100,
+              duration: (1 - 0.4 * countY / 7) * countY * 75,
               x,
               y: y - countY
             };
@@ -73,7 +73,7 @@
             : block
         ));
   }}>
-  {#each $blocks as props, index}
-    <Block {...props} {index} />
+  {#each $blocks as block, index}
+    <Block {...block} {index} />
   {/each}
 </div>

@@ -101,6 +101,11 @@ button:focus {
   position: absolute;
   height: var(--block-size);
   width: var(--block-size);
+  perspective: 640px;
+}
+.board .block:hover {
+  transform: rotateY(180deg);
+  z-index: 1000;
 }
 .board .block ul {
   line-height: 1;
