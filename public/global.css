@@ -5,8 +5,8 @@ html {
   height: 100%;
 }
 body {
-  background-color: darkcyan;
-  color: #333;
+  background-color: black;
+  color: white;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -56,34 +56,58 @@ button:focus {
   border-color: #666;
 }
 :root {
+  --pixel: calc(100vh / 168);
+  --pixel-2: calc(2 * var(--pixel));
+  --pixel-4: calc(4 * var(--pixel));
+  --pixel-5: calc(5 * var(--pixel));
+  --pixel-7: calc(7 * var(--pixel));
+  --pixel-9: calc(9 * var(--pixel));
   --game-width: calc(100vh * 100 / 168);
   --block-size: calc(100vh * 100 / 1176);
+  --block-half: calc(100vh * 100 / 2352);
 }
-.game {
+.app {
+  background-color: black;
+}
+.app .game {
   background-color: lightcyan;
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: space-between;
   position: relative;
+  box-sizing: border-box;
   margin: auto;
+  border: var(--pixel) solid black;
   height: 100vh;
   width: var(--game-width);
 }
 .game .board {
+  background: darkgray
+    url('data:image/svg+xml,\
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill-opacity=".5">\
+  <rect x="32" width="32" height="32" />\
+  <rect y="32" width="32" height="32" />\
+</svg>');
+  background-size: var(--pixel-4) var(--pixel-4);
   position: relative;
   box-sizing: content-box;
-  left: -2px;
-  border: 2px solid black;
+  left: calc(-2 * var(--pixel));
+  border: var(--pixel) solid black;
   height: var(--game-width);
   width: var(--game-width);
 }
 .board .block {
   box-shadow: none;
   position: absolute;
-  transition: all 0.2s ease-in;
   height: var(--block-size);
   width: var(--block-size);
 }
-.block ul {
+.board .block ul {
   line-height: 1;
+}
+.game .energy {
+  background-color: darkslategray;
+  flex-basis: var(--pixel-9);
+}
+.energy .value {
 }
