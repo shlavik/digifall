@@ -77,9 +77,12 @@ button:focus {
   position: relative;
   box-sizing: border-box;
   margin: auto;
-  border: var(--pixel) solid black;
+  /* border: var(--pixel) solid black; */
   height: 100vh;
   width: var(--game-width);
+}
+.game .digifall {
+  flex-basis: var(--block-size);
 }
 .game .board {
   background: darkgray
@@ -91,8 +94,8 @@ button:focus {
   background-size: var(--pixel-4) var(--pixel-4);
   position: relative;
   box-sizing: content-box;
-  left: calc(-2 * var(--pixel));
-  border: var(--pixel) solid black;
+  /* left: calc(-2 * var(--pixel)); */
+  /* border: var(--pixel) solid black; */
   height: var(--game-width);
   width: var(--game-width);
 }
@@ -101,10 +104,10 @@ button:focus {
   position: absolute;
   height: var(--block-size);
   width: var(--block-size);
-  perspective: 640px;
+  /* perspective: 640px; */
 }
 .board .block:hover {
-  transform: rotateY(180deg);
+  /* transform: rotateY(180deg); */
   z-index: 1000;
 }
 .board .block ul {

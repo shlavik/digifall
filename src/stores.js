@@ -37,14 +37,4 @@ const shake = writable(0);
 
 const sfx = writable(0);
 
-export {
-  score,
-  hiScore,
-  phase,
-  blocks,
-  field,
-  getDefaultField,
-  energy,
-  shake,
-  sfx
-};
+export { score, hiScore, phase, blocks, field, getDefaultField, energy, shake, sfx };

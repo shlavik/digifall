@@ -4,46 +4,37 @@
 
   const getFieldFromBlocks = (blocks, type = "index") => {
     const newField = getDefaultField();
-    blocks.forEach((block, index) => {
-      newField[block.x][block.y] = type === "index" ? index : block.type;
-    });
+    blocks.forEach(
+      (block, index) =>
+        (newField[block.x][block.y] = type === "index" ? index : block.type)
+    );
     return newField;
   };
 
-  phase.subscribe(value => {
-    if (value === "fall") field.set(getFieldFromBlocks($blocks, "index"));
-    else if (value === "count") field.set(getFieldFromBlocks($blocks, "type"));
+  blocks.subscribe(value => {
+    field.set(getFieldFromBlocks(value, "index"));
   });
 
-  field.subscribe(value => {
-    if ($phase === "fall") {
+  phase.subscribe(value => {
+    if (value === "fall") {
       let newBlocks = [];
-      let countX = 0;
-      for (let x in value) {
+      for (let x in $field) {
         let countY = 0;
-        for (let y in value[x]) {
-          const blockIndex = value[x][y];
+        for (let y in $field[x]) {
+          const blockIndex = $field[x][y];
           if (blockIndex !== undefined) {
-            const { type, duration, x, y } = $blocks[blockIndex];
+            const block = $blocks[blockIndex];
             newBlocks[blockIndex] = {
-              type,
-              duration: (1 - 0.4 * countY / 7) * countY * 75,
-              x,
+              ...block,
+              duration: (1 - (0.4 * countY) / 7) * countY * 75,
               y: y - countY
             };
           } else countY += 1;
-          countX += countY;
         }
       }
       blocks.set(newBlocks);
-    } else if ($phase === "count") {
-
     }
-  });
-
-  blocks.subscribe(value => {
-    if ($phase === "init") field.set(getFieldFromBlocks(value, "index"));
-    if ($phase === "fall") phase.set("count");
+    phase.set("count");
   });
 
   const getNameFromTarget = ({ name, parentNode }) => {
@@ -53,14 +44,11 @@
     return "?";
   };
 
-  const getNewXY = ({ x, y }) => ({
-    x,
-    y:
-      1 +
-      $blocks
-        .filter(block => block.x === x)
-        .sort(({ y: y1 }, { y: y2 }) => y1 - y2)[6].y
-  });
+  const getNewY = ({ x, y }) =>
+    1 +
+    $blocks
+      .filter(block => block.x === x)
+      .sort(({ y: y1 }, { y: y2 }) => y1 - y2)[6].y;
 </script>
 
 <div
@@ -69,7 +57,11 @@
     const blockIndex = +getNameFromTarget(target);
     if (!isNaN(blockIndex)) blocks.set($blocks.map((block, index) =>
           index === blockIndex && block.y < 7
-            ? { type: ~~(Math.random() * 10), duration: 0, ...getNewXY(block) }
+            ? {
+                ...block,
+                type: block.type === 9 ? 0 : block.type + 1,
+                duration: 0
+              }
             : block
         ));
   }}>
@@ -77,3 +69,23 @@
     <Block {...block} {index} />
   {/each}
 </div>
+
+<!-- <div
+  class="board"
+  on:click={({ target }) => {
+    const blockIndex = +getNameFromTarget(target);
+    if (!isNaN(blockIndex)) blocks.set($blocks.map((block, index) =>
+          index === blockIndex && block.y < 7
+            ? {
+                ...block,
+                type: ~~(Math.random() * 10),
+                duration: 0,
+                y: getNewY(block)
+              }
+            : block
+        ));
+  }}>
+  {#each $blocks as block, index}
+    <Block {...block} {index} />
+  {/each}
+</div> -->

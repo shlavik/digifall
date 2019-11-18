@@ -5,7 +5,7 @@
 </script>
 
 <div class="game">
-  <button class="btn waves-effect waves-light">Digifall</button>
+  <button class="btn waves-effect waves-light digifall">Digifall</button>
   <Score />
   <Board />
   <Energy />
