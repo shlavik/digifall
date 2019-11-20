@@ -1,22 +1,21 @@
 <script>
   export let index,
     type,
-    group,
     duration,
     x = 0,
     y = 0;
-
+  // LightSlateGrey
   const colors = [
-    "gray",
-    "chartreuse",
-    "gold",
-    "coral",
-    "red",
-    "fuchsia",
-    "blueviolet",
-    "dodgerblue",
-    "cyan",
-    "lightseagreen"
+    "DimGray",
+    "LawnGreen",
+    "Gold",
+    "DarkOrange",
+    "Crimson",
+    "Fuchsia",
+    "BlueViolet",
+    "DodgerBlue",
+    "Turquoise",
+    "MediumSeaGreen"
   ];
 
   $: style = `
@@ -31,6 +30,5 @@
   <ul>
     <li>I:&nbsp;{index}</li>
     <li>T:&nbsp;{type}</li>
-    <li>G:&nbsp;{group}</li>
   </ul>
 </button>

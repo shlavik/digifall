@@ -1,60 +1,3 @@
-body,
-html {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-body {
-  background-color: black;
-  color: white;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-}
-a {
-  color: #0064c8;
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: underline;
-}
-a:visited {
-  color: #0050a0;
-}
-label {
-  display: block;
-}
-button,
-input,
-select,
-textarea {
-  font-family: inherit;
-  font-size: inherit;
-  padding: 0.4em;
-  margin: 0 0 0.5em 0;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-}
-input:disabled {
-  color: #ccc;
-}
-input[type="range"] {
-  height: 0;
-}
-button {
-  color: #333;
-  background-color: #f4f4f4;
-  outline: 0;
-}
-button:active {
-  background-color: #ddd;
-}
-button:focus {
-  border-color: #666;
-}
 :root {
   --pixel: calc(100vh / 168);
   --pixel-2: calc(2 * var(--pixel));
@@ -68,16 +11,17 @@ button:focus {
 }
 .app {
   background-color: black;
+  user-select: none;
 }
 .app .game {
   background-color: lightcyan;
+  box-shadow: 0 0 25vh 5vh black;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
   box-sizing: border-box;
   margin: auto;
-  /* border: var(--pixel) solid black; */
   height: 100vh;
   width: var(--game-width);
 }
@@ -94,17 +38,15 @@ button:focus {
   background-size: var(--pixel-4) var(--pixel-4);
   position: relative;
   box-sizing: content-box;
-  /* left: calc(-2 * var(--pixel)); */
-  /* border: var(--pixel) solid black; */
   height: var(--game-width);
   width: var(--game-width);
 }
 .board .block {
   box-shadow: none;
   position: absolute;
+  padding: 0;
   height: var(--block-size);
   width: var(--block-size);
-  /* perspective: 640px; */
 }
 .board .block:hover {
   /* transform: rotateY(180deg); */

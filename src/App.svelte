@@ -1,5 +1,5 @@
 <script>
-  import { phase, field, energy } from "./stores.js";
+  import { phase, energy } from "./stores.js";
   import { shuffleArray } from "./utils.js";
   import Game from "./Game.svelte";
 
@@ -22,14 +22,14 @@
 <svelte:window
   on:keypress={({ key }) => {
     console.log('keypress:', key);
-    if (key === ' ') phase.set('init');
+    if (key === 'i') phase.set('init');
     if (key === 'f') phase.set('fall');
-    if (key === 'z') console.log('field', $field);
+    if (key === 'm') phase.set('match');
     if (key === '1') energy.set(10);
     if (key === '0') energy.set(100);
   }} />
 
 <div class="app" {style}>
-  <span style="position: absolute">Phase: {$phase}</span>
+  <span style="color: white; position: absolute">Phase: {$phase}</span>
   <Game />
 </div>
