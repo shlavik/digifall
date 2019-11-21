@@ -1,5 +1,4 @@
 import { writable } from "svelte/store";
-import { getFieldUndefined } from "./utils";
 
 const score = writable(0);
 
@@ -18,12 +17,10 @@ const blocks = writable(
     }))
 );
 
-const field = writable(getFieldUndefined());
-
 const energy = writable(100);
 
 const shake = writable(0);
 
 const sfx = writable(0);
 
-export { score, hiScore, phase, blocks, field, energy, shake, sfx };
+export { score, hiScore, phase, blocks, energy, shake, sfx };

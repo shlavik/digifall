@@ -4,18 +4,18 @@
     duration,
     x = 0,
     y = 0;
-  // LightSlateGrey
+
   const colors = [
-    "DimGray",
-    "LawnGreen",
-    "Gold",
-    "DarkOrange",
-    "Crimson",
-    "Fuchsia",
-    "BlueViolet",
-    "DodgerBlue",
-    "Turquoise",
-    "MediumSeaGreen"
+    "dimgray",
+    "lawngreen",
+    "gold",
+    "darkorange",
+    "crimson",
+    "fuchsia",
+    "blueviolet",
+    "dodgerblue",
+    "turquoise",
+    "mediumseagreen"
   ];
 
   $: style = `

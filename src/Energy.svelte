@@ -3,7 +3,7 @@
 </script>
 
 <div class="energy">
-  <div class="bar">
+  <div class="bar" style={`width: ${$energy}%`}>
     <span class="value">{$energy}</span>
   </div>
 </div>

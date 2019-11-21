@@ -59,5 +59,10 @@
   background-color: darkslategray;
   flex-basis: var(--pixel-9);
 }
+.energy .bar {
+  background-color: white;
+  transition: width 200ms ease-in;
+  height: 100%;
+}
 .energy .value {
 }

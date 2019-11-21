@@ -1,28 +1,22 @@
 <script>
-  import { phase, blocks, field } from "./stores.js";
+  import { phase, blocks, energy } from "./stores.js";
   import {
     getBlocksFallen,
     getBlocksMatched,
-    getBlocksPlusOne,
-    getFieldFromBlocks,
-    getMatchedIndexes
+    getBlocksPlusOne
   } from "./utils.js";
   import Block from "./Block.svelte";
 
-  blocks.subscribe(value => {
-    field.set(getFieldFromBlocks(value, "index"));
-  });
-
   phase.subscribe(value => {
     if (value === "fall") {
-      blocks.set(getBlocksFallen($blocks, $field));
+      blocks.set(getBlocksFallen($blocks));
     } else if (value === "match") {
-      blocks.set(getBlocksMatched($blocks, $field));
+      blocks.set(getBlocksMatched($blocks, $energy, energy.set));
     }
   });
 
   const getNameFromTarget = ({ name, parentNode }) => {
-    if (!name && !parentNode) return "!";
+    if (!name && !parentNode) return;
     if (name) return name;
     if (parentNode) return getNameFromTarget(parentNode);
   };
@@ -32,7 +26,10 @@
   class="board"
   on:click={({ target }) => {
     const blockIndex = +getNameFromTarget(target);
-    if (!isNaN(blockIndex)) blocks.set(getBlocksPlusOne($blocks, blockIndex));
+    if (!isNaN(blockIndex)) {
+      blocks.set(getBlocksPlusOne($blocks, blockIndex));
+      energy.set($energy - 10);
+    }
   }}>
   {#each $blocks as block, index}
     <Block {...block} {index} />
