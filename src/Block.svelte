@@ -1,7 +1,8 @@
 <script>
   export let index,
-    type,
     duration,
+    phase,
+    type,
     x = 0,
     y = 0;
 
@@ -20,7 +21,7 @@
 
   $: style = `
     background-color: ${colors[type]};
-    transition: all ${duration}ms ease-in;
+    transition: bottom ${phase === "fall" ? duration : 0}ms ease-in;
     left: calc(${x} * var(--block-size));
     bottom: calc(${y} * var(--block-size));
   `;

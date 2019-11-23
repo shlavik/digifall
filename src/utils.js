@@ -19,17 +19,17 @@ const getBlocksFallen = blocks => {
   const result = [];
   const field = getFieldFromBlocks(blocks);
   for (let x in field) {
-    let countY = 0;
+    let counterY = 0;
     for (let y in field[x]) {
       const index = field[x][y];
       if (index !== undefined) {
         const block = blocks[index];
         result[index] = {
           ...block,
-          duration: (1 - (0.4 * countY) / 7) * countY * 75,
-          y: y - countY
+          duration: (1 - (0.4 * counterY) / 7) * counterY * 75,
+          y: y - counterY
         };
-      } else ++countY;
+      } else ++counterY;
     }
   }
   return result;
@@ -38,11 +38,11 @@ const getBlocksFallen = blocks => {
 const getMatchedIndexes = blocks => {
   const field = getFieldFromBlocks(blocks);
   let groupedArray = [];
-  let count = 0;
+  let counter = 0;
   const group = index => {
     const { type, x, y } = blocks[index];
     if (groupedArray[index]) return;
-    groupedArray[index] = { type, group: count };
+    groupedArray[index] = { type, group: counter };
     let topIndex, rightIndex, bottomIndex, leftIndex;
     if (y < 6) topIndex = field[x][y + 1];
     if (x < 6) rightIndex = field[x + 1][y];
@@ -55,7 +55,7 @@ const getMatchedIndexes = blocks => {
     if (isSameType(leftIndex)) group(leftIndex);
   };
   for (let index in blocks) {
-    ++count;
+    ++counter;
     group(index);
   }
   const groupedObject = groupedArray.reduce(
@@ -74,21 +74,16 @@ const getMatchedIndexes = blocks => {
   }, []);
 };
 
-const getBlocksMatched = (blocks, energyValue, energySet) => {
-  const matchedIndexes = getMatchedIndexes(blocks);
-  const energyDiff = matchedIndexes.reduce((result, matchedIndex) => result + blocks[matchedIndex].type, 0);
-  energySet(energyValue + energyDiff);
-  let arr = [0, 0, 0, 0, 0, 0, 0];
-  const getNewY = x => {
-    return arr[x] + blocks.filter(block => block.x === x).sort(({ y: y1 }, { y: y2 }) => y1 - y2)[6].y;
-  };
+const getBlocksMatched = (blocks, matchedIndexes) => {
+  let counters = [0, 0, 0, 0, 0, 0, 0];
+  const getNewY = x => counters[x] + blocks.filter(block => block.x === x).sort(({ y: y1 }, { y: y2 }) => y1 - y2)[6].y;
   return blocks.map((block, index) => {
     if (matchedIndexes.includes(index) && block.y < 7) {
-      ++arr[block.x];
+      ++counters[block.x];
       return {
         ...block,
-        type: ~~(Math.random() * 10),
         duration: 0,
+        type: ~~(Math.random() * 10),
         y: getNewY(block.x)
       };
     } else return block;
@@ -100,8 +95,8 @@ const getBlocksPlusOne = (blocks, plusIndex) =>
     plusIndex === blockIndex && block.y < 7
       ? {
           ...block,
-          type: block.type < 9 ? block.type + 1 : 0,
-          duration: 0
+          duration: 0,
+          type: block.type < 9 ? block.type + 1 : 0
         }
       : block
   );
@@ -114,4 +109,4 @@ const shuffleArray = array => {
   return array;
 };
 
-export { getBlocksFallen, getBlocksMatched, getBlocksPlusOne, shuffleArray };
+export { getBlocksFallen, getBlocksMatched, getBlocksPlusOne, getMatchedIndexes, shuffleArray };

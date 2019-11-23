@@ -37,12 +37,14 @@
 </svg>');
   background-size: var(--pixel-4) var(--pixel-4);
   position: relative;
+  overflow: hidden;
   box-sizing: content-box;
   height: var(--game-width);
   width: var(--game-width);
 }
 .board .block {
   box-shadow: none;
+  border-radius: 0;
   position: absolute;
   padding: 0;
   height: var(--block-size);
@@ -58,11 +60,12 @@
 .game .energy {
   background-color: darkslategray;
   flex-basis: var(--pixel-9);
+  overflow: hidden;
 }
 .energy .bar {
   background-color: white;
-  transition: width 200ms ease-in;
   height: 100%;
+  transition: width 200ms ease-in;
 }
 .energy .value {
 }

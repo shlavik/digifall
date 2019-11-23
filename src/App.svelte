@@ -22,7 +22,7 @@
 <svelte:window
   on:keypress={({ key }) => {
     console.log('keypress:', key);
-    if (key === 'i') phase.set('init');
+    if (key === 'i') phase.set('input');
     if (key === 'f') phase.set('fall');
     if (key === 'm') phase.set('match');
     if (key === '1') energy.set(10);

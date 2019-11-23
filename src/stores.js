@@ -4,14 +4,14 @@ const score = writable(0);
 
 const hiScore = writable(0);
 
-const phase = writable("init");
+const phase = writable("input");
 
 const blocks = writable(
   Array(49)
     .fill(undefined)
     .map((_, index) => ({
+      duration: 0,
       type: ~~(Math.random() * 10),
-      duration: 250,
       x: ~~(index / 7),
       y: index % 7
     }))

@@ -3,15 +3,28 @@
   import {
     getBlocksFallen,
     getBlocksMatched,
-    getBlocksPlusOne
+    getBlocksPlusOne,
+    getMatchedIndexes
   } from "./utils.js";
   import Block from "./Block.svelte";
 
   phase.subscribe(value => {
-    if (value === "fall") {
+    if (value === "match") {
+      const matchedIndexes = getMatchedIndexes($blocks);
+      if (matchedIndexes.length) {
+        const energyDiff = matchedIndexes.reduce(
+          (result, value) => result + $blocks[value].type,
+          0
+        );
+        energy.set($energy + energyDiff);
+        blocks.set(getBlocksMatched($blocks, matchedIndexes));
+        setTimeout(() => phase.set("fall"), 500);
+      } else {
+        phase.set("input");
+      }
+    } else if (value === "fall") {
       blocks.set(getBlocksFallen($blocks));
-    } else if (value === "match") {
-      blocks.set(getBlocksMatched($blocks, $energy, energy.set));
+      setTimeout(() => phase.set("match"), 500);
     }
   });
 
@@ -25,13 +38,15 @@
 <div
   class="board"
   on:click={({ target }) => {
+    if ($phase !== 'input') return;
     const blockIndex = +getNameFromTarget(target);
     if (!isNaN(blockIndex)) {
       blocks.set(getBlocksPlusOne($blocks, blockIndex));
       energy.set($energy - 10);
+      phase.set('match');
     }
   }}>
   {#each $blocks as block, index}
-    <Block {...block} {index} />
+    <Block phase={$phase} {...block} {index} />
   {/each}
 </div>
