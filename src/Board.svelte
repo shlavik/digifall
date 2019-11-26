@@ -8,9 +8,11 @@
   } from "./utils.js";
   import Block from "./Block.svelte";
 
+  let matchedIndexes = [];
+
   phase.subscribe(value => {
     if (value === "match") {
-      const matchedIndexes = getMatchedIndexes($blocks);
+      matchedIndexes = getMatchedIndexes($blocks);
       if (matchedIndexes.length) {
         const energyDiff = matchedIndexes.reduce(
           (result, value) => result + $blocks[value].type,
@@ -47,6 +49,10 @@
     }
   }}>
   {#each $blocks as block, index}
-    <Block phase={$phase} {...block} {index} />
+    <Block
+      matched={matchedIndexes.includes(index)}
+      phase={$phase}
+      {...block}
+      {index} />
   {/each}
 </div>

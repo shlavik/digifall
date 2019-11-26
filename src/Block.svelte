@@ -1,6 +1,7 @@
 <script>
   export let index,
     duration,
+    matched,
     phase,
     type,
     x = 0,
@@ -20,7 +21,8 @@
   ];
 
   $: style = `
-    background-color: ${colors[type]};
+    background-color: ${matched ? "white" : colors[type]};
+    animation: blink .1s steps(1) infinite;
     transition: bottom ${phase === "fall" ? duration : 0}ms ease-in;
     left: calc(${x} * var(--block-size));
     bottom: calc(${y} * var(--block-size));
@@ -28,8 +30,5 @@
 </script>
 
 <button class="btn waves-effect waves-light block" {style} name={index}>
-  <ul>
-    <li>I:&nbsp;{index}</li>
-    <li>T:&nbsp;{type}</li>
-  </ul>
+  <span class="value">{type}</span>
 </button>

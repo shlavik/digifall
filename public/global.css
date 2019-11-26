@@ -5,6 +5,7 @@
   --pixel-5: calc(5 * var(--pixel));
   --pixel-7: calc(7 * var(--pixel));
   --pixel-9: calc(9 * var(--pixel));
+  --pixel-10: calc(10 * var(--pixel));
   --game-width: calc(100vh * 100 / 168);
   --block-size: calc(100vh * 100 / 1176);
   --block-half: calc(100vh * 100 / 2352);
@@ -47,15 +48,20 @@
   border-radius: 0;
   position: absolute;
   padding: 0;
+  font-size: var(--pixel-10);
+  line-height: 1;
   height: var(--block-size);
   width: var(--block-size);
+}
+@keyframes blink {
+  0% {
+  }
+  50% {
+  }
 }
 .board .block:hover {
   /* transform: rotateY(180deg); */
   z-index: 1000;
-}
-.board .block ul {
-  line-height: 1;
 }
 .game .energy {
   background-color: darkslategray;
