@@ -2,4 +2,11 @@
   import { score } from "./stores.js";
 </script>
 
-<span>{$score}</span>
+<style>
+  .score {
+    font-size: var(--pixel-7);
+    line-height: 1;
+  }
+</style>
+
+<span class="score">{$score}</span>

@@ -11,22 +11,25 @@
   let matchedIndexes = [];
 
   phase.subscribe(value => {
-    if (value === "match") {
+    if (value === "count") {
       matchedIndexes = getMatchedIndexes($blocks);
       if (matchedIndexes.length) {
-        const energyDiff = matchedIndexes.reduce(
-          (result, value) => result + $blocks[value].type,
-          0
-        );
-        energy.set($energy + energyDiff);
-        blocks.set(getBlocksMatched($blocks, matchedIndexes));
-        setTimeout(() => phase.set("fall"), 500);
+        setTimeout(() => phase.set("match"), 600);
       } else {
         phase.set("input");
       }
+    } else if (value === "match") {
+      const energyDiff = matchedIndexes.reduce(
+        (result, value) => result + $blocks[value].type,
+        0
+      );
+      energy.set($energy + energyDiff);
+      blocks.set(getBlocksMatched($blocks, matchedIndexes));
+      setTimeout(() => phase.set("fall"), 600);
     } else if (value === "fall") {
+      matchedIndexes = [];
       blocks.set(getBlocksFallen($blocks));
-      setTimeout(() => phase.set("match"), 500);
+      setTimeout(() => phase.set("count"), 400);
     }
   });
 
@@ -37,6 +40,24 @@
   };
 </script>
 
+<style>
+  .board {
+    background: darkgray
+      url('data:image/svg+xml,\
+<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity="0.5">\
+  <rect x="4" width="4" height="4" />\
+  <rect y="4" width="4" height="4" />\
+</svg>');
+    background-size: var(--pixel-4) var(--pixel-4);
+    border: var(--pixel) solid white;
+    box-sizing: border-box;
+    height: var(--game-width);
+    overflow: hidden;
+    position: relative;
+    width: var(--game-width);
+  }
+</style>
+
 <div
   class="board"
   on:click={({ target }) => {
@@ -45,7 +66,7 @@
     if (!isNaN(blockIndex)) {
       blocks.set(getBlocksPlusOne($blocks, blockIndex));
       energy.set($energy - 10);
-      phase.set('match');
+      phase.set('count');
     }
   }}>
   {#each $blocks as block, index}

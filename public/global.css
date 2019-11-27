@@ -1,77 +1,22 @@
 :root {
   --pixel: calc(100vh / 168);
-  --pixel-2: calc(2 * var(--pixel));
   --pixel-4: calc(4 * var(--pixel));
-  --pixel-5: calc(5 * var(--pixel));
   --pixel-7: calc(7 * var(--pixel));
   --pixel-9: calc(9 * var(--pixel));
   --pixel-10: calc(10 * var(--pixel));
-  --game-width: calc(100vh * 100 / 168);
-  --block-size: calc(100vh * 100 / 1176);
-  --block-half: calc(100vh * 100 / 2352);
+  --block-size: calc(14 * var(--pixel));
+  --game-width: calc(100 * var(--pixel));
 }
-.app {
+body {
   background-color: black;
+  margin: 0;
   user-select: none;
 }
-.app .game {
-  background-color: lightcyan;
-  box-shadow: 0 0 25vh 5vh black;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-  box-sizing: border-box;
-  margin: auto;
-  height: 100vh;
-  width: var(--game-width);
-}
-.game .digifall {
-  flex-basis: var(--block-size);
-}
-.game .board {
-  background: darkgray
-    url('data:image/svg+xml,\
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill-opacity=".5">\
-  <rect x="32" width="32" height="32" />\
-  <rect y="32" width="32" height="32" />\
-</svg>');
-  background-size: var(--pixel-4) var(--pixel-4);
-  position: relative;
-  overflow: hidden;
-  box-sizing: content-box;
-  height: var(--game-width);
-  width: var(--game-width);
-}
-.board .block {
-  box-shadow: none;
+button {
   border-radius: 0;
-  position: absolute;
-  padding: 0;
-  font-size: var(--pixel-10);
-  line-height: 1;
-  height: var(--block-size);
-  width: var(--block-size);
+  border: none;
+  outline: 0;
 }
-@keyframes blink {
-  0% {
-  }
-  50% {
-  }
-}
-.board .block:hover {
-  /* transform: rotateY(180deg); */
-  z-index: 1000;
-}
-.game .energy {
-  background-color: darkslategray;
-  flex-basis: var(--pixel-9);
-  overflow: hidden;
-}
-.energy .bar {
-  background-color: white;
-  height: 100%;
-  transition: width 200ms ease-in;
-}
-.energy .value {
+button:hover {
+  cursor: pointer;
 }
