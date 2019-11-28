@@ -11,7 +11,7 @@
   let matchedIndexes = [];
 
   phase.subscribe(value => {
-    if (value === "count") {
+    if (value === "blink") {
       matchedIndexes = getMatchedIndexes($blocks);
       if (matchedIndexes.length) {
         setTimeout(() => phase.set("match"), 600);
@@ -29,14 +29,13 @@
     } else if (value === "fall") {
       matchedIndexes = [];
       blocks.set(getBlocksFallen($blocks));
-      setTimeout(() => phase.set("count"), 400);
+      setTimeout(() => phase.set("blink"), 400);
     }
   });
 
-  const getNameFromTarget = ({ name, parentNode }) => {
-    if (!name && !parentNode) return;
-    if (name) return name;
-    if (parentNode) return getNameFromTarget(parentNode);
+  const getTargetDataIndex = ({ dataset, parentNode }) => {
+    if (dataset && dataset.index) return dataset.index;
+    if (parentNode) return getTargetDataIndex(parentNode);
   };
 </script>
 
@@ -62,11 +61,11 @@
   class="board"
   on:click={({ target }) => {
     if ($phase !== 'input') return;
-    const blockIndex = +getNameFromTarget(target);
-    if (!isNaN(blockIndex)) {
-      blocks.set(getBlocksPlusOne($blocks, blockIndex));
+    const blockIndex = getTargetDataIndex(target);
+    if (blockIndex) {
+      blocks.set(getBlocksPlusOne($blocks, +blockIndex));
       energy.set($energy - 10);
-      phase.set('count');
+      phase.set('blink');
     }
   }}>
   {#each $blocks as block, index}

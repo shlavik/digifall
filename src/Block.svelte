@@ -16,25 +16,47 @@
 
 <style>
   .block {
-    background-color: var(--color);
-    box-shadow: none;
-    color: white;
-    font-size: var(--pixel-10);
     height: var(--block-size);
-    line-height: 1;
-    padding: 0;
     position: absolute;
     width: var(--block-size);
   }
   .block:hover {
     /* transform: rotateY(180deg); */
-    box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.14), 0 1px 7px 0 rgba(0, 0, 0, 0.12),
-      0 3px 1px -1px rgba(0, 0, 0, 0.2);
-    z-index: 100;
+    cursor: pointer;
+    z-index: 2;
   }
-  .block:hover:active {
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-      0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+  .block:before {
+    box-shadow: var(--shadow-2);
+    content: "";
+    display: block;
+    height: var(--block-size);
+    position: absolute;
+    width: var(--block-size);
+  }
+  .block:hover:before {
+    box-shadow: var(--shadow-1);
+  }
+  .block:active:before {
+    box-shadow: none;
+  }
+  .block:after {
+    background-color: var(--color);
+    content: "";
+    display: block;
+    height: var(--block-size);
+    position: absolute;
+    top: 0;
+    width: var(--block-size);
+    z-index: 1;
+  }
+  .value {
+    color: white;
+    font-size: var(--pixel-10);
+    line-height: var(--block-size);
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    z-index: 2;
   }
   .type0 {
     --color: dimgray;
@@ -66,19 +88,21 @@
   .type9 {
     --color: mediumseagreen;
   }
-  .matched {
+  .matched:after {
     animation: blink 200ms infinite;
   }
   @keyframes blink {
     from {
       background-color: white;
+      color: var(--color);
     }
     to {
       background-color: var(--color);
+      color: white;
     }
   }
 </style>
 
-<button class="block type{type}" class:matched {style} name={index}>
+<div class="block type{type}" class:matched {style} data-index={index}>
   <span class="value">{type}</span>
-</button>
+</div>

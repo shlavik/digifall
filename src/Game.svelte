@@ -5,7 +5,7 @@
   import Score from "./Score.svelte";
 
   $: {
-    if ($phase === "match" && $energy < 10) alert("GAME OVER");
+    if ($phase === "input" && $energy < 10) alert("GAME OVER");
   }
 </script>
 
