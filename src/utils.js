@@ -9,23 +9,23 @@ const getFieldUndefined = () => {
   return [arr1, arr2, arr3, arr4, arr5, arr6, arr7];
 };
 
-const getFieldFromBlocks = (blocks, type = "index") => {
-  const newField = getFieldUndefined();
-  blocks.forEach((block, index) => (newField[block.x][block.y] = type === "index" ? index : block.type));
-  return newField;
+const getFieldIndexes = cards => {
+  const field = getFieldUndefined();
+  cards.forEach((card, index) => (field[card.x][card.y] = index));
+  return field;
 };
 
-const getBlocksFallen = blocks => {
+const getCardsFallen = cards => {
   const result = [];
-  const field = getFieldFromBlocks(blocks);
+  const field = getFieldIndexes(cards);
   for (let x in field) {
     let counterY = 0;
     for (let y in field[x]) {
       const index = field[x][y];
       if (index !== undefined) {
-        const block = blocks[index];
+        const card = cards[index];
         result[index] = {
-          ...block,
+          ...card,
           duration: (1 - (0.4 * counterY) / 7) * counterY * 75,
           y: y - counterY
         };
@@ -35,12 +35,12 @@ const getBlocksFallen = blocks => {
   return result;
 };
 
-const getMatchedIndexes = blocks => {
-  const field = getFieldFromBlocks(blocks);
+const getMatchedIndexes = cards => {
+  const field = getFieldIndexes(cards);
   let groupedArray = [];
   let counter = 0;
   const group = index => {
-    const { type, x, y } = blocks[index];
+    const { type, x, y } = cards[index];
     if (groupedArray[index]) return;
     groupedArray[index] = { type, group: counter };
     let topIndex, rightIndex, bottomIndex, leftIndex;
@@ -48,13 +48,13 @@ const getMatchedIndexes = blocks => {
     if (x < 6) rightIndex = field[x + 1][y];
     if (y > 0) bottomIndex = field[x][y - 1];
     if (x > 0) leftIndex = field[x - 1][y];
-    const isSameType = index => index && blocks[index].type === type;
+    const isSameType = index => index && cards[index].type === type;
     if (isSameType(topIndex)) group(topIndex);
     if (isSameType(rightIndex)) group(rightIndex);
     if (isSameType(bottomIndex)) group(bottomIndex);
     if (isSameType(leftIndex)) group(leftIndex);
   };
-  for (let index in blocks) {
+  for (let index in cards) {
     ++counter;
     group(index);
   }
@@ -74,31 +74,31 @@ const getMatchedIndexes = blocks => {
   }, []);
 };
 
-const getBlocksMatched = (blocks, matchedIndexes) => {
+const getCardsMatched = (cards, matchedIndexes) => {
   let counters = [0, 0, 0, 0, 0, 0, 0];
-  const getNewY = x => counters[x] + blocks.filter(block => block.x === x).sort(({ y: y1 }, { y: y2 }) => y1 - y2)[6].y;
-  return blocks.map((block, index) => {
-    if (matchedIndexes.includes(index) && block.y < 7) {
-      ++counters[block.x];
+  const getNewY = x => counters[x] + cards.filter(card => card.x === x).sort(({ y: y1 }, { y: y2 }) => y1 - y2)[6].y;
+  return cards.map((card, index) => {
+    if (matchedIndexes.includes(index) && card.y < 7) {
+      ++counters[card.x];
       return {
-        ...block,
+        ...card,
         duration: 0,
         type: ~~(Math.random() * 10),
-        y: getNewY(block.x)
+        y: getNewY(card.x)
       };
-    } else return block;
+    } else return card;
   });
 };
 
-const getBlocksPlusOne = (blocks, plusIndex) =>
-  blocks.map((block, blockIndex) =>
-    plusIndex === blockIndex && block.y < 7
+const getCardsPlusOne = (cards, plusIndex) =>
+  cards.map((card, cardIndex) =>
+    plusIndex === cardIndex && card.y < 7
       ? {
-          ...block,
+          ...card,
           duration: 0,
-          type: block.type < 9 ? block.type + 1 : 0
+          type: card.type < 9 ? card.type + 1 : 0
         }
-      : block
+      : card
   );
 
 const shuffleArray = array => {
@@ -109,4 +109,4 @@ const shuffleArray = array => {
   return array;
 };
 
-export { getBlocksFallen, getBlocksMatched, getBlocksPlusOne, getMatchedIndexes, shuffleArray };
+export { getCardsFallen, getCardsMatched, getCardsPlusOne, getMatchedIndexes, shuffleArray };

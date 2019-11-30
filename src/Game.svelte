@@ -3,15 +3,11 @@
   import Board from "./Board.svelte";
   import Energy from "./Energy.svelte";
   import Score from "./Score.svelte";
-
-  $: {
-    if ($phase === "input" && $energy < 10) alert("GAME OVER");
-  }
 </script>
 
 <style>
   .game {
-    background-color: gray;
+    background-color: dimgray;
     box-shadow: 0 0 25vh 5vh black;
     display: flex;
     flex-direction: column;
@@ -23,7 +19,7 @@
   }
   .digifall {
     background-color: white;
-    flex-basis: var(--block-size);
+    flex-basis: var(--card-size);
   }
 </style>
 

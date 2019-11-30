@@ -6,6 +6,7 @@
   .score {
     font-size: var(--pixel-7);
     line-height: 1;
+    text-align: right;
   }
 </style>
 

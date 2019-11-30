@@ -1,35 +1,49 @@
 <script>
-  import { phase, blocks, energy } from "./stores.js";
+  import { cards, energy, phase } from "./stores.js";
   import {
-    getBlocksFallen,
-    getBlocksMatched,
-    getBlocksPlusOne,
+    getCardsFallen,
+    getCardsMatched,
+    getCardsPlusOne,
     getMatchedIndexes
   } from "./utils.js";
-  import Block from "./Block.svelte";
+  import Card from "./Card.svelte";
 
+  let plusIndex;
   let matchedIndexes = [];
 
   phase.subscribe(value => {
-    if (value === "blink") {
-      matchedIndexes = getMatchedIndexes($blocks);
-      if (matchedIndexes.length) {
-        setTimeout(() => phase.set("match"), 600);
-      } else {
-        phase.set("input");
-      }
-    } else if (value === "match") {
-      const energyDiff = matchedIndexes.reduce(
-        (result, value) => result + $blocks[value].type,
-        0
-      );
-      energy.set($energy + energyDiff);
-      blocks.set(getBlocksMatched($blocks, matchedIndexes));
-      setTimeout(() => phase.set("fall"), 600);
-    } else if (value === "fall") {
-      matchedIndexes = [];
-      blocks.set(getBlocksFallen($blocks));
-      setTimeout(() => phase.set("blink"), 400);
+    switch (value) {
+      case "plus":
+        cards.set(getCardsPlusOne($cards, plusIndex));
+        phase.set("blink");
+        break;
+      case "blink":
+        plusIndex = undefined;
+        matchedIndexes = getMatchedIndexes($cards);
+        if (matchedIndexes.length) {
+          setTimeout(() => phase.set("match"), 600);
+        } else if ($energy < 10) {
+          phase.set("gameover");
+        } else {
+          phase.set("input");
+        }
+        break;
+      case "match":
+        const energyDiff = matchedIndexes.reduce(
+          (result, value) => result + $cards[value].type,
+          0
+        );
+        energy.set($energy + energyDiff);
+        cards.set(getCardsMatched($cards, matchedIndexes));
+        matchedIndexes = [];
+        setTimeout(() => phase.set("fall"), 600);
+        break;
+      case "fall":
+        cards.set(getCardsFallen($cards));
+        setTimeout(() => phase.set("blink"), 400);
+        break;
+      case "gameover":
+        alert("GAME OVER");
     }
   });
 
@@ -41,7 +55,7 @@
 
 <style>
   .board {
-    background: darkgray
+    background: dimgray
       url('data:image/svg+xml,\
 <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity="0.5">\
   <rect x="4" width="4" height="4" />\
@@ -60,18 +74,18 @@
 <div
   class="board"
   on:click={({ target }) => {
-    if ($phase !== 'input') return;
-    const blockIndex = getTargetDataIndex(target);
-    if (blockIndex) {
-      blocks.set(getBlocksPlusOne($blocks, +blockIndex));
+    if ($phase !== 'input' || plusIndex) return;
+    plusIndex = +getTargetDataIndex(target);
+    if (!isNaN(plusIndex)) {
       energy.set($energy - 10);
-      phase.set('blink');
+      setTimeout(() => phase.set('plus'), 600);
     }
   }}>
-  {#each $blocks as block, index}
-    <Block
-      matched={matchedIndexes.includes(index)}
+  {#each $cards as block, index}
+    <Card
       phase={$phase}
+      plused={plusIndex === index}
+      matched={matchedIndexes.includes(index)}
       {...block}
       {index} />
   {/each}

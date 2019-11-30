@@ -6,7 +6,7 @@ const hiScore = writable(0);
 
 const phase = writable("input");
 
-const blocks = writable(
+const cards = writable(
   Array(49)
     .fill(undefined)
     .map((_, index) => ({
@@ -23,4 +23,4 @@ const shake = writable(0);
 
 const sfx = writable(0);
 
-export { score, hiScore, phase, blocks, energy, shake, sfx };
+export { score, hiScore, phase, cards, energy, shake, sfx };
