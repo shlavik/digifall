@@ -47,13 +47,13 @@
   }
   .plused {
     box-shadow: var(--shadow-1);
-    perspective: var(--pixel-50);
+    perspective: var(--game-width);
     z-index: 2;
   }
   .plused .value {
     transform-style: preserve-3d;
     transform: rotateY(-180deg);
-    transition: transform 600ms cubic-bezier(0.19, 1, 0.22, 1);
+    transition: transform 400ms ease;
   }
   .matched .current {
     animation: blink 200ms infinite;

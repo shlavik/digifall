@@ -21,7 +21,7 @@
         plusIndex = undefined;
         matchedIndexes = getMatchedIndexes($cards);
         if (matchedIndexes.length) {
-          setTimeout(() => phase.set("match"), 600);
+          window.setTimeout(() => phase.set("match"), 600);
         } else if ($energy < 10) {
           phase.set("gameover");
         } else {
@@ -36,11 +36,11 @@
         energy.set($energy + energyDiff);
         cards.set(getCardsMatched($cards, matchedIndexes));
         matchedIndexes = [];
-        setTimeout(() => phase.set("fall"), 600);
+        window.setTimeout(() => phase.set("fall"), 600);
         break;
       case "fall":
         cards.set(getCardsFallen($cards));
-        setTimeout(() => phase.set("blink"), 400);
+        window.setTimeout(() => phase.set("blink"), 400);
         break;
       case "gameover":
         alert("GAME OVER");
@@ -78,7 +78,7 @@
     plusIndex = +getTargetDataIndex(target);
     if (!isNaN(plusIndex)) {
       energy.set($energy - 10);
-      setTimeout(() => phase.set('plus'), 600);
+      window.setTimeout(() => phase.set('plus'), 400);
     }
   }}>
   {#each $cards as block, index}
