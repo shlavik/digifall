@@ -56,7 +56,7 @@
     transition: transform 400ms ease;
   }
   .matched .current {
-    animation: blink 200ms infinite;
+    animation: blink 100ms infinite;
   }
   .type0 {
     --color: gray;

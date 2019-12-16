@@ -21,7 +21,7 @@
         plusIndex = undefined;
         matchedIndexes = getMatchedIndexes($cards);
         if (matchedIndexes.length) {
-          window.setTimeout(() => phase.set("match"), 600);
+          window.setTimeout(() => phase.set("match"), 400);
         } else if ($energy < 10) {
           phase.set("gameover");
         } else {
@@ -56,11 +56,7 @@
 <style>
   .board {
     background: dimgray
-      url('data:image/svg+xml,\
-<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity="0.5">\
-  <rect x="4" width="4" height="4" />\
-  <rect y="4" width="4" height="4" />\
-</svg>');
+      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity="0.5"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
     background-size: var(--pixel-4) var(--pixel-4);
     border: var(--pixel) solid white;
     box-sizing: border-box;
@@ -81,12 +77,12 @@
       window.setTimeout(() => phase.set('plus'), 400);
     }
   }}>
-  {#each $cards as block, index}
+  {#each $cards as card, index}
     <Card
       phase={$phase}
       plused={plusIndex === index}
       matched={matchedIndexes.includes(index)}
-      {...block}
+      {...card}
       {index} />
   {/each}
 </div>

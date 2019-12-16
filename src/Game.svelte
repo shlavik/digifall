@@ -1,5 +1,4 @@
 <script>
-  import { phase, energy } from "./stores.js";
   import Board from "./Board.svelte";
   import Energy from "./Energy.svelte";
   import Score from "./Score.svelte";

@@ -6,16 +6,14 @@
     "dev": "rollup -c -w",
     "start": "sirv public"
   },
-  "dependencies": {
-    "sirv-cli": "^0.4.5"
-  },
   "devDependencies": {
-    "rollup": "^1.27.6",
+    "rollup": "^1.27.13",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-livereload": "^1.0.4",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-svelte": "^5.1.1",
-    "rollup-plugin-terser": "^5.1.2",
-    "svelte": "^3.16.0"
+    "rollup-plugin-terser": "^5.1.3",
+    "sirv-cli": "^0.4.5",
+    "svelte": "^3.16.4"
   }
 }
