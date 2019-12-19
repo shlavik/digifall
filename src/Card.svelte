@@ -4,11 +4,11 @@
     plused,
     matched,
     duration,
-    type,
+    value,
     x = 0,
     y = 0;
 
-  $: nextType = type < 9 ? type + 1 : 0;
+  $: nextType = value < 9 ? value + 1 : 0;
 
   $: style = `
     transition: bottom ${phase === "fall" ? duration : 0}ms ease-in;
@@ -58,34 +58,34 @@
   .matched .current {
     animation: blink 100ms infinite;
   }
-  .type0 {
+  .value0 {
     --color: gray;
   }
-  .type1 {
+  .value1 {
     --color: lawngreen;
   }
-  .type2 {
+  .value2 {
     --color: gold;
   }
-  .type3 {
+  .value3 {
     --color: darkorange;
   }
-  .type4 {
+  .value4 {
     --color: crimson;
   }
-  .type5 {
+  .value5 {
     --color: fuchsia;
   }
-  .type6 {
+  .value6 {
     --color: blueviolet;
   }
-  .type7 {
+  .value7 {
     --color: dodgerblue;
   }
-  .type8 {
+  .value8 {
     --color: turquoise;
   }
-  .type9 {
+  .value9 {
     --color: mediumseagreen;
   }
   @keyframes blink {
@@ -102,7 +102,7 @@
 
 <div class="card" class:plused class:matched {style} data-index={index}>
   <div class="value">
-    <div class="current type{type}">{type}</div>
-    <div class="next type{nextType}">{nextType}</div>
+    <div class="current value{value}">{value}</div>
+    <div class="next value{nextType}">{nextType}</div>
   </div>
 </div>

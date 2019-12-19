@@ -30,7 +30,7 @@
         break;
       case "match":
         const energyDiff = matchedIndexes.reduce(
-          (result, value) => result + $cards[value].type,
+          (result, value) => result + $cards[value].value,
           0
         );
         energy.set($energy + energyDiff);
@@ -71,8 +71,8 @@
   class="board"
   on:click={({ target }) => {
     if ($phase !== 'input' || plusIndex) return;
-    plusIndex = +getTargetDataIndex(target);
-    if (!isNaN(plusIndex)) {
+    plusIndex = Number(getTargetDataIndex(target));
+    if (typeof plusIndex === 'number') {
       energy.set($energy - 10);
       window.setTimeout(() => phase.set('plus'), 400);
     }
