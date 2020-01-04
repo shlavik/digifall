@@ -8,7 +8,7 @@
     x = 0,
     y = 0;
 
-  $: nextType = value < 9 ? value + 1 : 0;
+  $: nextValue = value < 9 ? value + 1 : 0;
 
   $: style = `
     transition: bottom ${phase === "fall" ? duration : 0}ms ease-in;
@@ -103,6 +103,6 @@
 <div class="card" class:plused class:matched {style} data-index={index}>
   <div class="value">
     <div class="current value{value}">{value}</div>
-    <div class="next value{nextType}">{nextType}</div>
+    <div class="next value{nextValue}">{nextValue}</div>
   </div>
 </div>

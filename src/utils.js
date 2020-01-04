@@ -114,11 +114,11 @@ export const getMatchedIndexes = cards => {
     if (x < 6) rightIndex = field[x + 1][y];
     if (y > 0) bottomIndex = field[x][y - 1];
     if (x > 0) leftIndex = field[x - 1][y];
-    const isSameType = index => index && cards[index].value === value;
-    if (isSameType(topIndex)) group(topIndex);
-    if (isSameType(rightIndex)) group(rightIndex);
-    if (isSameType(bottomIndex)) group(bottomIndex);
-    if (isSameType(leftIndex)) group(leftIndex);
+    const isSameValue = index => index && cards[index].value === value;
+    if (isSameValue(topIndex)) group(topIndex);
+    if (isSameValue(rightIndex)) group(rightIndex);
+    if (isSameValue(bottomIndex)) group(bottomIndex);
+    if (isSameValue(leftIndex)) group(leftIndex);
   };
   for (let index in cards) {
     ++count;
