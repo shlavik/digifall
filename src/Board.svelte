@@ -25,6 +25,7 @@
         } else if ($energy < 10) {
           phase.set("gameover");
         } else {
+          if ($energy > 100) energy.set(100);
           phase.set("input");
         }
         break;
@@ -66,7 +67,7 @@
   .board {
     background: dimgray
       url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity="0.5"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
-    background-size: var(--pixel-4) var(--pixel-4);
+    background-size: var(--pixel-3) var(--pixel-3);
     border: var(--pixel) solid white;
     box-sizing: border-box;
     height: var(--game-width);

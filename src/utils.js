@@ -43,13 +43,13 @@ const getNumberFromString = seed => {
 const getNewCardValue = createGetNewCardValue(getNumberFromString(prompt("What seed is now?")));
 
 export const getFieldUndefined = () => {
-  const arr1 = Array(14).fill(undefined);
-  const arr2 = Array(14).fill(undefined);
-  const arr3 = Array(14).fill(undefined);
-  const arr4 = Array(14).fill(undefined);
-  const arr5 = Array(14).fill(undefined);
-  const arr6 = Array(14).fill(undefined);
-  const arr7 = Array(14).fill(undefined);
+  const arr1 = Array(14).fill();
+  const arr2 = Array(14).fill();
+  const arr3 = Array(14).fill();
+  const arr4 = Array(14).fill();
+  const arr5 = Array(14).fill();
+  const arr6 = Array(14).fill();
+  const arr7 = Array(14).fill();
   return [arr1, arr2, arr3, arr4, arr5, arr6, arr7];
 };
 
@@ -60,12 +60,12 @@ export const getFieldIndexes = cards => {
 };
 
 export const getFieldRandom = () =>
-  Array(49)
+  Array(36)
     .fill(undefined)
     .map((_, index) => ({
-      x: Math.floor(index / 7),
-      y: index % 7,
-      value: getNewCardValue(Math.floor(index / 7)),
+      x: Math.floor(index / 6),
+      y: index % 6,
+      value: getNewCardValue(Math.floor(index / 6)),
       duration: 0
     }));
 
@@ -110,8 +110,8 @@ export const getMatchedIndexes = cards => {
     if (groupedArray[index]) return;
     groupedArray[index] = { value, group: count };
     let topIndex, rightIndex, bottomIndex, leftIndex;
-    if (y < 6) topIndex = field[x][y + 1];
-    if (x < 6) rightIndex = field[x + 1][y];
+    if (y < 5) topIndex = field[x][y + 1];
+    if (x < 5) rightIndex = field[x + 1][y];
     if (y > 0) bottomIndex = field[x][y - 1];
     if (x > 0) leftIndex = field[x - 1][y];
     const isSameValue = index => index && cards[index].value === value;
@@ -141,10 +141,10 @@ export const getMatchedIndexes = cards => {
 };
 
 export const getCardsMatched = (cards, matchedIndexes) => {
-  let counts = [0, 0, 0, 0, 0, 0, 0];
-  const getNewY = x => counts[x] + cards.filter(card => card.x === x).sort(({ y: y1 }, { y: y2 }) => y1 - y2)[6].y;
+  let counts = [0, 0, 0, 0, 0, 0];
+  const getNewY = x => counts[x] + cards.filter(card => card.x === x).sort(({ y: y1 }, { y: y2 }) => y1 - y2)[5].y;
   return cards.map((card, index) => {
-    if (matchedIndexes.includes(index) && card.y < 7) {
+    if (matchedIndexes.includes(index) && card.y < 6) {
       ++counts[card.x];
       return {
         x: card.x,
@@ -158,7 +158,7 @@ export const getCardsMatched = (cards, matchedIndexes) => {
 
 export const getCardsPlusOne = (cards, plusIndex) =>
   cards.map((card, cardIndex) =>
-    plusIndex === cardIndex && card.y < 7
+    plusIndex === cardIndex && card.y < 6
       ? {
           x: card.x,
           y: card.y,
@@ -167,3 +167,9 @@ export const getCardsPlusOne = (cards, plusIndex) =>
         }
       : card
   );
+
+export const getRandomColor = (lightness = 5) => `hsl(${Math.floor(Math.random() * 360)},100%,${lightness}%)`;
+
+export const getScreenRatio = () => window.innerHeight / window.innerWidth;
+
+export const isMobile = () => getScreenRatio() > 1.72;

@@ -1,11 +1,11 @@
 :root {
-  --pixel: calc(100vh / 168);
-  --pixel-4: calc(4 * var(--pixel));
+  --pixel: calc(100vh / 220);
+  --pixel-3: calc(3 * var(--pixel));
   --pixel-7: calc(7 * var(--pixel));
   --pixel-9: calc(9 * var(--pixel));
   --pixel-10: calc(10 * var(--pixel));
-  --card-size: calc(14 * var(--pixel));
-  --game-width: calc(100 * var(--pixel));
+  --card-size: calc(21 * var(--pixel));
+  --game-width: calc(128 * var(--pixel));
   --shadow-1: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
   --shadow-2: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
   --shadow-3: 0 8px 17px 2px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);

@@ -15,7 +15,7 @@
 
 <style>
   .game {
-    background-color: dimgray;
+    background-color: hsl(60, 20%, 50%);
     box-shadow: 0 0 25vh 5vh black;
     display: flex;
     flex-direction: column;

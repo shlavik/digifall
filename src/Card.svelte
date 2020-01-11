@@ -61,34 +61,34 @@
     animation: blink 100ms infinite;
   }
   .value0 {
-    --color: gray;
+    --color: hsl(60, 20%, 30%);
   }
   .value1 {
-    --color: lawngreen;
+    --color: hsl(90, 100%, 55%);
   }
   .value2 {
-    --color: gold;
+    --color: hsl(48, 100%, 50%);
   }
   .value3 {
-    --color: darkorange;
+    --color: hsl(28, 100%, 50%);
   }
   .value4 {
-    --color: crimson;
+    --color: hsl(2, 100%, 50%);
   }
   .value5 {
-    --color: fuchsia;
+    --color: hsl(338, 100%, 65%);
   }
   .value6 {
-    --color: blueviolet;
+    --color: hsl(296, 100%, 40%);
   }
   .value7 {
-    --color: dodgerblue;
+    --color: hsl(248, 100%, 60%);
   }
   .value8 {
-    --color: turquoise;
+    --color: hsl(204, 100%, 55%);
   }
   .value9 {
-    --color: mediumseagreen;
+    --color: hsl(144, 80%, 40%);
   }
   @keyframes blink {
     from {
