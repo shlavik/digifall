@@ -84,18 +84,18 @@ export const getCardsFallen = cards => {
   const result = [];
   const field = getFieldIndexes(cards);
   for (let x in field) {
-    let countY = 0;
+    let count = 0;
     for (let y in field[x]) {
       const index = field[x][y];
       if (index !== undefined) {
         const card = cards[index];
         result[index] = {
           x: card.x,
-          y: y - countY,
+          y: y - count,
           value: card.value,
-          duration: (1 - (0.4 * countY) / 7) * countY * 75
+          duration: 100 * Math.sqrt(2 * count)
         };
-      } else ++countY;
+      } else ++count;
     }
   }
   return result;

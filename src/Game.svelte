@@ -2,6 +2,15 @@
   import Board from "./Board.svelte";
   import Energy from "./Energy.svelte";
   import Score from "./Score.svelte";
+
+  const handleFullscreenSwitch = () => {
+    const { documentElement, fullscreen } = document;
+    if (fullscreen) {
+      document.exitFullscreen();
+    } else {
+      documentElement.requestFullscreen();
+    }
+  };
 </script>
 
 <style>
@@ -23,7 +32,7 @@
 </style>
 
 <div class="game">
-  <button class="digifall">Digifall</button>
+  <button class="digifall" on:click={handleFullscreenSwitch}>Digifall</button>
   <Score />
   <Board />
   <Energy />

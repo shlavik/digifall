@@ -51,6 +51,15 @@
     if (dataset && dataset.index) return dataset.index;
     if (parentNode) return getTargetDataIndex(parentNode);
   };
+
+  const handleBoardClick = ({ target }) => {
+    if ($phase !== "input" || plusIndex) return;
+    plusIndex = Number(getTargetDataIndex(target));
+    if (typeof plusIndex === "number") {
+      energy.set($energy - 10);
+      window.setTimeout(() => phase.set("plus"), 400);
+    }
+  };
 </script>
 
 <style>
@@ -67,16 +76,7 @@
   }
 </style>
 
-<div
-  class="board"
-  on:click={({ target }) => {
-    if ($phase !== 'input' || plusIndex) return;
-    plusIndex = Number(getTargetDataIndex(target));
-    if (typeof plusIndex === 'number') {
-      energy.set($energy - 10);
-      window.setTimeout(() => phase.set('plus'), 400);
-    }
-  }}>
+<div class="board" on:click={handleBoardClick}>
   {#each $cards as card, index}
     <Card
       phase={$phase}

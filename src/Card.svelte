@@ -11,7 +11,7 @@
   $: nextValue = value < 9 ? value + 1 : 0;
 
   $: style = `
-    transition: bottom ${phase === "fall" ? duration : 0}ms ease-in;
+    transition-duration: ${phase === "fall" ? duration : 0}ms;
     left: calc(${x} * var(--card-size));
     bottom: calc(${y} * var(--card-size));
   `;
@@ -22,6 +22,8 @@
     box-shadow: var(--shadow-2);
     height: var(--card-size);
     position: absolute;
+    transition-property: bottom;
+    transition-timing-function: cubic-bezier(0.56, 0, 1, 1);
     width: var(--card-size);
   }
   .card:hover {
