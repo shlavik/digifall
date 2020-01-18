@@ -4,8 +4,11 @@
 
 <style>
   .score {
-    font-size: var(--pixel-7);
+    color: white;
+    flex-basis: var(--pixel-14);
+    font-size: var(--pixel-14);
     line-height: 1;
+    margin-right: var(--pixel-4);
     text-align: right;
   }
 </style>

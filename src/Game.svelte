@@ -15,19 +15,18 @@
 
 <style>
   .game {
-    background-color: hsl(60, 20%, 50%);
-    box-shadow: 0 0 25vh 5vh black;
+    background-color: hsl(60, 20%, 60%);
+    box-shadow: 0 0 10vh 5vh rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
     height: 100vh;
-    justify-content: space-around;
+    justify-content: space-evenly;
     margin: auto;
-    position: relative;
     width: var(--game-width);
   }
   .digifall {
     background-color: white;
-    flex-basis: var(--card-size);
+    flex-basis: calc(37 * var(--pixel));;
   }
 </style>
 

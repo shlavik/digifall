@@ -1,11 +1,3 @@
-export const shuffleArray = array => {
-  for (let i = array.length - 1; i > 0; --i) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-};
-
 const getRandr = prev => {
   const a = 6364136223846793005n;
   const c = 1442695040888963407n;
@@ -16,41 +8,37 @@ const getRandr = prev => {
 const getRandrzInitial = seed => {
   let count = 1n,
     result = [getRandr(seed)];
-  while (count < 7n) {
-    result = [...result, getRandr(count * result[count - 1n])];
-    ++count;
-  }
+  while (count < 6n) result = [...result, getRandr(++count * result[0])];
   return result;
 };
 
 const createGetNewCardValue = seed => {
   let randrz = getRandrzInitial(seed);
   return column => {
-    if (column < 0 || 6 < column) return;
+    if (column < 0 || 5 < column) return;
     let result = randrz[column];
     randrz[column] = getRandr(result);
-    return Number(result % 9n);
+    return Number(result % 10n);
   };
 };
 
 const getNumberFromString = seed => {
   seed = String(seed).match(/[0-9A-Za-z]/g);
-  if (!seed || !seed.length) return 0;
+  if (!seed) return 0;
   seed = seed.length > 192 ? seed.slice(0, 192) : seed;
   return Number(parseInt(seed.join(""), 36));
 };
 
-const getNewCardValue = createGetNewCardValue(getNumberFromString(prompt("What seed is now?")));
+const getNewCardValue = createGetNewCardValue(getNumberFromString(prompt("What seed is now?", Date.now())));
 
 export const getFieldUndefined = () => {
-  const arr1 = Array(14).fill();
-  const arr2 = Array(14).fill();
-  const arr3 = Array(14).fill();
-  const arr4 = Array(14).fill();
-  const arr5 = Array(14).fill();
-  const arr6 = Array(14).fill();
-  const arr7 = Array(14).fill();
-  return [arr1, arr2, arr3, arr4, arr5, arr6, arr7];
+  const arr0 = Array(12).fill();
+  const arr1 = Array(12).fill();
+  const arr2 = Array(12).fill();
+  const arr3 = Array(12).fill();
+  const arr4 = Array(12).fill();
+  const arr5 = Array(12).fill();
+  return [arr0, arr1, arr2, arr3, arr4, arr5];
 };
 
 export const getFieldIndexes = cards => {
@@ -167,9 +155,3 @@ export const getCardsPlusOne = (cards, plusIndex) =>
         }
       : card
   );
-
-export const getRandomColor = (lightness = 5) => `hsl(${Math.floor(Math.random() * 360)},100%,${lightness}%)`;
-
-export const getScreenRatio = () => window.innerHeight / window.innerWidth;
-
-export const isMobile = () => getScreenRatio() > 1.72;

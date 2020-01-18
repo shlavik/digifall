@@ -65,7 +65,7 @@
 
 <style>
   .board {
-    background: dimgray
+    background: hsl(60, 20%, 40%)
       url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity="0.5"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
     background-size: var(--pixel-3) var(--pixel-3);
     border: var(--pixel) solid white;

@@ -12,24 +12,20 @@
 
   $: style = `
     transition-duration: ${phase === "fall" ? duration : 0}ms;
-    left: calc(${x} * var(--card-size));
-    bottom: calc(${y} * var(--card-size));
+    left: calc(${x} * var(--pixel-21));
+    bottom: calc(${y} * var(--pixel-21));
   `;
 </script>
 
 <style>
   .card {
     box-shadow: var(--shadow-2);
-    height: var(--card-size);
+    height: var(--pixel-21);
     position: absolute;
     transition-property: bottom;
     transition-timing-function: cubic-bezier(0.56, 0, 1, 1);
-    width: var(--card-size);
-  }
-  .card:hover {
-    box-shadow: var(--shadow-1);
-    cursor: pointer;
-    z-index: 2;
+    width: var(--pixel-21);
+    will-change: bottom;
   }
   .current,
   .next {
@@ -37,11 +33,11 @@
     background-color: var(--color);
     color: white;
     font-size: var(--pixel-10);
-    height: var(--card-size);
-    line-height: var(--card-size);
+    height: var(--pixel-21);
+    line-height: var(--pixel-21);
     position: absolute;
     text-align: center;
-    width: var(--card-size);
+    width: var(--pixel-21);
     z-index: 1;
   }
   .next {
@@ -58,10 +54,10 @@
     transition: transform 400ms ease;
   }
   .matched .current {
-    animation: blink 100ms infinite;
+    animation: blink 150ms steps(3, end) 2;
   }
   .value0 {
-    --color: hsl(60, 20%, 30%);
+    --color: hsl(60, 20%, 40%);
   }
   .value1 {
     --color: hsl(90, 100%, 55%);
@@ -70,13 +66,13 @@
     --color: hsl(48, 100%, 50%);
   }
   .value3 {
-    --color: hsl(28, 100%, 50%);
+    --color: hsl(32, 100%, 50%);
   }
   .value4 {
-    --color: hsl(2, 100%, 50%);
+    --color: hsl(4, 100%, 55%);
   }
   .value5 {
-    --color: hsl(338, 100%, 65%);
+    --color: hsl(334, 100%, 65%);
   }
   .value6 {
     --color: hsl(296, 100%, 40%);
@@ -85,10 +81,17 @@
     --color: hsl(248, 100%, 60%);
   }
   .value8 {
-    --color: hsl(204, 100%, 55%);
+    --color: hsl(206, 100%, 55%);
   }
   .value9 {
-    --color: hsl(144, 80%, 40%);
+    --color: hsl(164, 100%, 45%);
+  }
+  @media (min-aspect-ratio: 2/3) {
+    .card:hover {
+      box-shadow: var(--shadow-1);
+      cursor: pointer;
+      z-index: 2;
+    }
   }
   @keyframes blink {
     from {

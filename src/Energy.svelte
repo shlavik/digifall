@@ -10,7 +10,7 @@
 
 <style>
   .energy {
-    background-color: darkslategray;
+    background-color: hsl(60, 20%, 30%);
     flex-basis: var(--pixel-9);
     overflow: hidden;
   }

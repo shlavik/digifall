@@ -1,9 +1,19 @@
 <script>
   import { phase, energy } from "./stores.js";
-  import { getRandomColor, isMobile, shuffleArray } from "./utils.js";
   import Game from "./Game.svelte";
 
-  const getNewStyle = () => {
+  const shuffleArray = array => {
+    for (let i = array.length - 1; i > 0; --i) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  };
+
+  const getRandomColor = (lightness = 10) =>
+    `hsl(${Math.floor(Math.random() * 360)},100%,${lightness}%)`;
+
+  const getNewAppStyle = () => {
     const [a, b, c, d] = shuffleArray([
       7,
       11,
@@ -44,10 +54,13 @@
   `;
   };
 
-  let style = getNewStyle();
+  let style = getNewAppStyle();
 
   window.onresize = () => {
-    style = isMobile() ? "" : getNewStyle();
+    style =
+      window.innerHeight / window.innerWidth > 1.5
+        ? undefined
+        : getNewAppStyle();
   };
 </script>
 
