@@ -12,8 +12,8 @@
 
   $: style = `
     transition-duration: ${phase === "fall" ? duration : 0}ms;
-    left: calc(${x} * var(--pixel-21));
-    bottom: calc(${y} * var(--pixel-21));
+    left: var(--pixel-${x * 21});
+    bottom: var(--pixel-${y * 21});
   `;
 </script>
 
@@ -32,7 +32,7 @@
     backface-visibility: hidden;
     background-color: var(--color);
     color: white;
-    font-size: var(--pixel-10);
+    font-size: var(--pixel-11);
     height: var(--pixel-21);
     line-height: var(--pixel-21);
     position: absolute;

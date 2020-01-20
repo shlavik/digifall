@@ -9,14 +9,29 @@
   }
 }
 :root {
+  --pixel-0: 0;
   --pixel-3: calc(3 * var(--pixel));
+  --pixel-2: calc(3 * var(--pixel));
   --pixel-4: calc(4 * var(--pixel));
+  --pixel-6: calc(6 * var(--pixel));
   --pixel-7: calc(7 * var(--pixel));
   --pixel-9: calc(9 * var(--pixel));
   --pixel-10: calc(10 * var(--pixel));
-  --pixel-14: calc(14 * var(--pixel));
+  --pixel-11: calc(11 * var(--pixel));
+  --pixel-13: calc(13 * var(--pixel));
   --pixel-21: calc(21 * var(--pixel));
   --pixel-37: calc(37 * var(--pixel));
+  --pixel-42: calc(42 * var(--pixel));
+  --pixel-63: calc(63 * var(--pixel));
+  --pixel-84: calc(84 * var(--pixel));
+  --pixel-105: calc(105 * var(--pixel));
+  --pixel-126: calc(126 * var(--pixel));
+  --pixel-147: calc(147 * var(--pixel));
+  --pixel-168: calc(168 * var(--pixel));
+  --pixel-189: calc(189 * var(--pixel));
+  --pixel-210: calc(210 * var(--pixel));
+  --pixel-231: calc(231 * var(--pixel));
+  --pixel-252: calc(252 * var(--pixel));
   --game-width: calc(128 * var(--pixel));
   --shadow-1: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
   --shadow-2: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
@@ -24,8 +39,18 @@
   --shadow-4: 0 16px 24px 2px rgba(0, 0, 0, 0.14), 0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -7px rgba(0, 0, 0, 0.2);
   --shadow-5: 0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.2);
 }
+@font-face {
+  font-family: font5x5;
+  src: url("./fonts/5x5.ttf");
+}
+@font-face {
+  font-family: font7x7;
+  src: url("./fonts/7x7.ttf");
+}
 body {
   background-color: black;
+  font-family: font7x7;
+  letter-spacing: var(--pixel);
   margin: 0;
   user-select: none;
 }

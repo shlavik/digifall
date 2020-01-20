@@ -5,10 +5,9 @@
 <style>
   .score {
     color: white;
-    flex-basis: var(--pixel-14);
-    font-size: var(--pixel-14);
+    font-size: var(--pixel-7);
     line-height: 1;
-    margin-right: var(--pixel-4);
+    margin-right: var(--pixel-6);
     text-align: right;
   }
 </style>

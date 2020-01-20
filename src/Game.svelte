@@ -26,7 +26,7 @@
   }
   .digifall {
     background-color: white;
-    flex-basis: calc(37 * var(--pixel));;
+    flex-basis: var(--pixel-37);;
   }
 </style>
 

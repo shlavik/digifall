@@ -23,6 +23,7 @@
     transition: width 200ms ease-in;
   }
   .value {
+    color: hsl(60, 20%, 30%);
     font-size: var(--pixel-7);
     line-height: 1;
   }
