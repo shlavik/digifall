@@ -10,13 +10,12 @@
 }
 :root {
   --pixel-0: 0;
+  --pixel-1: var(--pixel);
+  --pixel-2: calc(2 * var(--pixel));
   --pixel-3: calc(3 * var(--pixel));
-  --pixel-2: calc(3 * var(--pixel));
   --pixel-4: calc(4 * var(--pixel));
-  --pixel-6: calc(6 * var(--pixel));
+  --pixel-5: calc(5 * var(--pixel));
   --pixel-7: calc(7 * var(--pixel));
-  --pixel-9: calc(9 * var(--pixel));
-  --pixel-10: calc(10 * var(--pixel));
   --pixel-11: calc(11 * var(--pixel));
   --pixel-13: calc(13 * var(--pixel));
   --pixel-21: calc(21 * var(--pixel));
@@ -50,7 +49,6 @@
 body {
   background-color: black;
   font-family: font7x7;
-  letter-spacing: var(--pixel);
   margin: 0;
   user-select: none;
 }

@@ -11,7 +11,7 @@
 <style>
   .energy {
     background-color: hsl(60, 20%, 30%);
-    flex-basis: var(--pixel-9);
+    flex-basis: var(--pixel-11);
     overflow: hidden;
   }
   .bar {
@@ -25,6 +25,7 @@
   .value {
     color: hsl(60, 20%, 30%);
     font-size: var(--pixel-7);
+    letter-spacing: var(--pixel);
     line-height: 1;
   }
 </style>

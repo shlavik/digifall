@@ -32,7 +32,7 @@
     backface-visibility: hidden;
     background-color: var(--color);
     color: white;
-    font-size: var(--pixel-11);
+    font-size: var(--pixel-13);
     height: var(--pixel-21);
     line-height: var(--pixel-21);
     position: absolute;
@@ -56,34 +56,34 @@
   .matched .current {
     animation: blink 150ms steps(3, end) 2;
   }
-  .value0 {
+  .value-0 {
     --color: hsl(60, 20%, 40%);
   }
-  .value1 {
+  .value-1 {
     --color: hsl(90, 100%, 55%);
   }
-  .value2 {
+  .value-2 {
     --color: hsl(48, 100%, 50%);
   }
-  .value3 {
+  .value-3 {
     --color: hsl(32, 100%, 50%);
   }
-  .value4 {
+  .value-4 {
     --color: hsl(4, 100%, 55%);
   }
-  .value5 {
+  .value-5 {
     --color: hsl(334, 100%, 65%);
   }
-  .value6 {
+  .value-6 {
     --color: hsl(296, 100%, 40%);
   }
-  .value7 {
+  .value-7 {
     --color: hsl(248, 100%, 60%);
   }
-  .value8 {
+  .value-8 {
     --color: hsl(206, 100%, 55%);
   }
-  .value9 {
+  .value-9 {
     --color: hsl(164, 100%, 45%);
   }
   @media (min-aspect-ratio: 2/3) {
@@ -107,7 +107,7 @@
 
 <div class="card" class:plused class:matched {style} data-index={index}>
   <div class="value">
-    <div class="current value{value}">{value}</div>
-    <div class="next value{nextValue}">{nextValue}</div>
+    <div class="current value-{value}">{value}</div>
+    <div class="next value-{nextValue}">{nextValue}</div>
   </div>
 </div>
