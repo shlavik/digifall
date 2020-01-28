@@ -88,9 +88,13 @@
   }
   @media (min-aspect-ratio: 2/3) {
     .card:hover {
-      box-shadow: var(--shadow-1);
+      box-shadow: none;
       cursor: pointer;
       z-index: 2;
+    }
+    .card:hover .current,
+    .card:hover .next {
+      box-shadow: var(--shadow-1);
     }
   }
   @keyframes blink {
