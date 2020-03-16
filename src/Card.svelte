@@ -44,7 +44,7 @@
     transform: rotateY(-180deg);
   }
   .plused {
-    box-shadow: var(--shadow-1);
+    animation: shadow-out 100ms ease 100ms;
     perspective: var(--game-width);
     z-index: 2;
   }
@@ -53,8 +53,11 @@
     transform: rotateY(-180deg);
     transition: transform 400ms ease;
   }
+  .matched {
+    box-shadow: none;
+  }
   .matched .current {
-    animation: blink 150ms steps(3, end) 2;
+    animation: blink 150ms steps(3, end) 2, fade-out 300ms ease 300ms;
   }
   .value-0 {
     --color: hsl(60, 20%, 40%);
@@ -92,6 +95,9 @@
       cursor: pointer;
       z-index: 2;
     }
+    .card:active {
+      box-shadow: none;
+    }
     .card:hover .current,
     .card:hover .next {
       box-shadow: var(--shadow-1);
@@ -105,6 +111,22 @@
     to {
       background-color: var(--color);
       color: white;
+    }
+  }
+  @keyframes fade-out {
+    0% {
+      clip-path: circle(100%);
+    }
+    100% {
+      clip-path: circle(0);
+    }
+  }
+  @keyframes shadow-out {
+    from {
+      box-shadow: var(--shadow-2);
+    }
+    to {
+      box-shadow: var(--shadow-0);
     }
   }
 </style>

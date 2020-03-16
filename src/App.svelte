@@ -50,8 +50,7 @@
         calc(${a} * var(--pixel)),
         calc(${b} * var(--pixel)),
         calc(${c} * var(--pixel)),
-        calc(${d} * var(--pixel));
-  `;
+        calc(${d} * var(--pixel));`;
   };
 
   let style = getNewAppStyle();

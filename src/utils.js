@@ -1,14 +1,9 @@
-const getRandr = prev => {
-  const a = 6364136223846793005n;
-  const c = 1442695040888963407n;
-  const m = 2n ** 64n;
-  return (a * BigInt(prev) + c) % m;
-};
+const getRandr = (prev = 0) => (prev * 16807 + 19487171) % 2147483647;
 
 const getRandrzInitial = seed => {
-  let count = 1n,
+  let count = 1,
     result = [getRandr(seed)];
-  while (count < 6n) result = [...result, getRandr(++count * result[0])];
+  while (count < 6) result = [...result, getRandr(++count * result[0])];
   return result;
 };
 
@@ -18,7 +13,7 @@ const createGetNewCardValue = seed => {
     if (column < 0 || 5 < column) return;
     let result = randrz[column];
     randrz[column] = getRandr(result);
-    return Number(result % 10n);
+    return Number(result % 10);
   };
 };
 
@@ -148,10 +143,10 @@ export const getCardsPlusOne = (cards, plusIndex) =>
   cards.map((card, cardIndex) =>
     plusIndex === cardIndex && card.y < 6
       ? {
-          x: card.x,
-          y: card.y,
-          value: card.value < 9 ? card.value + 1 : 0,
-          duration: 0
-        }
+        x: card.x,
+        y: card.y,
+        value: card.value < 9 ? card.value + 1 : 0,
+        duration: 0
+      }
       : card
   );
