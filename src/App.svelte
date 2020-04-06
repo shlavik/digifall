@@ -1,4 +1,5 @@
 <script>
+  import { onMount } from "svelte";
   import { phase, energy } from "./stores.js";
   import Game from "./Game.svelte";
 
@@ -55,25 +56,34 @@
 
   let style = getNewAppStyle();
 
-  window.onresize = () => {
-    style =
-      window.innerHeight / window.innerWidth > 1.5
-        ? undefined
-        : getNewAppStyle();
+  const updateAppStyle = () => {
+    const { documentElement } = document;
+    const { offsetHeight, offsetWidth } = document.querySelector(".app");
+    if (offsetHeight / offsetWidth > 1.5) {
+      documentElement.style.setProperty("--pixel", `${offsetWidth / 128}px`);
+      style = undefined;
+    } else {
+      documentElement.style.setProperty("--pixel", `${offsetHeight / 192}px`);
+      style = getNewAppStyle();
+    }
+  };
+
+  onMount(updateAppStyle);
+
+  onresize = updateAppStyle;
+
+  // DELME
+  onkeypress = ({ key }) => {
+    if (key === "1") energy.set(10);
+    if (key === "0") energy.set(100);
   };
 </script>
 
 <style>
   .app {
-    overflow: hidden;
+    height: 100%;
   }
 </style>
-
-<svelte:window
-  on:keypress={({ key }) => {
-    if (key === '1') energy.set(10);
-    if (key === '0') energy.set(100);
-  }} />
 
 <div class="app" {style}>
   <span style="color: white; position: absolute">{$phase}</span>

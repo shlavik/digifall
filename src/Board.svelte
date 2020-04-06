@@ -21,7 +21,7 @@
         plusIndex = undefined;
         matchedIndexes = getMatchedIndexes($cards);
         if (matchedIndexes.length) {
-          window.setTimeout(() => phase.set("match"), 600);
+          setTimeout(() => phase.set("match"), 600);
         } else if ($energy < 10) {
           phase.set("gameover");
         } else {
@@ -37,11 +37,11 @@
         energy.set($energy + energyDiff);
         cards.set(getCardsMatched($cards, matchedIndexes));
         matchedIndexes = [];
-        window.setTimeout(() => phase.set("fall"), 600);
+        setTimeout(() => phase.set("fall"), 600);
         break;
       case "fall":
         cards.set(getCardsFallen($cards));
-        window.setTimeout(() => phase.set("blink"), 400);
+        setTimeout(() => phase.set("blink"), 400);
         break;
       case "gameover":
         alert("GAME OVER");
@@ -56,9 +56,9 @@
   const handleBoardClick = ({ target }) => {
     if ($phase !== "input" || plusIndex) return;
     plusIndex = Number(getTargetDataIndex(target));
-    if (typeof plusIndex === "number") {
+    if (!Number.isNaN(plusIndex)) {
       energy.set($energy - 10);
-      window.setTimeout(() => phase.set("plus"), 400);
+      setTimeout(() => phase.set("plus"), 400);
     }
   };
 </script>

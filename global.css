@@ -1,17 +1,12 @@
-@media (min-aspect-ratio: 2/3) {
-  :root {
-    --pixel: calc(100vh / 192);
-  }
-  button:hover {
-    cursor: pointer;
-  }
+@font-face {
+  font-family: font5x5;
+  src: url("./fonts/5x5.ttf");
 }
-@media (max-aspect-ratio: 2/3) {
-  :root {
-    --pixel: calc(100vw / 128);
-  }
+@font-face {
+  font-family: font7x7;
+  src: url("./fonts/7x7.ttf");
 }
-:root {
+html {
   --half-pixel: calc(0.5 * var(--pixel));
   --pixel-0: 0;
   --pixel-1: var(--pixel);
@@ -39,19 +34,14 @@
   --game-width: calc(128 * var(--pixel));
   --shadow-0: 0 0 0 0 rgba(0, 0, 0, 0.4);
   --shadow-1: 0 var(--half-pixel) var(--half-pixel) 0 rgba(0, 0, 0, 0.4);
-  --shadow-2: 0 var(--pixel) var(--pixel) 0 rgba(0, 0, 0, 0.4);;
-}
-@font-face {
-  font-family: font5x5;
-  src: url("./fonts/5x5.ttf");
-}
-@font-face {
-  font-family: font7x7;
-  src: url("./fonts/7x7.ttf");
+  --shadow-2: 0 var(--pixel) var(--pixel) 0 rgba(0, 0, 0, 0.4);
+  height: 100%;
 }
 body {
   background-color: black;
   font-family: font7x7;
+  height: 100%;
   margin: 0;
+  overflow: hidden;
   user-select: none;
 }

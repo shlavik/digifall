@@ -16,10 +16,10 @@
 <style>
   .game {
     background-color: hsl(60, 20%, 60%);
-    box-shadow: 0 0 10vh 5vh rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 var(--pixel-13) var(--pixel-1) black;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100%;
     justify-content: space-evenly;
     margin: auto;
     width: var(--game-width);
