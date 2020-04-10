@@ -14,12 +14,14 @@
     transition-duration: ${phase === "fall" ? duration : 0}ms;
     left: var(--pixel-${x * 21});
     bottom: var(--pixel-${y * 21});
+    box-shadow: ${
+      phase === "input" || plused || matched ? "none" : "var(--shadow-2)"
+    };
   `;
 </script>
 
 <style>
   .card {
-    box-shadow: var(--shadow-2);
     height: var(--pixel-21);
     position: absolute;
     transition-property: bottom;
@@ -30,6 +32,7 @@
   .current,
   .next {
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     background-color: var(--color);
     color: white;
     font-size: var(--pixel-13);
@@ -53,8 +56,9 @@
     transform: rotateY(-180deg);
     transition: transform 400ms ease;
   }
-  .matched {
-    box-shadow: none;
+  .plused .current,
+  .plused .next {
+    box-shadow: var(--shadow-1);
   }
   .matched .current {
     animation: blink 150ms steps(3, end) 2, fade-out 300ms ease 300ms;
@@ -89,14 +93,10 @@
   .value-9 {
     --color: hsl(164, 100%, 45%);
   }
-  @media (min-aspect-ratio: 2/3) {
+  @media (hover: hover) and (pointer: fine) {
     .card:hover {
-      box-shadow: none;
       cursor: pointer;
       z-index: 2;
-    }
-    .card:active {
-      box-shadow: none;
     }
     .card:hover .current,
     .card:hover .next {
@@ -116,9 +116,11 @@
   @keyframes fade-out {
     0% {
       clip-path: circle(100%);
+      -webkit-clip-path: circle(100%);
     }
     100% {
       clip-path: circle(0);
+      -webkit-clip-path: circle(0);
     }
   }
   @keyframes shadow-out {
@@ -133,7 +135,7 @@
 
 <div class="card" class:plused class:matched {style} data-index={index}>
   <div class="value">
-    <div class="current value-{value}">{value}</div>
     <div class="next value-{nextValue}">{nextValue}</div>
+    <div class="current value-{value}">{value}</div>
   </div>
 </div>

@@ -69,15 +69,18 @@
       url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity="0.4"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
     background-size: var(--pixel-6) var(--pixel-6);
     border: var(--pixel) solid white;
+    box-shadow: inset var(--shadow-2);
     box-sizing: border-box;
     height: var(--game-width);
-    overflow: hidden;
     position: relative;
     width: var(--game-width);
   }
+  .overflow {
+    overflow: hidden;
+  }
 </style>
 
-<div class="board" on:click={handleBoardClick}>
+<div class="board" class:overflow={$phase !== 'input'} on:click={handleBoardClick}>
   {#each $cards as card, index}
     <Card
       phase={$phase}
