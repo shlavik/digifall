@@ -1,5 +1,5 @@
 <script>
-  import { cards, energy, phase } from "./stores.js";
+  import { cards, energy, phase, overlay } from "./stores.js";
   import {
     getCardsFallen,
     getCardsMatched,
@@ -26,7 +26,7 @@
           phase.set("gameover");
         } else {
           if ($energy > 100) energy.set(100);
-          phase.set("input");
+          phase.set("idle");
         }
         break;
       case "match":
@@ -44,7 +44,7 @@
         setTimeout(() => phase.set("blink"), 400);
         break;
       case "gameover":
-        alert("GAME OVER");
+        overlay.set(true);
     }
   });
 
@@ -54,7 +54,7 @@
   };
 
   const handleBoardClick = ({ target }) => {
-    if ($phase !== "input" || plusIndex) return;
+    if ($phase !== "idle" || plusIndex) return;
     plusIndex = Number(getTargetDataIndex(target));
     if (!Number.isNaN(plusIndex)) {
       energy.set($energy - 10);
@@ -68,7 +68,7 @@
     background: hsl(60, 20%, 10%)
       url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity="0.4"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
     background-size: var(--pixel-6) var(--pixel-6);
-    border: var(--pixel) solid white;
+    border: var(--pixel) solid hsl(60, 20%, 60%);
     box-shadow: inset var(--shadow-2);
     box-sizing: border-box;
     height: var(--game-width);
@@ -80,7 +80,10 @@
   }
 </style>
 
-<div class="board" class:overflow={$phase !== 'input'} on:click={handleBoardClick}>
+<div
+  class="board"
+  class:overflow={$phase !== 'idle'}
+  on:click={handleBoardClick}>
   {#each $cards as card, index}
     <Card
       phase={$phase}

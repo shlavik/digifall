@@ -15,7 +15,7 @@
     left: var(--pixel-${x * 21});
     bottom: var(--pixel-${y * 21});
     box-shadow: ${
-      phase === "input" || plused || matched ? "none" : "var(--shadow-2)"
+      phase === "idle" || plused || matched ? "none" : "var(--shadow-2)"
     };
   `;
 </script>
@@ -23,6 +23,7 @@
 <style>
   .card {
     height: var(--pixel-21);
+    letter-spacing: 0;
     position: absolute;
     transition-property: bottom;
     transition-timing-function: cubic-bezier(0.56, 0, 1, 1);

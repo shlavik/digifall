@@ -5,7 +5,9 @@ export const score = writable(0);
 
 export const hiScore = writable(0);
 
-export const phase = writable("input");
+export const phase = writable("idle");
+
+export const overlay = writable(true);
 
 export const cards = writable(getFieldInitial());
 

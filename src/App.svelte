@@ -1,7 +1,10 @@
 <script>
   import { onMount } from "svelte";
-  import { phase, energy } from "./stores.js";
+  import { energy, overlay, phase } from "./stores.js";
   import Game from "./Game.svelte";
+  import GameOver from "./GameOver.svelte";
+  import Menu from "./Menu.svelte";
+  import Overlay from "./Overlay.svelte";
 
   const shuffleArray = array => {
     for (let i = array.length - 1; i > 0; --i) {
@@ -88,4 +91,13 @@
 <div class="app" {style}>
   <span style="color: white; position: absolute">{$phase}</span>
   <Game />
+  {#if $overlay}
+    <Overlay>
+      {#if $phase === 'gameover'}
+        <GameOver />
+      {:else}
+        <Menu />
+      {/if}
+    </Overlay>
+  {/if}
 </div>

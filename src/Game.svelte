@@ -1,37 +1,33 @@
 <script>
+  import { overlay } from "./stores.js";
   import Board from "./Board.svelte";
   import Energy from "./Energy.svelte";
   import Score from "./Score.svelte";
 
-  const handleFullscreenSwitch = () => {
-    const { documentElement, fullscreen } = document;
-    if (fullscreen) {
-      document.exitFullscreen();
-    } else {
-      documentElement.requestFullscreen();
-    }
-  };
+  const openOverlay = () => overlay.set(true);
 </script>
 
 <style>
   .game {
     background-color: hsl(60, 20%, 60%);
     box-shadow: 0 0 var(--pixel-13) var(--pixel-1) black;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    justify-content: space-evenly;
-    margin: auto;
-    width: var(--game-width);
   }
   .digifall {
-    background-color: white;
+    background-color: transparent;
+    border: none;
+    color: white;
     flex-basis: var(--pixel-37);
+    font-family: font5x5;
+    font-size: var(--pixel-5);
+    letter-spacing: var(--pixel-5);
+    padding-left: var(--pixel-5);
   }
 </style>
 
-<div class="game">
-  <button class="digifall" on:click={handleFullscreenSwitch}>Digifall</button>
+<div class="game content">
+  <button class="digifall" on:click={openOverlay}>
+    work in progress
+  </button>
   <Score />
   <Board />
   <Energy />

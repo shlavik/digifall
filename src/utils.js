@@ -24,7 +24,7 @@ const getNumberFromString = seed => {
   return Number(parseInt(seed.join(""), 36));
 };
 
-const getNewCardValue = createGetNewCardValue(getNumberFromString(prompt("What seed is now?", Date.now())));
+const getNewCardValue = createGetNewCardValue(getNumberFromString(Date.now()));
 
 export const getFieldUndefined = () => {
   const arr0 = Array(12).fill();
