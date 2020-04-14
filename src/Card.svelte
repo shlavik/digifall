@@ -136,7 +136,7 @@
 
 <div class="card" class:plused class:matched {style} data-index={index}>
   <div class="value">
-    <div class="next value-{nextValue}">{nextValue}</div>
     <div class="current value-{value}">{value}</div>
+    <div class="next value-{nextValue}">{nextValue}</div>
   </div>
 </div>

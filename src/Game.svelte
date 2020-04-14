@@ -10,7 +10,9 @@
 <style>
   .game {
     background-color: hsl(60, 20%, 60%);
-    box-shadow: 0 0 var(--pixel-13) var(--pixel-1) black;
+    box-shadow: var(--minus-pixel) 0 0 0 hsl(60, 20%, 60%),
+      var(--pixel) 0 0 0 hsl(60, 20%, 60%),
+      0 0 var(--pixel-21) var(--pixel-1) black;
   }
   .digifall {
     background-color: transparent;
@@ -20,14 +22,13 @@
     font-family: font5x5;
     font-size: var(--pixel-5);
     letter-spacing: var(--pixel-5);
+    line-height: 1;
     padding-left: var(--pixel-5);
   }
 </style>
 
 <div class="game content">
-  <button class="digifall" on:click={openOverlay}>
-    work in progress
-  </button>
+  <button class="digifall" on:click={openOverlay}>work in progress</button>
   <Score />
   <Board />
   <Energy />

@@ -89,6 +89,7 @@
 </style>
 
 <div class="app" {style}>
+  <!-- // DELME -->
   <span style="color: white; position: absolute">{$phase}</span>
   <Game />
   {#if $overlay}

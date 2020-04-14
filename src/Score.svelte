@@ -7,7 +7,7 @@
     color: white;
     font-size: var(--pixel-7);
     line-height: 1;
-    margin-right: var(--pixel-5);
+    margin-right: var(--pixel-4);
     text-align: right;
   }
 </style>

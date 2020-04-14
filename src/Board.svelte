@@ -66,9 +66,9 @@
 <style>
   .board {
     background: hsl(60, 20%, 10%)
-      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity="0.4"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
+      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity=".6"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
     background-size: var(--pixel-6) var(--pixel-6);
-    border: var(--pixel) solid hsl(60, 20%, 60%);
+    border: var(--pixel) solid hsl(60, 20%, 25%);
     box-shadow: inset var(--shadow-2);
     box-sizing: border-box;
     height: var(--game-width);

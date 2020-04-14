@@ -10,7 +10,7 @@
 
 <style>
   .energy {
-    background-color: hsl(60, 20%, 30%);
+    background-color: hsl(60, 20%, 25%);
     flex-basis: var(--pixel-11);
     overflow: hidden;
   }
@@ -23,7 +23,7 @@
     transition: width 200ms ease-in;
   }
   .value {
-    color: hsl(60, 20%, 30%);
+    color: hsl(60, 20%, 25%);
     font-size: var(--pixel-7);
     letter-spacing: var(--pixel);
     line-height: 1;
