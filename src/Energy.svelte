@@ -11,15 +11,18 @@
 <style>
   .energy {
     background-color: hsl(60, 20%, 25%);
+    box-shadow: inset var(--shadow-1);
     flex-basis: var(--pixel-11);
-    overflow: hidden;
+    width: 100%;
   }
   .bar {
     align-items: center;
     background-color: white;
+    box-shadow: var(--shadow-1);
     display: flex;
     height: 100%;
     justify-content: flex-end;
+    overflow: hidden;
     transition: width 200ms ease-in;
   }
   .value {

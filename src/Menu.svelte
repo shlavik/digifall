@@ -1,9 +1,11 @@
 <script>
-  import { overlay } from "./stores.js";
+  import { overlay, initGame } from "./stores.js";
 
-  const handleStartClick = () => overlay.set(false);
+  const resumeClick = () => overlay.set(false);
 
-  const handleFullscreenClick = () => {
+  const newGameClick = () => initGame();
+
+  const fullscreenClick = () => {
     const { documentElement, fullscreen } = document;
     if (fullscreen) {
       document.exitFullscreen();
@@ -13,12 +15,8 @@
   };
 </script>
 
-<style>
-  .menu {
-  }
-</style>
-
 <div class="menu content">
-  <button on:click={handleStartClick}>Resume</button>
-  <button on:click={handleFullscreenClick}>Fullscreen</button>
+  <button on:click={resumeClick}>resume</button>
+  <button on:click={newGameClick}>new game</button>
+  <button on:click={fullscreenClick}>fullscreen</button>
 </div>

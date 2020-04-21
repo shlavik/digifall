@@ -33,9 +33,9 @@ html {
   --pixel-231: calc(231 * var(--pixel));
   --pixel-252: calc(252 * var(--pixel));
   --game-width: calc(128 * var(--pixel));
-  --shadow-0: 0 0 0 0 rgba(0, 0, 0, 0.4);
-  --shadow-1: 0 var(--half-pixel) var(--half-pixel) 0 rgba(0, 0, 0, 0.4);
-  --shadow-2: 0 var(--pixel) var(--pixel) 0 rgba(0, 0, 0, 0.4);
+  --shadow-0: 0 0 0 rgba(0, 0, 0, 0);
+  --shadow-1: 0 var(--half-pixel) var(--half-pixel) rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 var(--pixel) var(--pixel) rgba(0, 0, 0, 0.4);
   height: 100%;
 }
 body {
@@ -50,10 +50,49 @@ body {
   user-select: none;
 }
 .content {
+  align-items: center;
   display: flex;
   flex-direction: column;
   height: 100%;
   justify-content: space-evenly;
   margin: auto;
+  text-shadow: var(--shadow-1);
   width: var(--game-width);
+}
+.content button {
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid white;
+  color: white;
+  flex-basis: var(--pixel-21);
+  font-family: font5x5;
+  font-size: var(--pixel-5);
+  letter-spacing: var(--pixel);
+  line-height: 1;
+  outline: 0 none;
+  padding: 0 var(--pixel-7);
+  text-indent: var(--pixel);
+  transition: all 100ms;
+}
+.content button:focus,
+.content button:hover {
+  background-color: rgba(0, 0, 0, 0.6);
+  border: var(--half-pixel) solid white;
+  cursor: pointer;
+  outline: 0 none;
+}
+.content button:active {
+  background-color: rgba(0, 0, 0, 0.8);
+  outline: var(--half-pixel) solid white;
+}
+.big-text {
+  color: white;
+  font-size: var(--pixel-7);
+  letter-spacing: var(--pixel-2);
+  text-indent: var(--pixel-2);
+}
+.overflow-hidden {
+  overflow: hidden;
+}
+.blur {
+  filter: blur(var(--pixel));
 }

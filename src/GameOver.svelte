@@ -1,15 +1,10 @@
 <script>
-  const handleRestartClick = () => location.reload(true);
+  import { initGame } from "./stores.js";
+
+  const newGameClick = () => initGame();
 </script>
 
-<style>
-  .game-over {
-    align-items: center;
-    color: white;
-  }
-</style>
-
 <div class="game-over content">
-  <span>game over</span>
-  <button on:click={handleRestartClick}>Restart</button>
+  <span class="big-text">game over</span>
+  <button on:click={newGameClick}>new game</button>
 </div>

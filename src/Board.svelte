@@ -53,7 +53,7 @@
     if (parentNode) return getTargetDataIndex(parentNode);
   };
 
-  const handleBoardClick = ({ target }) => {
+  const boardClick = ({ target }) => {
     if ($phase !== "idle" || plusIndex) return;
     plusIndex = Number(getTargetDataIndex(target));
     if (!Number.isNaN(plusIndex)) {
@@ -75,20 +75,18 @@
     position: relative;
     width: var(--game-width);
   }
-  .overflow {
-    overflow: hidden;
-  }
 </style>
 
 <div
   class="board"
-  class:overflow={$phase !== 'idle'}
-  on:click={handleBoardClick}>
+  class:overflow-hidden={$phase !== 'idle'}
+  on:click={boardClick}>
   {#each $cards as card, index}
     <Card
-      phase={$phase}
-      plused={plusIndex === index}
+      clickable={$phase === 'idle' && !plusIndex}
+      fallPhase={$phase === 'fall'}
       matched={matchedIndexes.includes(index)}
+      plused={plusIndex === index}
       {...card}
       {index} />
   {/each}

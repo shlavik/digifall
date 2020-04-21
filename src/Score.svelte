@@ -9,6 +9,7 @@
     line-height: 1;
     margin-right: var(--pixel-4);
     text-align: right;
+    width: 100%;
   }
 </style>
 

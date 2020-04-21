@@ -15,19 +15,16 @@
       0 0 var(--pixel-21) var(--pixel-1) black;
   }
   .digifall {
-    background-color: transparent;
-    border: none;
-    color: white;
+    border: 0 none;
+    box-shadow: inset var(--shadow-1);
     flex-basis: var(--pixel-37);
-    font-family: font5x5;
-    font-size: var(--pixel-5);
-    letter-spacing: var(--pixel-5);
-    line-height: 1;
-    padding-left: var(--pixel-5);
+    margin: 0;
+    text-shadow: var(--shadow-1);
+    width: 100%;
   }
 </style>
 
-<div class="game content">
+<div class="game content" class:blur={$overlay === true}>
   <button class="digifall" on:click={openOverlay}>work in progress</button>
   <Score />
   <Board />

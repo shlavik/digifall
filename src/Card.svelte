@@ -1,9 +1,10 @@
 <script>
   export let index,
-    phase,
-    plused,
-    matched,
+    clickable,
     duration,
+    fallPhase,
+    matched,
+    plused,
     value,
     x = 0,
     y = 0;
@@ -11,22 +12,20 @@
   $: nextValue = value < 9 ? value + 1 : 0;
 
   $: style = `
-    transition-duration: ${phase === "fall" ? duration : 0}ms;
+    transition-duration: ${fallPhase ? duration : 0}ms;
     left: var(--pixel-${x * 21});
     bottom: var(--pixel-${y * 21});
-    box-shadow: ${
-      phase === "idle" || plused || matched ? "none" : "var(--shadow-2)"
-    };
   `;
 </script>
 
 <style>
   .card {
+    box-shadow: var(--shadow-2);
     height: var(--pixel-21);
     letter-spacing: 0;
     position: absolute;
     transition-property: bottom;
-    transition-timing-function: cubic-bezier(0.56, 0, 1, 1);
+    transition-timing-function: cubic-bezier(.56, 0, 1, 1);
     width: var(--pixel-21);
     will-change: bottom;
   }
@@ -48,7 +47,7 @@
     transform: rotateY(-180deg);
   }
   .plused {
-    animation: shadow-out 100ms ease 100ms;
+    box-shadow: none;
     perspective: var(--game-width);
     z-index: 2;
   }
@@ -60,6 +59,9 @@
   .plused .current,
   .plused .next {
     box-shadow: var(--shadow-1);
+  }
+  .matched {
+    box-shadow: none;
   }
   .matched .current {
     animation: blink 150ms steps(3, end) 2, fade-out 300ms ease 300ms;
@@ -95,12 +97,13 @@
     --color: hsl(164, 100%, 45%);
   }
   @media (hover: hover) and (pointer: fine) {
-    .card:hover {
+    .clickable:hover {
+      box-shadow: none;
       cursor: pointer;
       z-index: 2;
     }
-    .card:hover .current,
-    .card:hover .next {
+    .clickable:hover .current,
+    .clickable:hover .next {
       box-shadow: var(--shadow-1);
     }
   }
@@ -124,17 +127,15 @@
       -webkit-clip-path: circle(0);
     }
   }
-  @keyframes shadow-out {
-    from {
-      box-shadow: var(--shadow-2);
-    }
-    to {
-      box-shadow: var(--shadow-0);
-    }
-  }
 </style>
 
-<div class="card" class:plused class:matched {style} data-index={index}>
+<div
+  class="card"
+  class:clickable
+  class:plused
+  class:matched
+  {style}
+  data-index={index}>
   <div class="value">
     <div class="current value-{value}">{value}</div>
     <div class="next value-{nextValue}">{nextValue}</div>
