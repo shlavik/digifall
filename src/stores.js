@@ -13,6 +13,10 @@ export const cards = writable(getFieldInitial());
 
 export const energy = writable(100);
 
+export const log = writable([]);
+
+export const options = writable({});
+
 export const shake = writable(0);
 
 export const sfx = writable(0);
@@ -22,4 +26,5 @@ export const initGame = () => {
   overlay.set(false);
   cards.set(getFieldInitial());
   energy.set(100);
+  log.set([]);
 }

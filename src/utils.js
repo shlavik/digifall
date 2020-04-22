@@ -3,7 +3,7 @@ const getRandr = (prev = 0) => (prev * 16807 + 19487171) % 2147483647;
 const getRandrzInitial = seed => {
   let count = 1,
     result = [getRandr(seed)];
-  while (count < 6) result = [...result, getRandr(++count * result[0])];
+  while (count < 6) result = result.concat(getRandr(++count * result[0]));
   return result;
 };
 

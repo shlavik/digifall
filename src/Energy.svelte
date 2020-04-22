@@ -11,7 +11,7 @@
 <style>
   .energy {
     background-color: hsl(60, 20%, 25%);
-    box-shadow: inset var(--shadow-1);
+    box-shadow: var(--inner-shadow-1);
     flex-basis: var(--pixel-11);
     width: 100%;
   }

@@ -1,5 +1,5 @@
 <script>
-  import { cards, energy, phase, overlay } from "./stores.js";
+  import { cards, energy, log, overlay, phase } from "./stores.js";
   import {
     getCardsFallen,
     getCardsMatched,
@@ -21,17 +21,27 @@
         plusIndex = undefined;
         matchedIndexes = getMatchedIndexes($cards);
         if (matchedIndexes.length) {
+          log.set(
+            $log.concat(
+              matchedIndexes.reduce((result, index) => {
+                const { value } = $cards[index];
+                result[value] = (result[value] || 0) + value;
+                return result;
+              }, {})
+            )
+          );
           setTimeout(() => phase.set("match"), 600);
         } else if ($energy < 10) {
           phase.set("gameover");
         } else {
-          if ($energy > 100) energy.set(100);
           phase.set("idle");
+          if ($energy > 100) energy.set(100);
+          if ($log.length) log.set([]);
         }
         break;
       case "match":
         const energyDiff = matchedIndexes.reduce(
-          (result, value) => result + $cards[value].value,
+          (result, index) => result + $cards[index].value,
           0
         );
         energy.set($energy + energyDiff);
@@ -69,8 +79,7 @@
       url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity=".6"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
     background-size: var(--pixel-6) var(--pixel-6);
     border: var(--pixel) solid hsl(60, 20%, 25%);
-    box-shadow: inset var(--shadow-2);
-    box-sizing: border-box;
+    box-shadow: var(--inner-shadow-2);
     height: var(--game-width);
     position: relative;
     width: var(--game-width);

@@ -6,8 +6,12 @@
   font-family: font7x7;
   src: url("./fonts/7x7.ttf");
 }
+* {
+  box-sizing: border-box;
+}
 html {
   --minus-pixel: calc(-1 * var(--pixel));
+  --minus-half-pixel: calc(-0.5 * var(--pixel));
   --half-pixel: calc(0.5 * var(--pixel));
   --pixel-0: 0;
   --pixel-1: var(--pixel);
@@ -33,9 +37,11 @@ html {
   --pixel-231: calc(231 * var(--pixel));
   --pixel-252: calc(252 * var(--pixel));
   --game-width: calc(128 * var(--pixel));
-  --shadow-0: 0 0 0 rgba(0, 0, 0, 0);
-  --shadow-1: 0 var(--half-pixel) var(--half-pixel) rgba(0, 0, 0, 0.4);
-  --shadow-2: 0 var(--pixel) var(--pixel) rgba(0, 0, 0, 0.4);
+  --shadow-0: 0 0 1px black;
+  --shadow-1: 0 var(--half-pixel) var(--half-pixel) rgba(0, 0, 0, 0.4), 0 -1px 0 rgba(255, 255, 255, 0.6);
+  --shadow-2: 0 var(--pixel) var(--pixel) rgba(0, 0, 0, 0.4), 0 -1px 0 rgba(255, 255, 255, 0.6);
+  --inner-shadow-1: inset 0 var(--half-pixel) var(--half-pixel) rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255, 255, 255, 0.6);
+  --inner-shadow-2: inset 0 var(--pixel) var(--pixel) rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255, 255, 255, 0.6);
   height: 100%;
 }
 body {
@@ -48,6 +54,36 @@ body {
   margin: 0;
   overflow: hidden;
   user-select: none;
+}
+.color-0 {
+  --color: hsl(60, 20%, 40%);
+}
+.color-1 {
+  --color: hsl(90, 100%, 55%);
+}
+.color-2 {
+  --color: hsl(48, 100%, 50%);
+}
+.color-3 {
+  --color: hsl(32, 100%, 50%);
+}
+.color-4 {
+  --color: hsl(4, 100%, 55%);
+}
+.color-5 {
+  --color: hsl(334, 100%, 65%);
+}
+.color-6 {
+  --color: hsl(296, 100%, 40%);
+}
+.color-7 {
+  --color: hsl(248, 100%, 60%);
+}
+.color-8 {
+  --color: hsl(206, 100%, 55%);
+}
+.color-9 {
+  --color: hsl(156, 100%, 45%);
 }
 .content {
   align-items: center;
@@ -68,21 +104,21 @@ body {
   font-size: var(--pixel-5);
   letter-spacing: var(--pixel);
   line-height: 1;
-  outline: 0 none;
-  padding: 0 var(--pixel-7);
+  outline: 1px solid white;
+  padding: 0;
   text-indent: var(--pixel);
   transition: all 100ms;
+  width: var(--pixel-84);
 }
 .content button:focus,
 .content button:hover {
   background-color: rgba(0, 0, 0, 0.6);
-  border: var(--half-pixel) solid white;
+  border-width: var(--pixel);
   cursor: pointer;
-  outline: 0 none;
 }
 .content button:active {
   background-color: rgba(0, 0, 0, 0.8);
-  outline: var(--half-pixel) solid white;
+  outline-width: var(--pixel);
 }
 .big-text {
   color: white;
