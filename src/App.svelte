@@ -76,10 +76,10 @@
   onresize = updateAppStyle;
 
   // DELME
-  onkeypress = ({ key }) => {
-    if (key === "1") energy.set(10);
-    if (key === "0") energy.set(100);
-  };
+  // onkeypress = ({ key }) => {
+  //   if (key === "1") energy.set(10);
+  //   if (key === "0") energy.set(100);
+  // };
 </script>
 
 <style>
@@ -89,8 +89,6 @@
 </style>
 
 <div class="app" {style}>
-  <!-- // DELME -->
-  <span style="color: white; position: absolute">{$phase}</span>
   <Game />
   {#if $overlay}
     <Overlay>

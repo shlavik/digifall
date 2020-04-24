@@ -1,5 +1,5 @@
 <script>
-  import { cards, energy, log, overlay, phase } from "./stores.js";
+  import { cards, energy, log, overlay, score, phase } from "./stores.js";
   import {
     getCardsFallen,
     getCardsMatched,
@@ -26,6 +26,7 @@
               matchedIndexes.reduce((result, index) => {
                 const { value } = $cards[index];
                 result[value] = (result[value] || 0) + value;
+                result.sum = (result.sum || 0) + value;
                 return result;
               }, {})
             )
