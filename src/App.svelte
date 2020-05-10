@@ -57,17 +57,17 @@
         calc(${d} * var(--pixel));`;
   };
 
-  let style = getNewAppStyle();
+  let appStyle = getNewAppStyle();
 
   const updateAppStyle = () => {
-    const { documentElement } = document;
+    const { style } = document.documentElement;
     const { offsetHeight, offsetWidth } = document.querySelector(".app");
     if (offsetHeight / offsetWidth > 1.5) {
-      documentElement.style.setProperty("--pixel", `${offsetWidth / 128}px`);
-      style = undefined;
+      style.setProperty("--pixel", `${offsetWidth / 128}px`);
+      appStyle = undefined;
     } else {
-      documentElement.style.setProperty("--pixel", `${offsetHeight / 192}px`);
-      style = getNewAppStyle();
+      style.setProperty("--pixel", `${offsetHeight / 192}px`);
+      appStyle = getNewAppStyle();
     }
   };
 
@@ -76,10 +76,12 @@
   onresize = updateAppStyle;
 
   // DELME
-  // onkeypress = ({ key }) => {
-  //   if (key === "1") energy.set(10);
-  //   if (key === "0") energy.set(100);
-  // };
+  onkeydown = ({ key }) => {
+    if (key === "1") energy.set(10);
+    else if (key === "0") energy.set(100);
+    else if (key === "ArrowRight") energy.set($energy + 1);
+    else if (key === "ArrowLeft") energy.set($energy - 1);
+  };
 </script>
 
 <style>
@@ -88,7 +90,7 @@
   }
 </style>
 
-<div class="app" {style}>
+<div class="app" style={appStyle}>
   <Game />
   {#if $overlay}
     <Overlay>

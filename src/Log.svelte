@@ -13,12 +13,14 @@
     height: 100%;
     justify-content: flex-end;
     left: 0;
+    letter-spacing: var(--pixel);
     line-height: var(--pixel-7);
     list-style-type: none;
     margin: 0;
     overflow: hidden;
     padding: var(--pixel) var(--pixel-4);
     position: absolute;
+    text-indent: var(--pixel);
     text-shadow: var(--shadow-1);
     top: 0;
     width: 100%;

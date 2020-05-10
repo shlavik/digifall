@@ -12,9 +12,9 @@
   $: nextValue = value < 9 ? value + 1 : 0;
 
   $: style = `
-    transition-duration: ${fallPhase ? duration : 0}ms;
-    left: var(--pixel-${x * 21});
     bottom: var(--pixel-${y * 21});
+    left: var(--pixel-${x * 21});
+    transition-duration: ${fallPhase ? duration : 0}ms;
   `;
 </script>
 
@@ -45,12 +45,17 @@
     width: var(--pixel-21);
     z-index: 1;
   }
+  .current {
+    clip-path: circle(100%);
+    -webkit-clip-path: circle(100%);
+    will-change: clip-path;
+  }
   .next {
     transform: rotateY(-180deg);
   }
   .plused {
     box-shadow: none;
-    perspective: var(--game-width);
+    perspective: var(--pixel-board);
     z-index: 2;
   }
   .plused .value {
@@ -66,8 +71,8 @@
     box-shadow: none;
   }
   .matched .current {
+    animation: blink 200ms steps(2, end) 2, fade-out 400ms ease 400ms forwards;
     box-shadow: none;
-    animation: blink 150ms steps(3, end) 2, fade-out 300ms ease 300ms;
   }
   @media (hover: hover) and (pointer: fine) {
     .clickable:hover {
@@ -91,11 +96,11 @@
     }
   }
   @keyframes fade-out {
-    0% {
+    from {
       clip-path: circle(100%);
       -webkit-clip-path: circle(100%);
     }
-    100% {
+    to {
       clip-path: circle(0);
       -webkit-clip-path: circle(0);
     }

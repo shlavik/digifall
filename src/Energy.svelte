@@ -1,40 +1,74 @@
 <script>
-  import { energy } from "./stores.js";
+  import { energy, rColor } from "./stores.js";
 
-  const getBarWidth = value => {
-    if (value > 100) return 100;
-    if (value < 0) return 0;
-    return value;
+  let leftBarFlex, rightBarFlex, rightValueLeft;
+
+  const updateRColor = () => {
+    if ($energy > 100) {
+      rColor.set(`hsl(${Math.floor(360 * Math.random())}, 100%, 50%)`);
+      requestAnimationFrame(updateRColor);
+    }
   };
+
+  energy.subscribe(energy => {
+    updateRColor();
+    leftBarFlex = (energy > 100 ? 200 - energy : energy) / 100;
+    rightBarFlex = energy > 100 ? (energy - 100) / 100 : 0;
+    rightValueLeft = (() => {
+      if (energy > 119) return 0;
+      return (energy > 100 ? energy - 120 : -20) / 100;
+    })();
+  });
 </script>
 
 <style>
   .energy {
-    background-color: hsl(60, 20%, 25%);
-    box-shadow: var(--inner-shadow-1);
-    flex-basis: var(--pixel-11);
+    background-color: var(--color-dark);
+    box-shadow: var(--shadow-inset-1);
+    display: flex;
+    font-size: var(--pixel-7);
+    position: relative;
     width: 100%;
   }
-  .bar {
-    align-items: center;
-    background-color: white;
+  .left-bar,
+  .right-bar {
     box-shadow: var(--shadow-1);
-    display: flex;
-    height: 100%;
-    justify-content: flex-end;
+    padding: var(--pixel) 0;
     overflow: hidden;
-    transition: width 200ms ease-in;
+    transition: flex 200ms ease-in-out;
   }
-  .value {
-    color: hsl(60, 20%, 25%);
-    font-size: var(--pixel-7);
-    letter-spacing: var(--pixel);
-    line-height: 1;
+  .left-bar {
+    background-color: white;
+    text-align: right;
+  }
+  .right-bar {
+    z-index: 1;
+  }
+  .left-value {
+    color: var(--color-dark);
+    right: 0;
+  }
+  .right-value {
+    color: white;
+    transition: left 200ms ease-in-out;
   }
 </style>
 
 <div class="energy">
-  <div class="bar" style={`width: ${getBarWidth($energy)}%`}>
-    <span class="value">{$energy}</span>
+  <div class="left-bar" style={`flex: ${leftBarFlex}`}>
+    <span
+      class="left-value"
+      style={`position: ${$energy > 100 ? 'absolute' : 'relative'}`}>
+      {$energy}
+    </span>
+  </div>
+  <div
+    class="right-bar"
+    style={`background-color: ${$energy > 100 ? $rColor : 'var(--color-dark)'}; flex: ${rightBarFlex}`}>
+    <span
+      class="right-value"
+      style={`left: calc(${rightValueLeft} * var(--pixel-board)); position: ${$energy > 100 ? 'relative' : 'absolute'}`}>
+      {$energy}
+    </span>
   </div>
 </div>

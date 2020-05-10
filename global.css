@@ -10,9 +10,12 @@
   box-sizing: border-box;
 }
 html {
-  --minus-pixel: calc(-1 * var(--pixel));
-  --minus-half-pixel: calc(-0.5 * var(--pixel));
-  --half-pixel: calc(0.5 * var(--pixel));
+  --color-base: hsl(60, 20%, 60%);
+  --color-board: hsl(60, 20%, 10%);
+  --color-dark: hsl(60, 20%, 25%);
+  --color-zero: hsl(60, 20%, 40%);
+  --color-black-04: rgba(0, 0, 0, 0.4);
+  --color-black-08: rgba(0, 0, 0, 0.8);
   --pixel-0: 0;
   --pixel-1: var(--pixel);
   --pixel-2: calc(2 * var(--pixel));
@@ -21,6 +24,7 @@ html {
   --pixel-5: calc(5 * var(--pixel));
   --pixel-6: calc(6 * var(--pixel));
   --pixel-7: calc(7 * var(--pixel));
+  --pixel-9: calc(9 * var(--pixel));
   --pixel-11: calc(11 * var(--pixel));
   --pixel-13: calc(13 * var(--pixel));
   --pixel-21: calc(21 * var(--pixel));
@@ -36,27 +40,33 @@ html {
   --pixel-210: calc(210 * var(--pixel));
   --pixel-231: calc(231 * var(--pixel));
   --pixel-252: calc(252 * var(--pixel));
-  --game-width: calc(128 * var(--pixel));
-  --shadow-0: 0 0 1px black;
-  --shadow-1: 0 var(--half-pixel) var(--half-pixel) rgba(0, 0, 0, 0.4), 0 -1px 0 rgba(255, 255, 255, 0.6);
-  --shadow-2: 0 var(--pixel) var(--pixel) rgba(0, 0, 0, 0.4), 0 -1px 0 rgba(255, 255, 255, 0.6);
-  --inner-shadow-1: inset 0 var(--half-pixel) var(--half-pixel) rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255, 255, 255, 0.6);
-  --inner-shadow-2: inset 0 var(--pixel) var(--pixel) rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255, 255, 255, 0.6);
+  --pixel-board: calc(128 * var(--pixel));
+  --pixel-half: calc(0.5 * var(--pixel));
+  --pixel-minus: calc(-1 * var(--pixel));
+  --shadow-0: none;
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-21: 0 0 0 transparent;
+  --shadow-inset-1: none;
+  --shadow-inset-2: none;
   height: 100%;
 }
 body {
   background-color: black;
+  color: white;
   font-family: font7x7;
   font-size: var(--pixel-5);
   height: 100%;
-  letter-spacing: var(--pixel-1);
+  letter-spacing: var(--pixel);
   line-height: 1;
   margin: 0;
   overflow: hidden;
+  text-indent: var(--pixel);
+  text-shadow: var(--shadow-1);
   user-select: none;
 }
 .color-0 {
-  --color: hsl(60, 20%, 40%);
+  --color: var(--color-zero);
 }
 .color-1 {
   --color: hsl(90, 100%, 55%);
@@ -85,49 +95,77 @@ body {
 .color-9 {
   --color: hsl(156, 100%, 45%);
 }
-.content {
+.content, .section-1, .section-2, .section-3, .section-4 {
   align-items: center;
   display: flex;
   flex-direction: column;
-  height: 100%;
   justify-content: space-evenly;
+  width: var(--pixel-board);
+}
+.content {
+  height: 100%;
   margin: auto;
-  text-shadow: var(--shadow-1);
-  width: var(--game-width);
 }
 .content button {
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: white;
   border: 1px solid white;
-  color: white;
-  flex-basis: var(--pixel-21);
+  color: black;
+  flex-basis: var(--pixel-13);
   font-family: font5x5;
   font-size: var(--pixel-5);
-  letter-spacing: var(--pixel);
   line-height: 1;
-  outline: 1px solid white;
+  outline: var(--pixel) solid white;
   padding: 0;
-  text-indent: var(--pixel);
   transition: all 100ms;
   width: var(--pixel-84);
 }
 .content button:focus,
 .content button:hover {
-  background-color: rgba(0, 0, 0, 0.6);
-  border-width: var(--pixel);
+  background-color: var(--color-black-04);
+  color: white;
   cursor: pointer;
 }
 .content button:active {
-  background-color: rgba(0, 0, 0, 0.8);
-  outline-width: var(--pixel);
+  background-color: var(--color-black-08);
+  border-width: var(--pixel);
+  outline-width: 1px;
 }
-.big-text {
-  color: white;
-  font-size: var(--pixel-7);
+.content button, .text-big, .text-small {
   letter-spacing: var(--pixel-2);
   text-indent: var(--pixel-2);
 }
+.section-1 {
+  flex-basis: var(--pixel-37);;
+}
+.section-2 {
+  flex-basis: var(--pixel-13);
+}
+.section-3 {
+  flex-basis: var(--pixel-board);
+}
+.section-4 {
+  flex-basis: var(--pixel-9);
+}
+.score {
+  font-family: font5x5;
+  font-size: var(--pixel-7);
+  letter-spacing: var(--pixel-2);
+  padding-right: var(--pixel-3);
+  text-align: right;
+  width: 100%;
+}
+.text-big {
+  font-size: var(--pixel-7);
+}
+.text-small {
+  font-family: font5x5;
+  font-size: var(--pixel-5);
+}
 .overflow-hidden {
   overflow: hidden;
+}
+.width-100 {
+  width: 100%;
 }
 .blur {
   filter: blur(var(--pixel));

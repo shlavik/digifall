@@ -4,7 +4,7 @@
 
 <style>
   .overlay {
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: var(--color-black-08);
     bottom: 0;
     left: 0;
     position: absolute;

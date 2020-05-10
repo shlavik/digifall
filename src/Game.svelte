@@ -10,22 +10,21 @@
 
 <style>
   .game {
-    background-color: hsl(60, 20%, 60%);
-    box-shadow: var(--minus-pixel) 0 0 0 hsl(60, 20%, 60%),
-      var(--pixel) 0 0 0 hsl(60, 20%, 60%),
-      0 0 var(--pixel-21) var(--pixel-1) black;
+    background-color: var(--color-base);
+    box-shadow: var(--pixel-minus) 0 0 0 var(--color-base),
+      var(--pixel) 0 0 0 var(--color-base),
+      var(--shadow-21);
+    overflow: hidden;
   }
   .digifall,
   .digifall:focus,
   .digifall:hover {
-    background-color: hsl(60, 20%, 25%);
-    border: 0 none;
-    box-shadow: var(--inner-shadow-1);
-    color: hsl(60, 20%, 40%);
-    flex-basis: var(--pixel-37);
-    height: 100%;
-    margin: 0;
-    outline: 0 none;
+    background-color: var(--color-dark);
+    border: none;
+    box-shadow: var(--shadow-inset-1);
+    color: var(--color-zero);
+    flex-grow: 1;
+    outline: none;
     position: relative;
     text-shadow: var(--shadow-1);
     transition: all 400ms;
@@ -35,18 +34,26 @@
   .screen,
   .screen:focus,
   .screen:hover {
-    background-color: hsl(60, 20%, 25%);
-    color: hsl(60, 20%, 25%);
+    background-color: var(--color-dark);
+    color: var(--color-dark);
     text-shadow: var(--shadow-0);
   }
 </style>
 
 <div class="game content" class:blur={$overlay === true}>
-  <button class="digifall" class:screen={$log.length} on:click={openOverlay}>
-    <span>work in progress</span>
-    <Log />
-  </button>
-  <Score />
-  <Board />
-  <Energy />
+  <div class="section-1">
+    <button class="digifall" class:screen={$log.length} on:click={openOverlay}>
+      <span>work in progress</span>
+      <Log />
+    </button>
+  </div>
+  <div class="section-2">
+    <Score />
+  </div>
+  <div class="section-3">
+    <Board />
+  </div>
+  <div class="section-4">
+    <Energy />
+  </div>
 </div>

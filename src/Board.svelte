@@ -31,7 +31,7 @@
               }, {})
             )
           );
-          setTimeout(() => phase.set("match"), 600);
+          setTimeout(() => phase.set("match"), 800);
         } else if ($energy < 10) {
           phase.set("gameover");
         } else {
@@ -48,7 +48,7 @@
         energy.set($energy + energyDiff);
         cards.set(getCardsMatched($cards, matchedIndexes));
         matchedIndexes = [];
-        setTimeout(() => phase.set("fall"), 600);
+        setTimeout(() => phase.set("fall"), 400);
         break;
       case "fall":
         cards.set(getCardsFallen($cards));
@@ -76,14 +76,14 @@
 
 <style>
   .board {
-    background: hsl(60, 20%, 10%)
+    background: var(--color-board)
       url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity=".6"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
     background-size: var(--pixel-6) var(--pixel-6);
-    border: var(--pixel) solid hsl(60, 20%, 25%);
-    box-shadow: var(--inner-shadow-2);
-    height: var(--game-width);
+    border: var(--pixel) solid var(--color-dark);
+    filter: drop-shadow(var(--shadow-inset-2));
+    height: var(--pixel-board);
     position: relative;
-    width: var(--game-width);
+    width: var(--pixel-board);
   }
 </style>
 
