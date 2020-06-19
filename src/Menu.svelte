@@ -12,22 +12,18 @@
     const none = "none";
     const transparent = "0 0 0 transparent";
     const shadow0 = "0 0 1px black";
-    const shadow1 =
-      "0 var(--pixel-half) var(--pixel-half) var(--color-black-04), 0 -1px 0 rgba(255, 255, 255, 0.6)";
-    const shadow2 =
-      "0 var(--pixel) var(--pixel) var(--color-black-04), 0 -1px 0 rgba(255, 255, 255, 0.6)";
-    const shadow21 = "0 0 var(--pixel-21) var(--pixel) black";
-    const shadowInset1 =
-      "inset 0 var(--pixel-half) var(--pixel-half) var(--color-black-04), 0 1px 0 rgba(255, 255, 255, 0.6)";
-    const shadowInset2 =
-      "inset 0 var(--pixel) var(--pixel) var(--color-black-04), 0 1px 0 rgba(255, 255, 255, 0.6)";
+    const shadow1 = "0 0.5rem 0.5rem var(--color-black-04), 0 -1px 0 var(--color-white-06)";
+    const shadow2 = "0 1rem 1rem var(--color-black-04),  0 -1px 0 var(--color-white-06)";
+    const shadow21 = "0 0 21rem 1rem black";
+    const shadowInset1 = "inset 0 0.5rem 0.5rem var(--color-black-04), 0 1px 0 var(--color-white-06)";
+    const shadowInset2 = "inset 0 1rem 1rem var(--color-black-04), 0 1px 0 var(--color-white-06)";
     style.setProperty("--shadow-0", shadow ? none : shadow0);
     style.setProperty("--shadow-1", shadow ? none : shadow1);
     style.setProperty("--shadow-2", shadow ? none : shadow2);
     style.setProperty("--shadow-21", shadow ? transparent : shadow21);
     style.setProperty("--shadow-inset-1", shadow ? none : shadowInset1);
     style.setProperty("--shadow-inset-2", shadow ? none : shadowInset2);
-    options.set({ ...options, shadow: !shadow });
+    options.set({ ...$options, shadow: !shadow });
   };
 
   const fullscreenClick = () => {
@@ -45,7 +41,7 @@
     <span class="text-small">work in progress</span>
   </div>
   <div class="section-2">
-    <span class="score">{$score}</span>
+    <span class="score">{$score.value}</span>
   </div>
   <div class="section-3">
     <button on:click={resumeClick}>resume</button>

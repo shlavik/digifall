@@ -6,7 +6,7 @@
   import Menu from "./Menu.svelte";
   import Overlay from "./Overlay.svelte";
 
-  const shuffleArray = array => {
+  const shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; --i) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
@@ -40,7 +40,7 @@
       79,
       83,
       89,
-      97
+      97,
     ]);
     return `
       background-color: ${getRandomColor()};
@@ -50,11 +50,7 @@
         linear-gradient(90deg, transparent 50%, ${getRandomColor()} 50%),
         linear-gradient(90deg, transparent 50%, ${getRandomColor()} 50%);
       background-position: center;
-      background-size:
-        calc(${a} * var(--pixel)),
-        calc(${b} * var(--pixel)),
-        calc(${c} * var(--pixel)),
-        calc(${d} * var(--pixel));`;
+      background-size: ${a}rem, ${b}rem, ${c}rem, ${d}rem;`;
   };
 
   let appStyle = getNewAppStyle();
@@ -77,10 +73,10 @@
 
   // DELME
   onkeydown = ({ key }) => {
-    if (key === "1") energy.set(10);
-    else if (key === "0") energy.set(100);
-    else if (key === "ArrowRight") energy.set($energy + 1);
-    else if (key === "ArrowLeft") energy.set($energy - 1);
+    if (key === "1") energy.set({ buffer: 0, value: 10 });
+    else if (key === "0") energy.set({ buffer: 0, value: 100 });
+    else if (key === "ArrowRight") energy.set({ ...$energy, buffer: 1 });
+    else if (key === "ArrowLeft") energy.set({ ...$energy, buffer: -1 });
   };
 </script>
 

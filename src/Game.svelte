@@ -11,8 +11,8 @@
 <style>
   .game {
     background-color: var(--color-base);
-    box-shadow: var(--pixel-minus) 0 0 0 var(--color-base),
-      var(--pixel) 0 0 0 var(--color-base),
+    box-shadow: -1rem 0 0 0 var(--color-base),
+      1rem 0 0 0 var(--color-base),
       var(--shadow-21);
     overflow: hidden;
   }

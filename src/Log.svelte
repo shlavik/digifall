@@ -1,5 +1,16 @@
 <script>
-  import { log } from "./stores.js";
+  import { log, phase, score } from "./stores.js";
+
+  phase.subscribe(() => {
+    if ($phase === "total")
+      score.set({
+        ...$score,
+        buffer: $log.reduce(
+          (result, { sum }, index) => result + (index + 1) * sum,
+          0
+        ),
+      });
+  });
 </script>
 
 <style>
@@ -9,18 +20,18 @@
     counter-reset: num;
     display: flex;
     flex-direction: column;
-    font-size: var(--pixel-5);
+    font-size: 5rem;
     height: 100%;
     justify-content: flex-end;
     left: 0;
-    letter-spacing: var(--pixel);
-    line-height: var(--pixel-7);
+    letter-spacing: 1rem;
+    line-height: 7rem;
     list-style-type: none;
     margin: 0;
     overflow: hidden;
-    padding: var(--pixel) var(--pixel-4);
+    padding: 1rem 4rem;
     position: absolute;
-    text-indent: var(--pixel);
+    text-indent: 1rem;
     text-shadow: var(--shadow-1);
     top: 0;
     width: 100%;
@@ -40,26 +51,21 @@
   }
   .log .sum {
     position: absolute;
-    right: var(--pixel-4);
-  }
-  .log .sum::before {
-    content: "+";
+    right: 4rem;
   }
 </style>
 
 {#if $log.length}
   <ol class="log">
-    {#each $log.slice(-5) as combo, index1}
+    {#each $log as { sum, ...combo }, index1}
       <li>
         {#each Object.entries(combo) as [key, value], index2}
-          {#if key !== 'sum'}
-            <span class="value color-{key}">{value}</span>
-            {#if index2 < Object.keys(combo).length - 2}
-              <span class="plus">+</span>
-            {/if}
+          <span class="value color-{key}">{value}</span>
+          {#if index2 < Object.keys(combo).length - 1}
+            <span class="plus">+</span>
           {/if}
         {/each}
-        <span class="sum">{(index1 + 1) * combo.sum}</span>
+        <span class="sum">{(index1 + 1) * sum}</span>
       </li>
     {/each}
   </ol>

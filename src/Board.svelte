@@ -1,18 +1,18 @@
 <script>
-  import { cards, energy, log, overlay, score, phase } from "./stores.js";
+  import { cards, energy, log, overlay, phase } from "./stores.js";
   import {
     getCardsFallen,
     getCardsMatched,
     getCardsPlusOne,
-    getMatchedIndexes
+    getMatchedIndexes,
   } from "./utils.js";
   import Card from "./Card.svelte";
 
   let plusIndex;
   let matchedIndexes = [];
 
-  phase.subscribe(value => {
-    switch (value) {
+  phase.subscribe(() => {
+    switch ($phase) {
       case "plus":
         cards.set(getCardsPlusOne($cards, plusIndex));
         phase.set("blink");
@@ -31,21 +31,19 @@
               }, {})
             )
           );
+          const buffer = matchedIndexes.reduce(
+            (result, index) => result + $cards[index].value,
+            0
+          );
+          setTimeout(() => energy.set({ ...$energy, buffer }), 400);
           setTimeout(() => phase.set("match"), 800);
-        } else if ($energy < 10) {
+        } else if ($energy.value < 10) {
           phase.set("gameover");
         } else {
-          phase.set("idle");
-          if ($energy > 100) energy.set(100);
-          if ($log.length) log.set([]);
+          phase.set("total");
         }
         break;
       case "match":
-        const energyDiff = matchedIndexes.reduce(
-          (result, index) => result + $cards[index].value,
-          0
-        );
-        energy.set($energy + energyDiff);
         cards.set(getCardsMatched($cards, matchedIndexes));
         matchedIndexes = [];
         setTimeout(() => phase.set("fall"), 400);
@@ -56,6 +54,9 @@
         break;
       case "gameover":
         overlay.set(true);
+        break;
+      case "total":
+        break;
     }
   });
 
@@ -68,7 +69,7 @@
     if ($phase !== "idle" || plusIndex) return;
     plusIndex = Number(getTargetDataIndex(target));
     if (!Number.isNaN(plusIndex)) {
-      energy.set($energy - 10);
+      energy.set({ ...$energy, buffer: -10 });
       setTimeout(() => phase.set("plus"), 400);
     }
   };
@@ -78,12 +79,12 @@
   .board {
     background: var(--color-board)
       url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity=".6"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
-    background-size: var(--pixel-6) var(--pixel-6);
-    border: var(--pixel) solid var(--color-dark);
+    background-size: 6rem 6rem;
+    border: 1rem solid var(--color-dark);
     filter: drop-shadow(var(--shadow-inset-2));
-    height: var(--pixel-board);
+    height: 128rem;
     position: relative;
-    width: var(--pixel-board);
+    width: 128rem;
   }
 </style>
 

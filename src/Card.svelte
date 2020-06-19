@@ -12,8 +12,8 @@
   $: nextValue = value < 9 ? value + 1 : 0;
 
   $: style = `
-    bottom: var(--pixel-${y * 21});
-    left: var(--pixel-${x * 21});
+    bottom: ${y * 21}rem;
+    left: ${x * 21}rem;
     transition-duration: ${fallPhase ? duration : 0}ms;
   `;
 </script>
@@ -22,12 +22,12 @@
   .card {
     box-shadow: var(--shadow-2);
     cursor: progress;
-    height: var(--pixel-21);
+    height: 21rem;
     letter-spacing: 0;
     position: absolute;
     transition-property: bottom;
     transition-timing-function: cubic-bezier(0.56, 0, 1, 1);
-    width: var(--pixel-21);
+    width: 21rem;
     will-change: bottom;
   }
   .current,
@@ -37,15 +37,16 @@
     background-color: var(--color);
     box-shadow: var(--shadow-0);
     color: white;
-    font-size: var(--pixel-13);
-    height: var(--pixel-21);
-    line-height: var(--pixel-21);
+    font-size: 13rem;
+    height: 21rem;
+    line-height: 21rem;
     position: absolute;
     text-align: center;
-    width: var(--pixel-21);
+    width: 21rem;
     z-index: 1;
   }
   .current {
+    box-sizing: content-box;
     clip-path: circle(100%);
     -webkit-clip-path: circle(100%);
     will-change: clip-path;
@@ -55,7 +56,7 @@
   }
   .plused {
     box-shadow: none;
-    perspective: var(--pixel-board);
+    perspective: 128rem;
     z-index: 2;
   }
   .plused .value {
@@ -82,7 +83,12 @@
     }
     .clickable:hover .current,
     .clickable:hover .next {
+      border-bottom: 1px solid var(--color);
       box-shadow: var(--shadow-1);
+      top: -1px;
+    }
+    .clickable:active .current {
+      top: 0;
     }
   }
   @keyframes blink {

@@ -150,3 +150,12 @@ export const getCardsPlusOne = (cards, plusIndex) =>
       }
       : card
   );
+
+export const getBufferDiff = (value) => {
+  const { abs, sign, sqrt, trunc } = Math;
+  return sign(value) * trunc(sqrt(abs(value)));
+};
+
+export const arrayToBase64 = arr => btoa(String.fromCodePoint(...arr));
+
+export const base64ToArray = str => [...atob(str)].map(chr => chr.charCodeAt());
