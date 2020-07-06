@@ -1,15 +1,29 @@
 <script>
-  import { log, phase, score } from "./stores.js";
+  import { energy, log, phase, randomColor, score } from "./stores.js";
+  import { getBufferDiff, getDiffTime } from "./utils.js";
 
-  phase.subscribe(() => {
-    if ($phase === "total")
-      score.set({
-        ...$score,
-        buffer: $log.reduce(
-          (result, { sum }, index) => result + (index + 1) * sum,
-          0
-        ),
-      });
+  const updateRandomColor = () => {
+    if ($energy.value > 100 || $phase !== "score") {
+      randomColor.set(`hsl(${Math.floor(360 * Math.random())}, 100%, 50%)`);
+      requestAnimationFrame(updateRandomColor);
+    } else {
+      randomColor.set("white");
+    }
+  };
+
+  log.subscribe(() => {
+    if ($randomColor === "white") updateRandomColor();
+    if ($phase !== "extra") return;
+    if ($energy.value < 101) return phase.set("total");
+    const diff = getBufferDiff($energy.value - 100);
+    const ms = getDiffTime(diff);
+    const [{ extra }] = $log.slice(-1);
+    const newLog = $log.slice(0, -1).concat({ extra: extra + diff });
+    const newEnergy = { ...$energy, buffer: -diff };
+    setTimeout(() => {
+      log.set(newLog);
+      energy.set(newEnergy);
+    }, ms);
   });
 </script>
 
@@ -39,11 +53,11 @@
   .log li {
     display: flex;
   }
-  .log li::before {
+  .log .combo::before {
     content: counter(num) "[";
     counter-increment: num;
   }
-  .log li::after {
+  .log .combo::after {
     content: "]=";
   }
   .log .value {
@@ -57,16 +71,33 @@
 
 {#if $log.length}
   <ol class="log">
-    {#each $log as { sum, ...combo }, index1}
-      <li>
-        {#each Object.entries(combo) as [key, value], index2}
-          <span class="value color-{key}">{value}</span>
-          {#if index2 < Object.keys(combo).length - 1}
-            <span class="plus">+</span>
+    {#if $phase !== 'score'}
+      {#each $log as { extra, sum, ...combo }, index1}
+        <li class="combo">
+          {#each Object.entries(combo) as [key, value], index2}
+            <span class="value color-{key}">{value}</span>
+            {#if index2 < Object.keys(combo).length - 1}
+              <span class="plus">+</span>
+            {/if}
+          {/each}
+          {#if extra !== undefined}
+            <span class="extra" style={`color: ${$randomColor}`}>
+              {extra}
+            </span>
+            <span class="sum" style={`color: ${$randomColor}`}>{(index1 + 1) * extra}</span>
+          {:else}
+            <span class="sum">{(index1 + 1) * sum}</span>
           {/if}
-        {/each}
-        <span class="sum">{(index1 + 1) * sum}</span>
+        </li>
+      {/each}
+    {/if}
+    {#if $phase === 'total' || $phase === 'score'}
+      <li>
+        total:
+        <span class="sum">
+          {#if $phase === 'score' && $score.buffer !== 0}+{/if}{$score.buffer}
+        </span>
       </li>
-    {/each}
+    {/if}
   </ol>
 {/if}

@@ -1,5 +1,5 @@
 <script>
-  import { cards, energy, log, overlay, phase } from "./stores.js";
+  import { cards, energy, log, overlay, phase, score } from "./stores.js";
   import {
     getCardsFallen,
     getCardsMatched,
@@ -12,6 +12,7 @@
   let matchedIndexes = [];
 
   phase.subscribe(() => {
+    console.log($phase);
     switch ($phase) {
       case "plus":
         cards.set(getCardsPlusOne($cards, plusIndex));
@@ -37,10 +38,14 @@
           );
           setTimeout(() => energy.set({ ...$energy, buffer }), 400);
           setTimeout(() => phase.set("match"), 800);
+        } else if ($energy.value > 100) {
+          phase.set("extra");
         } else if ($energy.value < 10) {
           phase.set("gameover");
-        } else {
+        } else if ($log.length) {
           phase.set("total");
+        } else {
+          phase.set("idle");
         }
         break;
       case "match":
@@ -52,10 +57,28 @@
         cards.set(getCardsFallen($cards));
         setTimeout(() => phase.set("blink"), 400);
         break;
-      case "gameover":
-        overlay.set(true);
+      case "extra":
+        log.set($log.concat({ extra: 0 }));
         break;
       case "total":
+        score.set({
+          ...$score,
+          buffer: $log.reduce(
+            (result, { extra, sum }, index) => (
+              result + (index + 1) * (sum || extra)
+            ),
+            0
+          ),
+        });
+        setTimeout(() => {
+          phase.set("score");
+          score.set({ ...$score });
+        }, 1000);
+        break;
+      case "score":
+        break;
+      case "gameover":
+        overlay.set(true);
         break;
     }
   });
@@ -77,8 +100,8 @@
 
 <style>
   .board {
-    background: var(--color-board)
-      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity=".6"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
+    background-color: var(--color-board);
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity=".6"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
     background-size: 6rem 6rem;
     border: 1rem solid var(--color-dark);
     filter: drop-shadow(var(--shadow-inset-2));

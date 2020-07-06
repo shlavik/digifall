@@ -124,7 +124,7 @@ export const getMatchedIndexes = cards => {
 };
 
 export const getCardsMatched = (cards, matchedIndexes) => {
-  let counts = [0, 0, 0, 0, 0, 0];
+  const counts = [0, 0, 0, 0, 0, 0];
   const getNewY = x => counts[x] + cards.filter(card => card.x === x).sort(({ y: y1 }, { y: y2 }) => y1 - y2)[5].y;
   return cards.map((card, index) => {
     if (matchedIndexes.includes(index) && card.y < 6) {
@@ -154,6 +154,30 @@ export const getCardsPlusOne = (cards, plusIndex) =>
 export const getBufferDiff = (value) => {
   const { abs, sign, sqrt, trunc } = Math;
   return sign(value) * trunc(sqrt(abs(value)));
+};
+
+export const getDiffTime = (diff) => {
+  switch (diff) {
+    case 0:
+      return 200;
+    case 1:
+      return 134;
+    case 2:
+    case 3:
+      return 90;
+    case 4:
+    case 5:
+    case 6:
+      return 60;
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+      return 40;
+    default:
+      return 27;
+  }
 };
 
 export const arrayToBase64 = arr => btoa(String.fromCodePoint(...arr));
