@@ -12,27 +12,27 @@ export default {
     sourcemap: true,
     format: "iife",
     name: "app",
-    file: "build/bundle.js"
+    file: "build/bundle.js",
   },
   plugins: [
     svelte({
       dev: !production,
-      css: css => {
+      css: (css) => {
         css.write("build/bundle.css");
-      }
+      },
     }),
     resolve({
       browser: true,
-      dedupe: ["svelte"]
+      dedupe: ["svelte"],
     }),
     commonjs(),
     !production && serve(),
     !production && livereload("."),
-    production && terser()
+    production && terser(),
   ],
   watch: {
-    clearScreen: false
-  }
+    clearScreen: false,
+  },
 };
 
 function serve() {
@@ -43,9 +43,9 @@ function serve() {
         started = true;
         require("child_process").spawn("npm", ["run", "start", "--", "--dev"], {
           stdio: ["ignore", "inherit", "inherit"],
-          shell: true
+          shell: true,
         });
       }
-    }
+    },
   };
 }

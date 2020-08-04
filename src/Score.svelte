@@ -1,20 +1,22 @@
 <script>
   import { log, phase, score } from "./stores.js";
-  import { getBufferDiff, getDiffTime } from "./utils.js";
+  import { getDiffFromBuffer, getTimeFromDiff } from "./utils.js";
 
   score.subscribe(({ buffer, value }) => {
     if ($phase !== "score") return;
-    const diff = getBufferDiff(buffer);
-    const ms = getDiffTime(diff);
+    const diff = getDiffFromBuffer(buffer);
+    const ms = getTimeFromDiff(diff);
     setTimeout(() => {
-      if (buffer === 0) {
-        log.set([]);
-        phase.set("idle");
+      if ($phase !== "score") return;
+      if (diff === 0) {
+        $log = [];
+        $phase = "idle";
+        return;
       }
-      score.set({
+      $score = {
         buffer: buffer - diff,
         value: value + diff,
-      });
+      };
     }, ms);
   });
 </script>

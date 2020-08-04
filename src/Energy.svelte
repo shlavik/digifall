@@ -1,10 +1,21 @@
 <script>
-  import { energy, randomColor } from "./stores.js";
-  import { getBufferDiff } from "./utils.js";
+  import { energy, log, phase, randomColor } from "./stores.js";
+  import { getDiffFromBuffer } from "./utils.js";
 
   let leftBarFlex, rightBarFlex, rightValueLeft;
 
+  const updateRandomColor = () => {
+    if ($energy.value > 100 || $phase !== "score") {
+      $randomColor = `hsl(${Math.floor(360 * Math.random())}, 100%, 50%)`;
+      requestAnimationFrame(updateRandomColor);
+    } else {
+      $randomColor = "white";
+    }
+  };
+
   energy.subscribe(({ buffer, value }) => {
+    if ($randomColor === "white") updateRandomColor();
+    const diff = getDiffFromBuffer(buffer);
     requestAnimationFrame(() => {
       leftBarFlex = (value > 100 ? 200 - value : value) / 100;
       rightBarFlex = value > 100 ? (value - 100) / 100 : 0;
@@ -12,14 +23,17 @@
         if (value > 119) return 0;
         return (value > 100 ? value - 120 : -20) / 100;
       })();
-      if (buffer !== 0) {
-        const diff = getBufferDiff(buffer);
-        energy.set({
-          buffer: buffer - diff,
-          value: value + diff,
-        });
-      }
+      if (diff === 0) return;
+      $energy = {
+        buffer: buffer - diff,
+        value: value + diff,
+      };
     });
+    if ($phase === "extra") {
+      if (diff === 0) return setTimeout(() => ($phase = "total"), 800);
+      const [{ extra }] = $log.slice(-1);
+      $log = $log.slice(0, -1).concat({ extra: extra - diff });
+    }
   });
 
   $: leftBarStyle = `flex: ${leftBarFlex}`;

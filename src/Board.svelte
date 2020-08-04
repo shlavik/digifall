@@ -12,73 +12,70 @@
   let matchedIndexes = [];
 
   phase.subscribe(() => {
-    console.log($phase);
     switch ($phase) {
       case "plus":
-        cards.set(getCardsPlusOne($cards, plusIndex));
-        phase.set("blink");
+        $cards = getCardsPlusOne($cards, plusIndex);
+        $phase = "blink";
         break;
       case "blink":
         plusIndex = undefined;
         matchedIndexes = getMatchedIndexes($cards);
-        if (matchedIndexes.length) {
-          log.set(
-            $log.concat(
-              matchedIndexes.reduce((result, index) => {
-                const { value } = $cards[index];
-                result[value] = (result[value] || 0) + value;
-                result.sum = (result.sum || 0) + value;
-                return result;
-              }, {})
-            )
+        if (matchedIndexes.length > 0) {
+          $log = $log.concat(
+            matchedIndexes.reduce((result, index) => {
+              const { value } = $cards[index];
+              result[value] = (result[value] || 0) + value;
+              result.sum = (result.sum || 0) + value;
+              return result;
+            }, {})
           );
           const buffer = matchedIndexes.reduce(
             (result, index) => result + $cards[index].value,
             0
           );
-          setTimeout(() => energy.set({ ...$energy, buffer }), 400);
-          setTimeout(() => phase.set("match"), 800);
+          setTimeout(() => ($energy = { ...$energy, buffer }), 400);
+          setTimeout(() => ($phase = "match"), 800);
         } else if ($energy.value > 100) {
-          phase.set("extra");
+          $phase = "extra";
         } else if ($energy.value < 10) {
-          phase.set("gameover");
-        } else if ($log.length) {
-          phase.set("total");
+          $phase = "gameover";
+        } else if ($log.length > 0) {
+          $phase = "total";
         } else {
-          phase.set("idle");
+          $phase = "idle";
         }
         break;
       case "match":
-        cards.set(getCardsMatched($cards, matchedIndexes));
+        $cards = getCardsMatched($cards, matchedIndexes);
         matchedIndexes = [];
-        setTimeout(() => phase.set("fall"), 400);
+        setTimeout(() => ($phase = "fall"), 400);
         break;
       case "fall":
-        cards.set(getCardsFallen($cards));
-        setTimeout(() => phase.set("blink"), 400);
+        $cards = getCardsFallen($cards);
+        setTimeout(() => ($phase = "blink"), 400);
         break;
       case "extra":
-        log.set($log.concat({ extra: 0 }));
+        $log = $log.concat({ extra: 0 });
+        $energy = { ...$energy, buffer: 100 - $energy.value };
         break;
       case "total":
-        score.set({
+        $score = {
           ...$score,
           buffer: $log.reduce(
-            (result, { extra, sum }, index) => (
-              result + (index + 1) * (sum || extra)
-            ),
+            (result, { extra, sum }, index) =>
+              result + (index + 1) * (sum || extra),
             0
           ),
-        });
+        };
         setTimeout(() => {
-          phase.set("score");
-          score.set({ ...$score });
+          $phase = "score";
+          $score = { ...$score };
         }, 1000);
         break;
       case "score":
         break;
       case "gameover":
-        overlay.set(true);
+        $overlay = true;
         break;
     }
   });
@@ -92,8 +89,8 @@
     if ($phase !== "idle" || plusIndex) return;
     plusIndex = Number(getTargetDataIndex(target));
     if (!Number.isNaN(plusIndex)) {
-      energy.set({ ...$energy, buffer: -10 });
-      setTimeout(() => phase.set("plus"), 400);
+      $energy = { ...$energy, buffer: -10 };
+      setTimeout(() => ($phase = "plus"), 400);
     }
   };
 </script>

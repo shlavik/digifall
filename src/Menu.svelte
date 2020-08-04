@@ -1,29 +1,16 @@
 <script>
   import { initGame, options, overlay, score } from "./stores.js";
+  import { setShadow } from "./utils.js";
   import Score from "./Score.svelte";
 
-  const resumeClick = () => overlay.set(false);
+  const resumeClick = () => ($overlay = false);
 
   const newGameClick = () => initGame();
 
   const shadowClick = () => {
     const { shadow } = $options;
-    const { style } = document.documentElement;
-    const none = "none";
-    const transparent = "0 0 0 transparent";
-    const shadow0 = "0 0 1px black";
-    const shadow1 = "0 0.5rem 0.5rem var(--color-black-04), 0 -1px 0 var(--color-white-06)";
-    const shadow2 = "0 1rem 1rem var(--color-black-04),  0 -1px 0 var(--color-white-06)";
-    const shadow21 = "0 0 21rem 1rem black";
-    const shadowInset1 = "inset 0 0.5rem 0.5rem var(--color-black-04), 0 1px 0 var(--color-white-06)";
-    const shadowInset2 = "inset 0 1rem 1rem var(--color-black-04), 0 1px 0 var(--color-white-06)";
-    style.setProperty("--shadow-0", shadow ? none : shadow0);
-    style.setProperty("--shadow-1", shadow ? none : shadow1);
-    style.setProperty("--shadow-2", shadow ? none : shadow2);
-    style.setProperty("--shadow-21", shadow ? transparent : shadow21);
-    style.setProperty("--shadow-inset-1", shadow ? none : shadowInset1);
-    style.setProperty("--shadow-inset-2", shadow ? none : shadowInset2);
-    options.set({ ...$options, shadow: !shadow });
+    setShadow(!shadow);
+    $options = { ...$options, shadow: !shadow };
   };
 
   const fullscreenClick = () => {

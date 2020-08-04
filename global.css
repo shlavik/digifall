@@ -17,12 +17,6 @@ html {
   --color-black-04: rgba(0, 0, 0, 0.4);
   --color-black-08: rgba(0, 0, 0, 0.8);
   --color-white-06: rgba(255, 255, 255, 0.6);
-  --shadow-0: none;
-  --shadow-1: none;
-  --shadow-2: none;
-  --shadow-21: 0 0 0 transparent;
-  --shadow-inset-1: none;
-  --shadow-inset-2: none;
   font-size: var(--pixel);
   height: 100%;
 }

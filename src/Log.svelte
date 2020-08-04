@@ -1,30 +1,5 @@
 <script>
-  import { energy, log, phase, randomColor, score } from "./stores.js";
-  import { getBufferDiff, getDiffTime } from "./utils.js";
-
-  const updateRandomColor = () => {
-    if ($energy.value > 100 || $phase !== "score") {
-      randomColor.set(`hsl(${Math.floor(360 * Math.random())}, 100%, 50%)`);
-      requestAnimationFrame(updateRandomColor);
-    } else {
-      randomColor.set("white");
-    }
-  };
-
-  log.subscribe(() => {
-    if ($randomColor === "white") updateRandomColor();
-    if ($phase !== "extra") return;
-    if ($energy.value < 101) return phase.set("total");
-    const diff = getBufferDiff($energy.value - 100);
-    const ms = getDiffTime(diff);
-    const [{ extra }] = $log.slice(-1);
-    const newLog = $log.slice(0, -1).concat({ extra: extra + diff });
-    const newEnergy = { ...$energy, buffer: -diff };
-    setTimeout(() => {
-      log.set(newLog);
-      energy.set(newEnergy);
-    }, ms);
-  });
+  import { log, phase, randomColor, score } from "./stores.js";
 </script>
 
 <style>
@@ -69,7 +44,7 @@
   }
 </style>
 
-{#if $log.length}
+{#if $log.length > 0}
   <ol class="log">
     {#if $phase !== 'score'}
       {#each $log as { extra, sum, ...combo }, index1}
@@ -81,10 +56,10 @@
             {/if}
           {/each}
           {#if extra !== undefined}
-            <span class="extra" style={`color: ${$randomColor}`}>
-              {extra}
+            <span class="extra" style={`color: ${$randomColor}`}>{extra}</span>
+            <span class="sum" style={`color: ${$randomColor}`}>
+              {(index1 + 1) * extra}
             </span>
-            <span class="sum" style={`color: ${$randomColor}`}>{(index1 + 1) * extra}</span>
           {:else}
             <span class="sum">{(index1 + 1) * sum}</span>
           {/if}
@@ -93,9 +68,9 @@
     {/if}
     {#if $phase === 'total' || $phase === 'score'}
       <li>
-        total:
+        <span>total:</span>
         <span class="sum">
-          {#if $phase === 'score' && $score.buffer !== 0}+{/if}{$score.buffer}
+          {`${$phase === 'score' && $score.buffer > 0 ? '+' : ''}${$score.buffer}`}
         </span>
       </li>
     {/if}

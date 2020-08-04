@@ -1,15 +1,15 @@
 const getRandr = (prev = 0) => (prev * 16807 + 19487171) % 2147483647;
 
-const getRandrzInitial = seed => {
+const getRandrzInitial = (seed) => {
   let count = 1,
     result = [getRandr(seed)];
   while (count < 6) result = result.concat(getRandr(++count * result[0]));
   return result;
 };
 
-const createGetNewCardValue = seed => {
+const createGetNewCardValue = (seed) => {
   let randrz = getRandrzInitial(seed);
-  return column => {
+  return (column) => {
     if (column < 0 || 5 < column) return;
     let result = randrz[column];
     randrz[column] = getRandr(result);
@@ -17,7 +17,7 @@ const createGetNewCardValue = seed => {
   };
 };
 
-const getNumberFromString = seed => {
+const getNumberFromString = (seed) => {
   seed = String(seed).match(/[0-9A-Za-z]/g);
   if (!seed) return 0;
   seed = seed.length > 192 ? seed.slice(0, 192) : seed;
@@ -36,7 +36,7 @@ export const getFieldUndefined = () => {
   return [arr0, arr1, arr2, arr3, arr4, arr5];
 };
 
-export const getFieldIndexes = cards => {
+export const getFieldIndexes = (cards) => {
   const field = getFieldUndefined();
   cards.forEach((card, index) => (field[card.x][card.y] = index));
   return field;
@@ -49,21 +49,21 @@ export const getFieldRandom = () =>
       x: Math.floor(index / 6),
       y: index % 6,
       value: getNewCardValue(Math.floor(index / 6)),
-      duration: 0
+      duration: 0,
     }));
 
-export const getFieldPrepared = field => {
+export const getFieldPrepared = (field) => {
   let matchedIndexes = 1;
   while (matchedIndexes) {
     matchedIndexes = getMatchedIndexes(field);
-    if (!matchedIndexes.length) return field;
+    if (matchedIndexes.length === 0) return field;
     field = getCardsFallen(getCardsMatched(field, matchedIndexes));
   }
 };
 
 export const getFieldInitial = () => getFieldPrepared(getFieldRandom());
 
-export const getCardsFallen = cards => {
+export const getCardsFallen = (cards) => {
   const result = [];
   const field = getFieldIndexes(cards);
   for (let x in field) {
@@ -76,7 +76,7 @@ export const getCardsFallen = cards => {
           x: card.x,
           y: y - count,
           value: card.value,
-          duration: 100 * Math.sqrt(2 * count)
+          duration: 100 * Math.sqrt(2 * count),
         };
       } else ++count;
     }
@@ -84,11 +84,11 @@ export const getCardsFallen = cards => {
   return result;
 };
 
-export const getMatchedIndexes = cards => {
+export const getMatchedIndexes = (cards) => {
   const field = getFieldIndexes(cards);
   let groupedArray = [];
   let count = 0;
-  const group = index => {
+  const group = (index) => {
     const { value, x, y } = cards[index];
     if (groupedArray[index]) return;
     groupedArray[index] = { value, group: count };
@@ -97,7 +97,7 @@ export const getMatchedIndexes = cards => {
     if (x < 5) rightIndex = field[x + 1][y];
     if (y > 0) bottomIndex = field[x][y - 1];
     if (x > 0) leftIndex = field[x - 1][y];
-    const isSameValue = index => index && cards[index].value === value;
+    const isSameValue = (index) => index && cards[index].value === value;
     if (isSameValue(topIndex)) group(topIndex);
     if (isSameValue(rightIndex)) group(rightIndex);
     if (isSameValue(bottomIndex)) group(bottomIndex);
@@ -112,8 +112,8 @@ export const getMatchedIndexes = cards => {
       ...result,
       [group]: {
         value,
-        indexes: [...(result[group] ? result[group].indexes : []), index]
-      }
+        indexes: [...(result[group] ? result[group].indexes : []), index],
+      },
     }),
     {}
   );
@@ -125,7 +125,11 @@ export const getMatchedIndexes = cards => {
 
 export const getCardsMatched = (cards, matchedIndexes) => {
   const counts = [0, 0, 0, 0, 0, 0];
-  const getNewY = x => counts[x] + cards.filter(card => card.x === x).sort(({ y: y1 }, { y: y2 }) => y1 - y2)[5].y;
+  const getNewY = (x) =>
+    counts[x] +
+    cards
+      .filter((card) => card.x === x)
+      .sort(({ y: y1 }, { y: y2 }) => y1 - y2)[5].y;
   return cards.map((card, index) => {
     if (matchedIndexes.includes(index) && card.y < 6) {
       ++counts[card.x];
@@ -133,7 +137,7 @@ export const getCardsMatched = (cards, matchedIndexes) => {
         x: card.x,
         y: getNewY(card.x),
         value: getNewCardValue(card.x),
-        duration: 0
+        duration: 0,
       };
     } else return card;
   });
@@ -143,43 +147,113 @@ export const getCardsPlusOne = (cards, plusIndex) =>
   cards.map((card, cardIndex) =>
     plusIndex === cardIndex && card.y < 6
       ? {
-        x: card.x,
-        y: card.y,
-        value: card.value < 9 ? card.value + 1 : 0,
-        duration: 0
-      }
+          x: card.x,
+          y: card.y,
+          value: card.value < 9 ? card.value + 1 : 0,
+          duration: 0,
+        }
       : card
   );
 
-export const getBufferDiff = (value) => {
+export const getDiffFromBuffer = (buffer) => {
   const { abs, sign, sqrt, trunc } = Math;
-  return sign(value) * trunc(sqrt(abs(value)));
+  return sign(buffer) * trunc(sqrt(abs(buffer)));
 };
 
-export const getDiffTime = (diff) => {
-  switch (diff) {
+export const getTimeFromDiff = (diff) => {
+  switch (Math.abs(diff)) {
     case 0:
       return 200;
     case 1:
-      return 134;
+      return 130;
     case 2:
     case 3:
-      return 90;
+      return 80;
     case 4:
     case 5:
     case 6:
-      return 60;
+      return 50;
     case 7:
     case 8:
     case 9:
     case 10:
     case 11:
-      return 40;
+      return 30;
     default:
-      return 27;
+      return 20;
   }
 };
 
-export const arrayToBase64 = arr => btoa(String.fromCodePoint(...arr));
+export const arrayToBase64 = (arr) => btoa(String.fromCodePoint(...arr));
 
-export const base64ToArray = str => [...atob(str)].map(chr => chr.charCodeAt());
+export const base64ToArray = (str) =>
+  [...atob(str)].map((chr) => chr.charCodeAt());
+
+export const shuffleArray = (array) => {
+  for (let i = array.length - 1; i > 0; --i) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
+
+export const getRandomColor = (lightness = 10) =>
+  `hsl(${Math.floor(Math.random() * 360)},100%,${lightness}%)`;
+
+export const getNewAppStyle = () => {
+  const [a, b, c, d] = shuffleArray([
+    7,
+    11,
+    13,
+    17,
+    19,
+    23,
+    29,
+    31,
+    37,
+    41,
+    43,
+    47,
+    53,
+    59,
+    61,
+    67,
+    71,
+    73,
+    79,
+    83,
+    89,
+    97,
+  ]);
+  return `
+      background-color: ${getRandomColor()};
+      background-image:
+        linear-gradient(90deg, ${getRandomColor()} 50%, transparent 50%),
+        linear-gradient(90deg, ${getRandomColor()} 50%, transparent 50%),
+        linear-gradient(90deg, transparent 50%, ${getRandomColor()} 50%),
+        linear-gradient(90deg, transparent 50%, ${getRandomColor()} 50%);
+      background-position: center;
+      background-size: ${a}rem, ${b}rem, ${c}rem, ${d}rem;`;
+};
+
+export const setShadow = (on = true) => {
+  const { style } = document.documentElement;
+  const none = "none";
+  const transparent = "0 0 0 transparent";
+  const shadow0 = "0 0 1px black";
+  const shadow1 =
+    "0 0.5rem 0.5rem var(--color-black-04), 0 -1px 0 var(--color-white-06)";
+  const shadow2 =
+    "0 1rem 1rem var(--color-black-04),  0 -1px 0 var(--color-white-06)";
+  const shadow21 = "0 0 21rem 1rem black";
+  const shadowInset1 =
+    "inset 0 0.5rem 0.5rem var(--color-black-04), 0 1px 0 var(--color-white-06)";
+  const shadowInset2 =
+    "inset 0 1rem 1rem var(--color-black-04), 0 1px 0 var(--color-white-06)";
+  style.setProperty("--shadow-0", on ? shadow0 : none);
+  style.setProperty("--shadow-1", on ? shadow1 : none);
+  style.setProperty("--shadow-2", on ? shadow2 : none);
+  style.setProperty("--shadow-21", on ? shadow21 : transparent);
+  style.setProperty("--shadow-inset-1", on ? shadowInset1 : none);
+  style.setProperty("--shadow-inset-2", on ? shadowInset2 : none);
+};
