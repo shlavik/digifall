@@ -37,12 +37,6 @@
   };
 </script>
 
-<style>
-  .app {
-    height: 100%;
-  }
-</style>
-
 <div class="app" style={appStyle}>
   <Game />
   {#if $overlay}

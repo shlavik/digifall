@@ -8,37 +8,6 @@
   const openOverlay = () => ($overlay = true);
 </script>
 
-<style>
-  .game {
-    background-color: var(--color-base);
-    box-shadow: -1rem 0 0 0 var(--color-base), 1rem 0 0 0 var(--color-base),
-      var(--shadow-21);
-    overflow: hidden;
-  }
-  .digifall,
-  .digifall:focus,
-  .digifall:hover {
-    background-color: var(--color-dark);
-    border: none;
-    box-shadow: var(--shadow-inset-1);
-    color: var(--color-zero);
-    flex-grow: 1;
-    outline: none;
-    position: relative;
-    text-shadow: var(--shadow-1);
-    transition: all 400ms;
-    width: 100%;
-  }
-  .digifall:active,
-  .screen,
-  .screen:focus,
-  .screen:hover {
-    background-color: var(--color-dark);
-    color: var(--color-dark);
-    text-shadow: var(--shadow-0);
-  }
-</style>
-
 <div class="game content" class:blur={$overlay === true}>
   <div class="section-1">
     <button

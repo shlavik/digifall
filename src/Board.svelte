@@ -67,12 +67,10 @@
             0
           ),
         };
-        setTimeout(() => {
-          $phase = "score";
-          $score = { ...$score };
-        }, 1000);
+        setTimeout(() => ($phase = "score"), $log.length > 1 ? 800 : 0);
         break;
       case "score":
+        $score = { ...$score };
         break;
       case "gameover":
         $overlay = true;
@@ -94,19 +92,6 @@
     }
   };
 </script>
-
-<style>
-  .board {
-    background-color: var(--color-board);
-    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity=".6"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
-    background-size: 6rem 6rem;
-    border: 1rem solid var(--color-dark);
-    filter: drop-shadow(var(--shadow-inset-2));
-    height: 128rem;
-    position: relative;
-    width: 128rem;
-  }
-</style>
 
 <div
   class="board"

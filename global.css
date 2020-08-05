@@ -1,10 +1,11 @@
 @font-face {
-  font-family: font5x5;
-  src: url("./fonts/5x5.ttf");
+  font-family: pixel;
+  src: url("./fonts/7x7.ttf");
 }
 @font-face {
-  font-family: font7x7;
-  src: url("./fonts/7x7.ttf");
+  font-family: pixel;
+  font-weight: bold;
+  src: url("./fonts/5x5.ttf");
 }
 * {
   box-sizing: border-box;
@@ -23,7 +24,7 @@ html {
 body {
   background-color: black;
   color: white;
-  font-family: font7x7;
+  font-family: pixel;
   font-size: 5rem;
   height: 100%;
   letter-spacing: 1rem;
@@ -33,6 +34,32 @@ body {
   text-indent: 1rem;
   text-shadow: var(--shadow-1);
   user-select: none;
+}
+button {
+  background-color: white;
+  border: 1px solid white;
+  color: black;
+  flex-basis: 13rem;
+  font-family: pixel;
+  font-size: 5rem;
+  font-weight: bold;
+  letter-spacing: 2rem;
+  line-height: 1;
+  outline: 1rem solid white;
+  padding: 0;
+  text-indent: 2rem;
+  width: 82rem;
+}
+button:focus,
+button:hover {
+  background-color: var(--color-black-04);
+  color: white;
+  cursor: pointer;
+}
+button:active {
+  background-color: var(--color-black-08);
+  border-width: 1rem;
+  outline-width: 1px;
 }
 .color-0 {
   --color: var(--color-zero);
@@ -79,35 +106,6 @@ body {
   height: 100%;
   margin: auto;
 }
-.content button {
-  background-color: white;
-  border: 1px solid white;
-  color: black;
-  flex-basis: 13rem;
-  font-family: font5x5;
-  font-size: 5rem;
-  line-height: 1;
-  outline: 1rem solid white;
-  padding: 0;
-  width: 84rem;
-}
-.content button:focus,
-.content button:hover {
-  background-color: var(--color-black-04);
-  color: white;
-  cursor: pointer;
-}
-.content button:active {
-  background-color: var(--color-black-08);
-  border-width: 1rem;
-  outline-width: 1px;
-}
-.content button,
-.text-big,
-.text-small {
-  letter-spacing: 2rem;
-  text-indent: 2rem;
-}
 .section-1 {
   flex-basis: 37rem;
 }
@@ -120,9 +118,217 @@ body {
 .section-4 {
   flex-basis: 9rem;
 }
-.score {
-  font-family: font5x5;
+.app {
+  height: 100%;
+}
+.board {
+  background-color: var(--color-board);
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity=".6"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
+  background-size: 6rem 6rem;
+  border: 1rem solid var(--color-dark);
+  filter: drop-shadow(var(--shadow-inset-2));
+  height: 128rem;
+  position: relative;
+  width: 128rem;
+}
+.card {
+  box-shadow: var(--shadow-2);
+  cursor: progress;
+  height: 21rem;
+  letter-spacing: 0;
+  position: absolute;
+  transition-property: bottom;
+  transition-timing-function: cubic-bezier(0.56, 0, 1, 1);
+  width: 21rem;
+  will-change: bottom;
+}
+.card .current,
+.card .next {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background-color: var(--color);
+  box-shadow: var(--shadow-0);
+  color: white;
+  font-size: 13rem;
+  height: 21rem;
+  line-height: 21rem;
+  position: absolute;
+  text-align: center;
+  width: 21rem;
+  z-index: 1;
+}
+.card .current {
+  box-sizing: content-box;
+  clip-path: circle(100%);
+  -webkit-clip-path: circle(100%);
+  will-change: clip-path;
+}
+.card .next {
+  transform: rotateY(-180deg);
+}
+.card.plused {
+  box-shadow: none;
+  perspective: 128rem;
+  z-index: 2;
+}
+.card.plused .value {
+  transform-style: preserve-3d;
+  transform: rotateY(-180deg);
+  transition: transform 400ms ease;
+}
+.card.plused .current,
+.card.plused .next {
+  box-shadow: var(--shadow-1);
+}
+.card.matched {
+  box-shadow: none;
+}
+.card.matched .current {
+  animation: blink 200ms steps(2, end) 2, fade-out 400ms ease 400ms forwards;
+  box-shadow: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .card.clickable:hover {
+    box-shadow: none;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .card.clickable:hover .current,
+  .card.clickable:hover .next {
+    border-bottom: 1px solid var(--color);
+    box-shadow: var(--shadow-1);
+    top: -1px;
+  }
+  .card.clickable:active .current {
+    top: 0;
+  }
+}
+@keyframes blink {
+  from {
+    background-color: white;
+    color: var(--color);
+  }
+  to {
+    background-color: var(--color);
+    color: white;
+  }
+}
+@keyframes fade-out {
+  from {
+    clip-path: circle(100%);
+    -webkit-clip-path: circle(100%);
+  }
+  to {
+    clip-path: circle(0);
+    -webkit-clip-path: circle(0);
+  }
+}
+.energy {
+  background-color: var(--color-dark);
+  box-shadow: var(--shadow-inset-1);
+  display: flex;
   font-size: 7rem;
+  position: relative;
+  width: 100%;
+}
+.energy .left-bar,
+.energy .right-bar {
+  box-shadow: var(--shadow-1);
+  padding: 1rem 0;
+  overflow: hidden;
+}
+.energy .left-bar {
+  background-color: white;
+  text-align: right;
+}
+.energy .left-value {
+  color: var(--color-dark);
+  right: 0;
+}
+.energy .right-value {
+  color: white;
+}
+.game {
+  background-color: var(--color-base);
+  box-shadow: -1rem 0 0 0 var(--color-base), 1rem 0 0 0 var(--color-base),
+    var(--shadow-21);
+  overflow: hidden;
+}
+.game .digifall,
+.game .digifall:focus,
+.game .digifall:hover {
+  background-color: var(--color-dark);
+  border: none;
+  box-shadow: var(--shadow-inset-1);
+  color: var(--color-zero);
+  flex-grow: 1;
+  outline: none;
+  position: relative;
+  text-shadow: var(--shadow-1);
+  width: 100%;
+}
+.game .digifall:active,
+.game .screen,
+.game .screen:focus,
+.game .screen:hover {
+  background-color: var(--color-dark);
+  color: var(--color-dark);
+  text-shadow: var(--shadow-0);
+}
+.log {
+  align-items: flex-start;
+  color: white;
+  counter-reset: num;
+  display: flex;
+  flex-direction: column;
+  font-size: 5rem;
+  height: 100%;
+  justify-content: flex-end;
+  left: 0;
+  letter-spacing: 1rem;
+  line-height: 7rem;
+  list-style-type: none;
+  margin: 0;
+  overflow: hidden;
+  padding: 1rem 4rem;
+  position: absolute;
+  text-indent: 1rem;
+  text-shadow: var(--shadow-1);
+  top: 0;
+  width: 100%;
+}
+.log li {
+  display: flex;
+}
+.log .combo::before {
+  content: counter(num) "[";
+  counter-increment: num;
+}
+.log .combo::after {
+  content: "]=";
+}
+.log .value {
+  color: var(--color);
+}
+.log .sum {
+  position: absolute;
+  right: 4rem;
+}
+.log .collapse {
+  margin-top: -7rem;
+}
+.overlay {
+  background-color: var(--color-black-08);
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 10;
+}
+.score {
+  font-size: 7rem;
+  font-weight: bold;
   letter-spacing: 2rem;
   padding-right: 3rem;
   text-align: right;
@@ -132,12 +338,17 @@ body {
   font-size: 0;
   width: 100%;
 }
+.text-big,
+.text-small {
+  letter-spacing: 2rem;
+  text-indent: 2rem;
+}
 .text-big {
   font-size: 7rem;
 }
 .text-small {
-  font-family: font5x5;
   font-size: 5rem;
+  font-weight: bold;
 }
 .overflow-hidden {
   overflow: hidden;

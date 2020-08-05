@@ -8,7 +8,7 @@
     const ms = getTimeFromDiff(diff);
     setTimeout(() => {
       if ($phase !== "score") return;
-      if (diff === 0) {
+      if (buffer === 0) {
         $log = [];
         $phase = "idle";
         return;
