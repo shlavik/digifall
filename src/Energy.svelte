@@ -2,8 +2,6 @@
   import { energy, log, phase, randomColor } from "./stores.js";
   import { getDiffFromBuffer } from "./utils.js";
 
-  let leftBarFlex, rightBarFlex, rightValueLeft;
-
   const updateRandomColor = () => {
     if ($energy.value > 100 || $phase !== "score") {
       $randomColor = `hsl(${Math.floor(360 * Math.random())}, 100%, 50%)`;
@@ -17,12 +15,6 @@
     if ($randomColor === "white") updateRandomColor();
     const diff = getDiffFromBuffer(buffer);
     requestAnimationFrame(() => {
-      leftBarFlex = (value > 100 ? 200 - value : value) / 100;
-      rightBarFlex = value > 100 ? (value - 100) / 100 : 0;
-      rightValueLeft = (() => {
-        if (value > 119) return 0;
-        return (value > 100 ? value - 120 : -20) / 100;
-      })();
       if (diff === 0) return;
       $energy = {
         buffer: buffer - diff,
@@ -36,16 +28,18 @@
     }
   });
 
-  $: leftBarStyle = `flex: ${leftBarFlex}`;
-  $: leftValueStyle = `position: ${
-    $energy.value > 100 ? "absolute" : "relative"
+  $: value = $energy.value;
+  $: isExtra = value > 100;
+  $: leftBarStyle = `flex: ${(isExtra ? 200 - value : value) / 100}; z-index: ${
+    isExtra ? 0 : 1
   }`;
+  $: leftValueStyle = `position: ${isExtra ? "absolute" : "relative"}`;
   $: rightBarStyle = `background-color: ${
-    $energy.value > 100 ? $randomColor : "var(--color-dark)"
-  }; flex: ${rightBarFlex}`;
-  $: rightValueStyle = `left: calc(${rightValueLeft} * 128rem); position: ${
-    $energy.value > 100 ? "relative" : "absolute"
-  }`;
+    isExtra ? $randomColor : "var(--color-dark)"
+  }; flex: ${isExtra ? (value - 100) / 100 : 0}; z-index: ${isExtra ? 1 : 0}`;
+  $: rightValueStyle = `left: ${
+    isExtra ? `calc(${value > 119 ? 0 : (value - 120) / 100} * 128rem)` : 0
+  }; position: ${isExtra ? "relative" : "absolute"}`;
 </script>
 
 <style>
@@ -66,9 +60,6 @@
   .left-bar {
     background-color: white;
     text-align: right;
-  }
-  .right-bar {
-    z-index: 1;
   }
   .left-value {
     color: var(--color-dark);
