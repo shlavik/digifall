@@ -21,9 +21,7 @@
           {/each}
           {#if extra !== undefined}
             <span class="extra" style={`color: ${$randomColor}`}>{extra}</span>
-            <span class="sum" style={`color: ${$randomColor}`}>
-              {(index1 + 1) * extra}
-            </span>
+            <span class="sum">{(index1 + 1) * extra}</span>
           {:else}
             <span class="sum">{(index1 + 1) * sum}</span>
           {/if}

@@ -1,32 +1,9 @@
 <script>
-  import { onMount } from "svelte";
   import { energy, overlay, phase } from "./stores.js";
-  import { getNewAppStyle, setShadow } from "./utils.js";
   import Game from "./Game.svelte";
   import GameOver from "./GameOver.svelte";
   import Menu from "./Menu.svelte";
   import Overlay from "./Overlay.svelte";
-
-  let appStyle = getNewAppStyle();
-
-  const updateAppStyle = () => {
-    const { style } = document.documentElement;
-    const { offsetHeight, offsetWidth } = document.querySelector(".app");
-    if (offsetHeight / offsetWidth > 1.5) {
-      style.setProperty("--pixel", `${offsetWidth / 128}px`);
-      appStyle = undefined;
-    } else {
-      style.setProperty("--pixel", `${offsetHeight / 192}px`);
-      appStyle = getNewAppStyle();
-    }
-  };
-
-  onMount(() => {
-    updateAppStyle();
-    setShadow();
-  });
-
-  onresize = updateAppStyle;
 
   // DELME
   onkeydown = ({ key }) => {
@@ -37,7 +14,7 @@
   };
 </script>
 
-<div class="app" style={appStyle}>
+<div class="app">
   <Game />
   {#if $overlay}
     <Overlay>

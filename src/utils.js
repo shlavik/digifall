@@ -197,10 +197,17 @@ export const shuffleArray = (array) => {
   return array;
 };
 
+let hue = Math.floor(Math.random() * 360);
+
+const getRandomColorShift = (lightness = 10) => {
+  hue += 30 + Math.floor(Math.random() * 30);
+  return `hsl(${hue},100%,${lightness}%)`;
+};
+
 export const getRandomColor = (lightness = 10) =>
   `hsl(${Math.floor(Math.random() * 360)},100%,${lightness}%)`;
 
-export const getNewAppStyle = () => {
+export const getNewGameBackground = () => {
   const [a, b, c, d] = shuffleArray([
     7,
     11,
@@ -226,13 +233,12 @@ export const getNewAppStyle = () => {
     97,
   ]);
   return `
-      background-color: ${getRandomColor()};
+      background-color: ${getRandomColorShift()};
       background-image:
-        linear-gradient(90deg, ${getRandomColor()} 50%, transparent 50%),
-        linear-gradient(90deg, ${getRandomColor()} 50%, transparent 50%),
-        linear-gradient(90deg, transparent 50%, ${getRandomColor()} 50%),
-        linear-gradient(90deg, transparent 50%, ${getRandomColor()} 50%);
-      background-position: center;
+        linear-gradient(90deg, ${getRandomColorShift()} 50%, transparent 50%),
+        linear-gradient(90deg, ${getRandomColorShift()} 50%, transparent 50%),
+        linear-gradient(90deg, transparent 50%, ${getRandomColorShift()} 50%),
+        linear-gradient(90deg, transparent 50%, ${getRandomColorShift()} 50%);
       background-size: ${a}rem, ${b}rem, ${c}rem, ${d}rem;`;
 };
 
@@ -241,15 +247,12 @@ export const setShadow = (on = true) => {
   const none = "none";
   const transparent = "0 0 0 transparent";
   const shadow0 = "0 0 1px black";
-  const shadow1 =
-    "0 0.5rem 0.5rem var(--color-black-04), 0 -1px 0 var(--color-white-06)";
-  const shadow2 =
-    "0 1rem 1rem var(--color-black-04),  0 -1px 0 var(--color-white-06)";
+  const shadow1 = "0 0.5rem 0.5rem var(--color-black-04), 0 -1px 0 white";
+  const shadow2 = "0 1rem 1rem var(--color-black-04),  0 -1px 0 white";
   const shadow21 = "0 0 21rem 1rem black";
   const shadowInset1 =
-    "inset 0 0.5rem 0.5rem var(--color-black-04), 0 1px 0 var(--color-white-06)";
-  const shadowInset2 =
-    "inset 0 1rem 1rem var(--color-black-04), 0 1px 0 var(--color-white-06)";
+    "inset 0 0.5rem 0.5rem var(--color-black-04), 0 1px 0 white";
+  const shadowInset2 = "inset 0 1rem 1rem var(--color-black-04), 0 1px 0 white";
   style.setProperty("--shadow-0", on ? shadow0 : none);
   style.setProperty("--shadow-1", on ? shadow1 : none);
   style.setProperty("--shadow-2", on ? shadow2 : none);
