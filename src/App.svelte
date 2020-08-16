@@ -1,9 +1,25 @@
 <script>
   import { energy, overlay, phase } from "./stores.js";
+  import { setShadow } from "./utils.js";
   import Game from "./Game.svelte";
   import GameOver from "./GameOver.svelte";
   import Menu from "./Menu.svelte";
   import Overlay from "./Overlay.svelte";
+
+  setShadow();
+
+  const updatePixelSize = () => {
+    const { style, offsetHeight, offsetWidth } = document.documentElement;
+    if (offsetHeight / offsetWidth > 1.5) {
+      style.setProperty("--pixel", `${offsetWidth / 128}px`);
+    } else {
+      style.setProperty("--pixel", `${offsetHeight / 192}px`);
+    }
+  };
+
+  updatePixelSize();
+
+  onresize = updatePixelSize;
 
   // DELME
   onkeydown = ({ key }) => {

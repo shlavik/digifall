@@ -26,6 +26,7 @@ html {
   --color-zero: hsl(60, 20%, 40%);
   --color-black-04: rgba(0, 0, 0, 0.4);
   --color-black-08: rgba(0, 0, 0, 0.8);
+  --pixel: 1px;
   font-size: var(--pixel);
 }
 body {
@@ -45,8 +46,8 @@ button {
   background-color: white;
   border: 1px solid white;
   color: black;
-  font-family: pixel;
-  font-size: 5rem;
+  font-family: inherit;
+  font-size: inherit;
   font-weight: bold;
   letter-spacing: 2rem;
   line-height: 1;
@@ -327,6 +328,7 @@ button:active {
 }
 .section-1 {
   flex-basis: 37rem;
+  text-align: center;
 }
 .section-2 {
   flex-basis: 13rem;

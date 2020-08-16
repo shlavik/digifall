@@ -14,18 +14,18 @@
   energy.subscribe(({ buffer, value }) => {
     if ($randomColor === "white") updateRandomColor();
     const diff = getDiffFromBuffer(buffer);
-    requestAnimationFrame(() => {
-      if (buffer === 0) return;
-      $energy = {
-        buffer: buffer - diff,
-        value: value + diff,
-      };
-    });
     if ($phase === "extra") {
       if (buffer === 0) return setTimeout(() => ($phase = "total"), 800);
       const [{ extra }] = $log.slice(-1);
       $log = $log.slice(0, -1).concat({ extra: extra - diff });
     }
+    if (buffer === 0) return;
+    requestAnimationFrame(() => {
+      $energy = {
+        buffer: buffer - diff,
+        value: value + diff,
+      };
+    });
   });
 
   $: value = $energy.value;

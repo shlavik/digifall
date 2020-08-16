@@ -7,13 +7,13 @@
     "start": "sirv -H 192.168.0.5"
   },
   "dependencies": {
-    "@rollup/plugin-commonjs": "14.0.0",
-    "@rollup/plugin-node-resolve": "8.4.0",
-    "rollup": "2.23.1",
+    "@rollup/plugin-commonjs": "15.0.0",
+    "@rollup/plugin-node-resolve": "9.0.0",
+    "rollup": "2.26.0",
     "rollup-plugin-livereload": "1.3.0",
     "rollup-plugin-svelte": "5.2.3",
     "rollup-plugin-terser": "7.0.0",
-    "sirv-cli": "1.0.5",
+    "sirv-cli": "1.0.6",
     "svelte": "3.24.1"
   }
 }
