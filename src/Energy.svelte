@@ -1,32 +1,5 @@
 <script>
-  import { energy, log, phase, randomColor } from "./stores.js";
-  import { getDiffFromBuffer } from "./utils.js";
-
-  const updateRandomColor = () => {
-    if ($energy.value > 100 || $phase !== "score") {
-      $randomColor = `hsl(${Math.floor(360 * Math.random())}, 100%, 50%)`;
-      requestAnimationFrame(updateRandomColor);
-    } else {
-      $randomColor = "white";
-    }
-  };
-
-  energy.subscribe(({ buffer, value }) => {
-    if ($randomColor === "white") updateRandomColor();
-    const diff = getDiffFromBuffer(buffer);
-    if ($phase === "extra") {
-      if (buffer === 0) return setTimeout(() => ($phase = "total"), 800);
-      const [{ extra }] = $log.slice(-1);
-      $log = $log.slice(0, -1).concat({ extra: extra - diff });
-    }
-    if (buffer === 0) return;
-    requestAnimationFrame(() => {
-      $energy = {
-        buffer: buffer - diff,
-        value: value + diff,
-      };
-    });
-  });
+  import { energy, randomColor } from "./stores.js";
 
   $: value = $energy.value;
   $: isExtra = value > 100;

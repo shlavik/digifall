@@ -1,5 +1,5 @@
 <script>
-  import { log,overlay,seed } from "./stores.js";
+  import { log, overlay, seed } from "./stores.js";
   import Board from "./Board.svelte";
   import Energy from "./Energy.svelte";
   import Log from "./Log.svelte";
