@@ -296,6 +296,7 @@ button:active {
 }
 .log li {
   display: flex;
+  height: 7rem;
 }
 .log .combo::before {
   content: counter(num) "[";

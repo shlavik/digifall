@@ -33,7 +33,11 @@
         class:collapse
         in:slide={{ duration: $options.delay || collapse ? 0 : 100 }}
         out:fade={{ duration: $options.delay || 200 }}>
-        <span>{collapse ? '' : 'total:'}&nbsp;</span>
+        {#if $phase !== 'score'}
+          <span out:fade={{ duration: $options.delay || 200 }}>
+            {collapse ? '' : 'total:'}
+          </span>
+        {/if}
         <span class="sum">
           {`${$phase === 'score' && $score.buffer > 0 ? '+' : ''}${$score.buffer}`}
         </span>

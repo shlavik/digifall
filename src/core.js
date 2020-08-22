@@ -294,8 +294,6 @@ function doPhaseLogic() {
 
 export function getTimeFromDiff(diff) {
   switch (Math.abs(diff)) {
-    case 0:
-      return 200;
     case 1:
       return 130;
     case 2:
@@ -319,11 +317,11 @@ export function getTimeFromDiff(diff) {
 function doScoreLogic() {
   if ($phase !== "score") return;
   const { buffer, value } = $score;
-  if (buffer === 0) {
-    log.set([]);
-    phase.set("idle");
-    return;
-  }
+  if (buffer === 0)
+    return setTimeout(() => {
+      log.set([]);
+      phase.set("idle");
+    }, $options.delay || 200);
   const diff = getDiffFromBuffer(buffer);
   const ms = $options.delay || getTimeFromDiff(diff);
   setTimeout(() => {
