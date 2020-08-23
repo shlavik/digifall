@@ -30,12 +30,12 @@
   };
 </script>
 
-<div class="menu content">
+<div class="menu content" in:blur>
   <div class="section-1">
     {#if isNewGameQuestionOpen}
-      <span class="text-small" in:blur>start a new game?</span>
+      <span in:blur>start a new game?</span>
     {:else}
-      <span class="text-small" in:blur>work in progress</span>
+      <span in:blur>work in progress</span>
     {/if}
   </div>
   <div class="section-2">

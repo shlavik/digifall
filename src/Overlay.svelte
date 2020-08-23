@@ -1,8 +1,8 @@
 <script>
-  import { blur } from "svelte/transition";
+  import { fade } from "svelte/transition";
   import { options } from "./stores";
 </script>
 
-<div class="overlay" transition:blur={{ duration: $options.delay || 400 }}>
+<div class="overlay" transition:fade={{ duration: $options.delay || 200 }}>
   <slot />
 </div>

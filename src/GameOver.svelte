@@ -1,26 +1,41 @@
 <script>
-  import { blur } from "svelte/transition";
-  import { initGame, score } from "./stores.js";
+  import { blur, fly } from "svelte/transition";
+  import { energy, score, initGame } from "./stores.js";
+  import Energy from "./Energy.svelte";
+
+  $: isEnergyOut = $energy.buffer === 0 && $energy.value === 0;
 
   const newGameClick = () => initGame();
 </script>
 
-<div class="game-over content">
+<div class="game-over content" in:blur>
   <div class="section-1">
-    <span class="text-big" in:blur>game over</span>
+    {#if isEnergyOut}
+      <span class="text-big" in:blur={{ delay: 600 }}>game over</span>
+    {/if}
   </div>
   <div class="section-2">
     <span class="score">{$score.value}</span>
   </div>
   <div class="section-3">
-    <div class="col" in:blur>
-      <button on:click={newGameClick}>new game</button>
-    </div>
+    {#if isEnergyOut}
+      <div class="col" in:blur={{ delay: 600 }}>
+        <button on:click={newGameClick}>new game</button>
+      </div>
+    {/if}
   </div>
   <div class="section-4">
-    <span class="text-wrapper" in:blur>
-      <span class="text-big">0</span>
-      <span class="text-small">ut of energy</span>
-    </span>
+    <Energy />
+    {#if $energy.value === 0}
+      <span class="energy-out">
+        {#each 'ut of energy' as letter, index}
+          <span
+            class="letter"
+            in:fly={{ delay: index * 50, duration: 200, y: 100 }}>
+            {letter}
+          </span>
+        {/each}
+      </span>
+    {/if}
   </div>
 </div>

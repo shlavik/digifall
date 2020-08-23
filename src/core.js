@@ -23,6 +23,8 @@ let $cards,
   $score,
   $seed;
 
+const { abs, floor, random, sign, sqrt, trunc } = Math;
+
 function getRandom(prev = 0) {
   return (prev * 16807 + 19487171) % 2147483647;
 }
@@ -82,7 +84,7 @@ function getCardsFallen(cards) {
           x: card.x,
           y: y - count,
           value: card.value,
-          duration: 100 * Math.sqrt(2 * count),
+          duration: 100 * sqrt(2 * count),
         };
       } else ++count;
     }
@@ -152,7 +154,6 @@ function getCardsMatched(cards, matchedIndexes) {
 /******************************************************************************/
 
 function getDiffFromBuffer(buffer) {
-  const { abs, sign, sqrt, trunc } = Math;
   return sign(buffer) * trunc(sqrt(abs(buffer)));
 }
 
@@ -160,7 +161,7 @@ function getDiffFromBuffer(buffer) {
 
 function updateRandomColor() {
   if ($energy.value > 100 || $phase !== "score") {
-    randomColor.set(`hsl(${Math.floor(360 * Math.random())}, 100%, 50%)`);
+    randomColor.set(`hsl(${floor(360 * random())}, 100%, 50%)`);
     requestAnimationFrame(updateRandomColor);
   } else {
     randomColor.set("white");
@@ -170,7 +171,7 @@ function updateRandomColor() {
 function doEnergyLogic() {
   if ($randomColor === "white") updateRandomColor();
   const { buffer, value } = $energy;
-  const diff = getDiffFromBuffer(buffer);
+  const diff = $phase === "gameover" ? sign(buffer) : getDiffFromBuffer(buffer);
   if ($phase === "extra") {
     if (buffer === 0)
       return setTimeout(() => phase.set("total"), $options.delay || 800);
@@ -178,12 +179,15 @@ function doEnergyLogic() {
     log.set($log.slice(0, -1).concat({ extra: extra - diff }));
   }
   if (buffer === 0) return;
-  setTimeout(() => {
-    energy.set({
-      buffer: buffer - diff,
-      value: value + diff,
-    });
-  }, $options.delay || 20);
+  setTimeout(
+    () => {
+      energy.set({
+        buffer: buffer - diff,
+        value: value + diff,
+      });
+    },
+    $options.delay || $phase === "gameover" ? 200 : 20
+  );
 }
 
 /* PHASE LOGIC ****************************************************************/
@@ -274,6 +278,17 @@ function doScorePhase() {
 
 function doGameoverPhase() {
   overlay.set(true);
+  setTimeout(() => {
+    if ($phase !== "gameover") return;
+    energy.set({
+      ...$energy,
+      buffer: -$energy.value,
+    });
+    score.set({
+      ...$score,
+      buffer: $energy.value,
+    });
+  }, 400);
 }
 
 function doPhaseLogic() {
@@ -293,7 +308,7 @@ function doPhaseLogic() {
 /* SCORE LOGIC ****************************************************************/
 
 export function getTimeFromDiff(diff) {
-  switch (Math.abs(diff)) {
+  switch (abs(diff)) {
     case 1:
       return 130;
     case 2:
@@ -315,15 +330,19 @@ export function getTimeFromDiff(diff) {
 }
 
 function doScoreLogic() {
-  if ($phase !== "score") return;
+  if ($phase !== "gameover" && $phase !== "score") return;
   const { buffer, value } = $score;
-  if (buffer === 0)
-    return setTimeout(() => {
-      log.set([]);
-      phase.set("idle");
-    }, $options.delay || 200);
-  const diff = getDiffFromBuffer(buffer);
-  const ms = $options.delay || getTimeFromDiff(diff);
+  if (buffer === 0) {
+    if ($phase !== "gameover")
+      setTimeout(() => {
+        log.set([]);
+        phase.set("idle");
+      }, $options.delay || 200);
+    return;
+  }
+  const diff = $phase === "gameover" ? sign(buffer) : getDiffFromBuffer(buffer);
+  const ms =
+    $options.delay || $phase === "gameover" ? 200 : getTimeFromDiff(diff);
   setTimeout(() => {
     score.set({
       buffer: buffer - diff,
@@ -338,9 +357,9 @@ function getFieldRandom() {
   return Array(36)
     .fill(undefined)
     .map((_, index) => ({
-      x: Math.floor(index / 6),
+      x: floor(index / 6),
       y: index % 6,
-      value: getNewCardValue(Math.floor(index / 6)),
+      value: getNewCardValue(floor(index / 6)),
       duration: 0,
     }));
 }
