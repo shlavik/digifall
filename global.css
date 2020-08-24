@@ -14,9 +14,11 @@ html,
 body,
 .app,
 .game,
-.content,
 .log {
+  align-items: center;
+  display: flex;
   height: 100%;
+  justify-content: center;
   margin: auto;
 }
 html {
@@ -244,12 +246,18 @@ button:active {
 .game {
   background-blend-mode: difference;
   background-position: center;
+  height: 400%;
+  position: absolute;
+  transform-origin: center;
+  transform: rotate(90deg);
+  width: 192rem;
 }
 .game .content {
   background-color: var(--color-base);
   box-shadow: -1rem 0 0 0 var(--color-base), 1rem 0 0 0 var(--color-base),
     var(--shadow-21);
-  overflow: hidden;
+  height: 25%;
+  transform: rotate(270deg);
 }
 .game .digifall,
 .game .digifall:focus,
@@ -344,13 +352,16 @@ button:active {
   overflow: hidden;
 }
 .overlay {
+  align-items: center;
   background-color: var(--color-black-08);
-  bottom: 0;
-  left: 0;
+  display: flex;
+  height: 100%;
+  justify-content: center;
   position: absolute;
-  right: 0;
-  top: 0;
-  z-index: 10;
+  width: 100%;
+}
+.overlay .content {
+  height: 100%;
 }
 .section-1 {
   flex-basis: 37rem;
