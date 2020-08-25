@@ -11,6 +11,7 @@ import {
   score,
   seed,
 } from "./stores.js";
+import { getRandom } from "./utils";
 
 let $cards,
   $energy,
@@ -21,39 +22,12 @@ let $cards,
   $plusIndex,
   $randomColor,
   $score,
-  $seed;
+  $seed,
+  getNewCardValue;
 
 const { abs, floor, random, sign, sqrt, trunc } = Math;
 
-function getRandom(prev = 0) {
-  return (prev * 16807 + 19487171) % 2147483647;
-}
-
-function getInitialRandoms(seed) {
-  let count = 1,
-    result = [getRandom(seed)];
-  while (count < 6) result = result.concat(getRandom(++count * result[0]));
-  return result;
-}
-
-function getNumberFromString(seed) {
-  seed = String(seed).match(/[0-9A-Za-z]/g);
-  if (!seed) return 0;
-  seed = seed.length > 192 ? seed.slice(0, 192) : seed;
-  return Number(parseInt(seed.join(""), 36));
-}
-
-function createGetNewCardValue(seed) {
-  let randoms = getInitialRandoms(seed);
-  return (column) => {
-    if (column < 0 || 5 < column) return;
-    let result = randoms[column];
-    randoms[column] = getRandom(result);
-    return Number(result % 10);
-  };
-}
-
-const getNewCardValue = createGetNewCardValue(getNumberFromString(Date.now()));
+/* CARDS LOGIC ****************************************************************/
 
 function getFieldUndefined() {
   const arr0 = Array(12).fill();
@@ -151,12 +125,6 @@ function getCardsMatched(cards, matchedIndexes) {
   });
 }
 
-/******************************************************************************/
-
-function getDiffFromBuffer(buffer) {
-  return sign(buffer) * trunc(sqrt(abs(buffer)));
-}
-
 /* ENERGY LOGIC ***************************************************************/
 
 function updateRandomColor() {
@@ -166,6 +134,10 @@ function updateRandomColor() {
   } else {
     randomColor.set("white");
   }
+}
+
+function getDiffFromBuffer(buffer) {
+  return sign(buffer) * trunc(sqrt(abs(buffer)));
 }
 
 function doEnergyLogic() {
@@ -353,6 +325,23 @@ function doScoreLogic() {
 
 /* SEED LOGIC *****************************************************************/
 
+function getInitialRandoms(seed) {
+  let count = 1,
+    result = [getRandom(seed)];
+  while (count < 6) result = result.concat(getRandom(++count * result[0]));
+  return result;
+}
+
+function createGetNewCardValue(seed) {
+  let randoms = getInitialRandoms(seed);
+  return (column) => {
+    if (column < 0 || 5 < column) return;
+    let result = randoms[column];
+    randoms[column] = getRandom(result);
+    return Number(result % 10);
+  };
+}
+
 function getFieldRandom() {
   return Array(36)
     .fill(undefined)
@@ -378,10 +367,11 @@ export function getFieldInitial() {
 }
 
 function doSeedLogic() {
+  getNewCardValue = createGetNewCardValue($seed);
   cards.set(getFieldInitial());
 }
 
-/* CORE INITIALIZATION ****************************************************/
+/* CORE INITIALIZATION ********************************************************/
 
 export function initCore() {
   cards.subscribe((value) => ($cards = value));

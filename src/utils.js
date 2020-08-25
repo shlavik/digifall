@@ -1,3 +1,7 @@
+export function getRandom(previous = 0) {
+  return (previous * 16807 + 19487171) % 2147483647;
+}
+
 export function setShadow(on = true) {
   const { style } = document.documentElement;
   const none = "none";
