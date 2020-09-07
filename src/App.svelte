@@ -1,12 +1,12 @@
 <script>
-  import { energy, overlay, phase } from "./stores.js";
+  import { energy, options, overlay, phase } from "./stores.js";
   import { setShadow } from "./utils.js";
   import Game from "./Game.svelte";
   import GameOver from "./GameOver.svelte";
   import Menu from "./Menu.svelte";
   import Overlay from "./Overlay.svelte";
 
-  setShadow();
+  setShadow($options.shadow);
 
   const updatePixelSize = () => {
     const { style, offsetHeight, offsetWidth } = document.documentElement;

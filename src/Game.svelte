@@ -1,5 +1,5 @@
 <script>
-  import { log, overlay, seed } from "./stores.js";
+  import { log, options, overlay, seed } from "./stores.js";
   import { getRandom } from "./utils.js";
   import Board from "./Board.svelte";
   import Energy from "./Energy.svelte";
@@ -7,6 +7,8 @@
   import Score from "./Score.svelte";
 
   $: style = (() => {
+    if (!$options.seedGround) return;
+
     let arr = [
         2,
         3,
@@ -62,7 +64,8 @@
   const openOverlay = () => ($overlay = true);
 </script>
 
-<div class="game" class:blur={$overlay === true} {style}>
+<div class="game" class:blur={$overlay === true}>
+  <div class="seedground" {style} />
   <div class="content">
     <div class="section-1">
       <button

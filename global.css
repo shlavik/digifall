@@ -14,12 +14,11 @@ html,
 body,
 .app,
 .game,
-.log {
-  align-items: center;
+.log,
+.overlay {
   display: flex;
   height: 100%;
   justify-content: center;
-  margin: auto;
 }
 html {
   --color-base: hsl(60, 20%, 60%);
@@ -105,7 +104,6 @@ button:active {
 .section-2,
 .section-3,
 .section-4 {
-  align-items: center;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -243,21 +241,22 @@ button:active {
 .energy .right-value {
   color: white;
 }
-.game {
+.game .seedground {
   background-blend-mode: difference;
   background-position: center;
-  height: 400%;
+  bottom: 50%;
+  height: 100vw;
+  left: 50%;
   position: absolute;
-  transform-origin: center;
-  transform: rotate(90deg);
+  right: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
   width: 192rem;
 }
 .game .content {
   background-color: var(--color-base);
   box-shadow: -1rem 0 0 0 var(--color-base), 1rem 0 0 0 var(--color-base),
     var(--shadow-21);
-  height: 25%;
-  transform: rotate(270deg);
 }
 .game .digifall,
 .game .digifall:focus,
@@ -354,9 +353,6 @@ button:active {
 .overlay {
   align-items: center;
   background-color: var(--color-black-08);
-  display: flex;
-  height: 100%;
-  justify-content: center;
   position: absolute;
   width: 100%;
 }

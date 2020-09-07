@@ -3,6 +3,6 @@
   import { options } from "./stores";
 </script>
 
-<div class="overlay" transition:fade={{ duration: $options.delay || 200 }}>
+<div class="overlay" transition:fade={{ duration: 200 }}>
   <slot />
 </div>

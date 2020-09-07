@@ -21,10 +21,10 @@ export function setShadow(on = true) {
   style.setProperty("--shadow-inset-2", on ? shadowInset2 : none);
 }
 
-export function getBase64FromArray(arr) {
-  return btoa(String.fromCodePoint(...arr));
+export function getBase64FromArray(array) {
+  return btoa(String.fromCodePoint(...array));
 }
 
-export function getArrayFromBase64(str) {
-  return [...atob(str)].map((chr) => chr.charCodeAt());
+export function getArrayFromBase64(base64) {
+  return [...atob(base64)].map((letter) => letter.charCodeAt());
 }

@@ -27,6 +27,11 @@ let $cards,
 
 const { abs, floor, random, sign, sqrt, trunc } = Math;
 
+function delayTransition(callback, timeout) {
+  if ($options.transitions) setTimeout(callback, timeout);
+  else callback();
+}
+
 /* CARDS LOGIC ****************************************************************/
 
 function getFieldUndefined() {
@@ -58,7 +63,7 @@ function getCardsFallen(cards) {
           x: card.x,
           y: y - count,
           value: card.value,
-          duration: 100 * sqrt(2 * count),
+          duration: $options.transitions ? 100 * sqrt(2 * count) : 0,
         };
       } else ++count;
     }
@@ -145,20 +150,19 @@ function doEnergyLogic() {
   const { buffer, value } = $energy;
   const diff = $phase === "gameover" ? sign(buffer) : getDiffFromBuffer(buffer);
   if ($phase === "extra") {
-    if (buffer === 0)
-      return setTimeout(() => phase.set("total"), $options.delay || 800);
+    if (buffer === 0) return delayTransition(() => phase.set("total"), 800);
     const [{ extra }] = $log.slice(-1);
     log.set($log.slice(0, -1).concat({ extra: extra - diff }));
   }
   if (buffer === 0) return;
-  setTimeout(
+  delayTransition(
     () => {
       energy.set({
-        buffer: buffer - diff,
-        value: value + diff,
+        buffer: $options.transitions ? buffer - diff : 0,
+        value: $options.transitions ? value + diff : value + buffer,
       });
     },
-    $options.delay || $phase === "gameover" ? 200 : 20
+    $phase === "gameover" ? 200 : 20
   );
 }
 
@@ -199,8 +203,8 @@ function doBlinkPhase() {
       (result, index) => result + $cards[index].value,
       0
     );
-    setTimeout(() => energy.set({ ...$energy, buffer }), $options.delay || 400);
-    setTimeout(() => phase.set("match"), $options.delay || 800);
+    delayTransition(() => energy.set({ ...$energy, buffer }), 400);
+    delayTransition(() => phase.set("match"), 800);
   } else if ($energy.value > 100) {
     phase.set("extra");
   } else if ($energy.value < 10) {
@@ -217,12 +221,12 @@ function doBlinkPhase() {
 function doMatchPhase() {
   cards.set(getCardsMatched($cards, $matchedIndexes));
   matchedIndexes.set([]);
-  setTimeout(() => phase.set("fall"), $options.delay || 400);
+  delayTransition(() => phase.set("fall"), 400);
 }
 
 function doFallPhase() {
   cards.set(getCardsFallen($cards));
-  setTimeout(() => phase.set("blink"), $options.delay || 400);
+  delayTransition(() => phase.set("blink"), 400);
 }
 
 function doExtraPhase() {
@@ -238,10 +242,7 @@ function doTotalPhase() {
       0
     ),
   });
-  setTimeout(
-    () => phase.set("score"),
-    $options.delay || $log.length > 1 ? 800 : 0
-  );
+  delayTransition(() => phase.set("score"), $log.length > 1 ? 800 : 0);
 }
 
 function doScorePhase() {
@@ -250,7 +251,7 @@ function doScorePhase() {
 
 function doGameoverPhase() {
   overlay.set(true);
-  setTimeout(() => {
+  delayTransition(() => {
     if ($phase !== "gameover") return;
     energy.set({
       ...$energy,
@@ -306,19 +307,18 @@ function doScoreLogic() {
   const { buffer, value } = $score;
   if (buffer === 0) {
     if ($phase !== "gameover")
-      setTimeout(() => {
+      delayTransition(() => {
         log.set([]);
         phase.set("idle");
-      }, $options.delay || 200);
+      }, 200);
     return;
   }
   const diff = $phase === "gameover" ? sign(buffer) : getDiffFromBuffer(buffer);
-  const ms =
-    $options.delay || $phase === "gameover" ? 200 : getTimeFromDiff(diff);
-  setTimeout(() => {
+  const ms = $phase === "gameover" ? 200 : getTimeFromDiff(diff);
+  delayTransition(() => {
     score.set({
-      buffer: buffer - diff,
-      value: value + diff,
+      buffer: $options.transitions ? buffer - diff : 0,
+      value: $options.transitions ? value + diff : value + buffer,
     });
   }, ms);
 }

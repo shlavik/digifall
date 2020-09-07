@@ -22,7 +22,8 @@
     $plusIndex = Number(getTargetDataIndex(target));
     if (!Number.isNaN($plusIndex)) {
       $energy = { ...$energy, buffer: -10 };
-      setTimeout(() => ($phase = "plus"), $options.delay || 400);
+      if ($options.transitions) setTimeout(() => ($phase = "plus"), 400);
+      else $phase = "plus";
     }
   };
 </script>
