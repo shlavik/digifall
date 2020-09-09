@@ -391,6 +391,11 @@ button:active {
   flex-basis: 9rem;
 }
 .score {
+  align-self: flex-end;
+  cursor: pointer;
+  text-align: right;
+}
+.score .value {
   font-size: 7rem;
   font-weight: bold;
   letter-spacing: 2rem;

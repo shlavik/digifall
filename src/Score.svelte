@@ -1,5 +1,11 @@
 <script>
-  import { score } from "./stores.js";
+  import { options, score } from "./stores.js";
+
+  const scoreClick = () =>
+    ($options = { ...$options, scoreLabel: !$options.scoreLabel });
 </script>
 
-<span class="score">{$score.value}</span>
+<span class="score" on:click={scoreClick}>
+  {#if $options.scoreLabel}score:{/if}
+  <span class="value">{$score.value}</span>
+</span>

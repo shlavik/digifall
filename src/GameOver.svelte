@@ -2,6 +2,7 @@
   import { blur, fly } from "svelte/transition";
   import { energy, score, initGame } from "./stores.js";
   import Energy from "./Energy.svelte";
+  import Score from "./Score.svelte";
 
   $: isEnergyOut = $energy.buffer === 0 && $energy.value === 0;
 
@@ -15,7 +16,7 @@
     {/if}
   </div>
   <div class="section-2">
-    <span class="score">{$score.value}</span>
+    <Score />
   </div>
   <div class="section-3">
     {#if isEnergyOut}

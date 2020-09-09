@@ -34,12 +34,10 @@
   <div class="section-1">
     {#if isNewGameQuestionOpen}
       <span in:blur>start a new game?</span>
-    {:else}
-      <span in:blur>work in progress</span>
-    {/if}
+    {:else}<span in:blur>work in progress</span>{/if}
   </div>
   <div class="section-2">
-    <span class="score">{$score.value}</span>
+    <Score />
   </div>
   <div class="section-3">
     {#if isNewGameQuestionOpen}

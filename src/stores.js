@@ -19,6 +19,7 @@ export const log = writable(logInit);
 export const matchedIndexes = writable(matchedIndexesInit);
 export const options = writable({
   playerName: "playerName",
+  scoreLabel: false,
   seedGround: true,
   shadow: true,
   transitions: true,
