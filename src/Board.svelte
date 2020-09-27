@@ -2,13 +2,10 @@
   import {
     cards,
     energy,
-    log,
     matchedIndexes,
     options,
-    overlay,
     phase,
     plusIndex,
-    score,
   } from "./stores.js";
   import Card from "./Card.svelte";
 

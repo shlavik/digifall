@@ -1,4 +1,28 @@
-import { derived, writable } from "svelte/store";
+import { derived, get, writable } from "svelte/store";
+
+export function localStorageWritable(key, initialValue) {
+  const store = writable(initialValue);
+  const { set, subscribe } = store;
+
+  const json = localStorage.getItem(key);
+
+  if (json) {
+    set(JSON.parse(json));
+  } else {
+    localStorage.setItem(key, JSON.stringify(initialValue));
+  }
+
+  return {
+    set(value) {
+      localStorage.setItem(key, JSON.stringify(value));
+      set(value);
+    },
+    update(cb) {
+      this.set(cb(get(store)));
+    },
+    subscribe,
+  };
+}
 
 const energyInit = { buffer: 0, value: 100 };
 const logInit = [];
@@ -10,14 +34,18 @@ const scoreInit = { buffer: 0, value: 0 };
 
 export const cards = writable([]);
 export const energy = writable(energyInit);
-export const game = writable({
+export const game = localStorageWritable("game", {
   timestamp: Date.now(),
   moves: [],
-  score: 0,
+});
+export const leaderboard = localStorageWritable("leaderboard", {
+  bestMoves: {},
+  highScores: {},
+  size: 8,
 });
 export const log = writable(logInit);
 export const matchedIndexes = writable(matchedIndexesInit);
-export const options = writable({
+export const options = localStorageWritable("options", {
   playerName: "playerName",
   scoreLabel: false,
   seedGround: true,
@@ -49,7 +77,6 @@ export function initGame() {
   game.set({
     timestamp: Date.now(),
     moves: [],
-    score: 0,
   });
   log.set(logInit);
   matchedIndexes.set(matchedIndexesInit);
