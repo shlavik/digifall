@@ -1,6 +1,6 @@
 import { derived, get, writable } from "svelte/store";
 
-export function localStorageWritable(key, initialValue) {
+export function localStorageStore(key, initialValue) {
   const store = writable(initialValue);
   const { set, subscribe } = store;
 
@@ -34,22 +34,22 @@ const scoreInit = { buffer: 0, value: 0 };
 
 export const cards = writable([]);
 export const energy = writable(energyInit);
-export const game = localStorageWritable("game", {
+export const game = localStorageStore("game", {
   timestamp: Date.now(),
   moves: [],
 });
-export const leaderboard = localStorageWritable("leaderboard", {
+export const leaderboard = localStorageStore("leaderboard", {
   bestMoves: {},
   highScores: {},
   size: 8,
 });
 export const log = writable(logInit);
 export const matchedIndexes = writable(matchedIndexesInit);
-export const options = localStorageWritable("options", {
-  playerName: "playerName",
+export const options = localStorageStore("options", {
+  playerName: "",
   scoreLabel: false,
-  seedGround: true,
-  shadow: true,
+  seedground: true,
+  shadows: true,
   transitions: true,
 });
 export const overlay = writable(true);

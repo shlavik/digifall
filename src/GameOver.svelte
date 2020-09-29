@@ -1,12 +1,10 @@
 <script>
   import { blur, fly } from "svelte/transition";
-  import { energy, score, initGame } from "./stores.js";
+  import { energy, initGame } from "./stores.js";
   import Energy from "./Energy.svelte";
   import Score from "./Score.svelte";
 
   $: isEnergyOut = $energy.buffer === 0 && $energy.value === 0;
-
-  const newGameClick = () => initGame();
 </script>
 
 <div class="game-over content" in:blur>
@@ -21,7 +19,7 @@
   <div class="section-3">
     {#if isEnergyOut}
       <div class="col" in:blur={{ delay: 600 }}>
-        <button on:click={newGameClick}>new game</button>
+        <button on:click={initGame}>new game</button>
       </div>
     {/if}
   </div>

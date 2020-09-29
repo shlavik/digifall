@@ -1,12 +1,9 @@
 <script>
-  import { energy, options, overlay, phase } from "./stores.js";
-  import { setShadow } from "./utils.js";
+  import { fade } from "svelte/transition";
+  import { energy, overlay, phase } from "./stores.js";
   import Game from "./Game.svelte";
   import GameOver from "./GameOver.svelte";
   import Menu from "./Menu.svelte";
-  import Overlay from "./Overlay.svelte";
-
-  setShadow($options.shadow);
 
   const updatePixelSize = () => {
     const { style, offsetHeight, offsetWidth } = document.documentElement;
@@ -33,12 +30,12 @@
 <div class="app">
   <Game />
   {#if $overlay}
-    <Overlay>
+    <div class="overlay" transition:fade={{ duration: 200 }}>
       {#if $phase === 'gameover'}
         <GameOver />
       {:else}
         <Menu />
       {/if}
-    </Overlay>
+    </div>
   {/if}
 </div>

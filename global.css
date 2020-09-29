@@ -45,29 +45,76 @@ body {
 }
 button {
   background-color: white;
-  border: 1px solid white;
+  border: none;
   color: black;
-  font-family: inherit;
-  font-size: inherit;
+  cursor: pointer;
   font-weight: bold;
   letter-spacing: 2rem;
-  line-height: 1;
-  margin: auto 0;
+  margin: 5.5rem 0;
   outline: 1rem solid white;
-  padding: 2rem;
+  padding: 2rem 0;
   text-indent: 2rem;
+}
+button, input {
+  font-family: inherit;
+  font-size: inherit;
 }
 button:focus,
 button:hover,
 button:active {
   background-color: var(--color-black-04);
   color: white;
-  cursor: pointer;
 }
 button:active {
   background-color: var(--color-black-08);
+  border: 1px solid white;
   font-weight: normal;
+  margin: calc(5.5rem - 1px) 0;
   outline-width: 1px;
+}
+input {
+  background-color: transparent;
+  border: 1px solid white;
+  color: white;
+  font-size: 3rem;
+  font-size: 3rem;
+  letter-spacing: 1rem;
+  margin: 5.5rem 0 calc(2.5rem - 1px);
+  outline: 1px solid white;
+  padding: 3rem calc(3rem - 1px);
+  text-indent: 0;
+}
+input:focus {
+  border: none;
+  margin-bottom: 2.5rem;
+  outline: 1rem solid white;
+  padding: 3rem;
+}
+input::selection {
+  background-color: white;
+  color: black;
+}
+input[type="checkbox"] {
+  display: none;
+}
+input[type="checkbox"] + label {
+  cursor: pointer;
+  font-size: 3rem;
+  font-size: 3rem;
+  font-weight: bold;
+  margin: 2.5rem 0;
+  padding: 3rem;
+  padding: 3rem;
+  position: relative;
+  text-indent: 0;
+}
+input[type="checkbox"] + label::before {
+  content: "off";
+  position: absolute;
+  right: 3rem;
+}
+input[type="checkbox"]:checked + label::before {
+  content: "on";
 }
 .color-0 {
   --color: var(--color-zero);
@@ -266,6 +313,7 @@ button:active {
   box-shadow: var(--shadow-inset-1);
   color: var(--color-zero);
   flex-grow: 1;
+  margin: auto;
   outline: none;
   position: relative;
   text-shadow: var(--shadow-1);
@@ -376,13 +424,16 @@ button:active {
 .section-3 .row {
   display: flex;
   height: 100%;
-  justify-content: space-between;
-  padding: 21rem;
-  position: absolute;
+  padding: 0 24rem;
   width: 100%;
 }
 .section-3 .col {
   flex-direction: column;
+  justify-content: center;
+}
+.section-3 .row {
+  align-items: center;
+  justify-content: space-between;
 }
 .section-3 .row button {
   width: 31rem;

@@ -7,7 +7,7 @@
   import Score from "./Score.svelte";
 
   $: style = (() => {
-    if (!$options.seedGround) return;
+    if (!$options.seedground) return;
 
     let arr = [
         2,
