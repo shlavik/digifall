@@ -2,7 +2,29 @@
   import { blur } from "svelte/transition";
   import { initGame, options, overlay } from "./stores.js";
 
-  function setShadow(on = true) {
+  let kind = "main",
+    playerName = $options.playerName;
+
+  const resumeClick = () => ($overlay = false);
+
+  const newGameClick = () => (kind = "new game");
+
+  const optionsClick = () => (kind = "options");
+
+  const mainMenuClick = () => (kind = "main");
+
+  const optionsBackClick = () => {
+    $options.playerName = playerName;
+    mainMenuClick();
+  };
+
+  const playerNameKeydown = (event) => {
+    if (!event.key.match(/[A-Za-z0-9@&$!_\?\.\-]/)) event.preventDefault();
+  };
+
+  const playerNameChange = () => (playerName = playerName.toLowerCase());
+
+  const setShadow = (on = true) => {
     const { style } = document.documentElement;
     const none = "none";
     const transparent = "0 0 0 transparent";
@@ -20,30 +42,15 @@
     style.setProperty("--shadow-21", on ? shadow21 : transparent);
     style.setProperty("--shadow-inset-1", on ? shadowInset1 : none);
     style.setProperty("--shadow-inset-2", on ? shadowInset2 : none);
-  }
+  };
 
   $: setShadow($options.shadows);
-
-  let kind = "main";
-
-  const resumeClick = () => ($overlay = false);
-
-  const newGameClick = () => (kind = "new game");
-
-  const optionsClick = () => (kind = "options");
-
-  const mainMenuClick = () => (kind = "main");
-
-  let playerName;
-
-  $: {
-    playerName = playerName ? playerName.toLowerCase() : "";
-    $options = { ...$options, playerName };
-  }
 </script>
 
 {#if kind === 'main'}
-  <div class="menu content" in:blur>
+  <div
+    class="menu content"
+    in:blur={{ duration: $options.transitions ? 400 : 0 }}>
     <div class="section-1"><span>work in progress</span></div>
     <div class="section-2" />
     <div class="section-3">
@@ -57,7 +64,9 @@
     <div class="section-4" />
   </div>
 {:else if kind === 'new game'}
-  <div class="menu content" in:blur>
+  <div
+    class="menu content"
+    in:blur={{ duration: $options.transitions ? 400 : 0 }}>
     <div class="section-1"><span>start a new game?</span></div>
     <div class="section-2" />
     <div class="section-3">
@@ -69,14 +78,19 @@
     <div class="section-4" />
   </div>
 {:else if kind === 'options'}
-  <div class="menu content" in:blur>
+  <div
+    class="menu content"
+    in:blur={{ duration: $options.transitions ? 400 : 0 }}>
     <div class="section-1"><span>options</span></div>
     <div class="section-2" />
     <div class="section-3">
       <div class="col">
         <input
+          type="text"
           placeholder="player name"
-          maxlength="18"
+          maxlength="24"
+          on:keydown={playerNameKeydown}
+          on:change={playerNameChange}
           bind:value={playerName} />
         <input type="checkbox" id="shadows" bind:checked={$options.shadows} />
         <label for="shadows">shadows</label>
@@ -90,7 +104,7 @@
           id="transitions"
           bind:checked={$options.transitions} />
         <label for="transitions">transitions</label>
-        <button on:click={mainMenuClick}>back</button>
+        <button on:click={optionsBackClick}>back</button>
       </div>
     </div>
     <div class="section-4" />

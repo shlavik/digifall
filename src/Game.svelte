@@ -6,6 +6,8 @@
   import Log from "./Log.svelte";
   import Score from "./Score.svelte";
 
+  const openOverlayClick = () => ($overlay = true);
+
   $: style = (() => {
     if (!$options.seedground) return;
 
@@ -60,8 +62,6 @@
         linear-gradient(90deg, transparent 50%, ${getColor()} 50%);
       background-size: ${a}rem, ${b}rem, ${c}rem, ${d}rem;`;
   })();
-
-  const openOverlay = () => ($overlay = true);
 </script>
 
 <div class="game" class:blur={$overlay === true}>
@@ -71,7 +71,7 @@
       <button
         class="digifall"
         class:screen={$log.length > 0}
-        on:click={openOverlay}>
+        on:click={openOverlayClick}>
         <span>work in progress</span>
         <Log />
       </button>

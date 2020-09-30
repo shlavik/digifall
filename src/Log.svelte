@@ -1,6 +1,6 @@
 <script>
   import { fade, slide } from "svelte/transition";
-  import { log, options, phase, randomColor, score } from "./stores.js";
+  import { log, phase, randomColor, score } from "./stores.js";
 
   $: collapse = $log.length === 1;
 </script>

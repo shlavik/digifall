@@ -1,6 +1,6 @@
 <script>
   import { fade } from "svelte/transition";
-  import { energy, overlay, phase } from "./stores.js";
+  import { energy, options, overlay, phase } from "./stores.js";
   import Game from "./Game.svelte";
   import GameOver from "./GameOver.svelte";
   import Menu from "./Menu.svelte";
@@ -30,7 +30,9 @@
 <div class="app">
   <Game />
   {#if $overlay}
-    <div class="overlay" transition:fade={{ duration: 200 }}>
+    <div
+      class="overlay"
+      transition:fade={{ duration: $options.transitions ? 200 : 0 }}>
       {#if $phase === 'gameover'}
         <GameOver />
       {:else}
