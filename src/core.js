@@ -145,11 +145,7 @@ function doEnergyLogic() {
     if (buffer === 0) return delayTransition(() => phase.set("total"), 800);
     const $log = get(log);
     const [{ extra }] = $log.slice(-1);
-    log.set(
-      $log
-        .slice(0, -1)
-        .concat({ extra: extra - diff })
-    );
+    log.set($log.slice(0, -1).concat({ extra: extra - diff }));
   }
   if (buffer === 0) return;
   delayTransition(
@@ -166,18 +162,18 @@ function doEnergyLogic() {
 
 /* PHASE LOGIC ****************************************************************/
 
-function doIdlePhase() { }
+function doIdlePhase() {}
 
 function doPlusPhase() {
   cards.set(
     get(cards).map((card, cardIndex) =>
       get(plusIndex) === cardIndex && card.y < 6
         ? {
-          x: card.x,
-          y: card.y,
-          value: card.value < 9 ? card.value + 1 : 0,
-          duration: 0,
-        }
+            x: card.x,
+            y: card.y,
+            value: card.value < 9 ? card.value + 1 : 0,
+            duration: 0,
+          }
         : card
     )
   );
@@ -367,7 +363,7 @@ export function getFieldInitial() {
 }
 
 function doSeedLogic() {
-  const $seed = get(seed)
+  const $seed = get(seed);
   if (!$seed) return;
   getNewCardValue = createGetNewCardValue($seed);
   cards.set(getFieldInitial());

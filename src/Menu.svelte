@@ -13,24 +13,26 @@
 
   const mainMenuClick = () => (kind = "main");
 
+  const initGameClick = () => initGame();
+
   const optionsBackClick = () => {
+    kind = "main";
     if ($options.playerName !== playerName) {
       $options.playerName = playerName;
       initGame();
     }
-    mainMenuClick();
   };
 
-  const continueClick = () => {
+  const startClick = () => {
     if (!playerName) return;
+    kind = "main";
     $options.playerName = playerName;
-    $overlay = false;
-    mainMenuClick();
+    initGame();
   };
 
   $: if (playerName === "" && kind === "main") {
     kind = "name";
-    $overlay = true;
+    initGame(true);
   }
 
   const playerNameKeydown = (event) => {
@@ -65,9 +67,7 @@
 </script>
 
 {#if kind === 'main'}
-  <div
-    class="menu content"
-    in:blur={{ duration: $options.transitions ? 400 : 0 }}>
+  <div class="content" in:blur={{ duration: $options.transitions ? 400 : 0 }}>
     <div class="section-1"><span>work in progress</span></div>
     <div class="section-2" />
     <div class="section-3">
@@ -81,14 +81,12 @@
     <div class="section-4" />
   </div>
 {:else if kind === 'new game'}
-  <div
-    class="menu content"
-    in:blur={{ duration: $options.transitions ? 400 : 0 }}>
+  <div class="content" in:blur={{ duration: $options.transitions ? 400 : 0 }}>
     <div class="section-1"><span>start a new game?</span></div>
     <div class="section-2" />
     <div class="section-3">
       <div class="row">
-        <button on:click={initGame}>yes</button>
+        <button on:click={initGameClick}>yes</button>
         <button on:click={mainMenuClick}>no</button>
       </div>
     </div>
@@ -96,7 +94,7 @@
   </div>
 {:else if kind === 'options'}
   <div
-    class="menu content"
+    class="content compact"
     in:blur={{ duration: $options.transitions ? 400 : 0 }}>
     <div class="section-1"><span>options</span></div>
     <div class="section-2" />
@@ -127,7 +125,7 @@
     <div class="section-4" />
   </div>
 {:else if kind === 'name'}
-  <div class="menu content">
+  <div class="content">
     <div class="section-1"><span>work in progress</span></div>
     <div class="section-2" />
     <div class="section-3">
@@ -139,7 +137,7 @@
           on:keydown={playerNameKeydown}
           on:change={playerNameChange}
           bind:value={playerName} />
-        <button on:click={continueClick}>continue</button>
+        <button on:click={startClick}>start</button>
       </div>
     </div>
     <div class="section-4" />

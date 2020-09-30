@@ -61,7 +61,11 @@ export const score = writable(scoreInit);
 export const seed = derived(
   [game, options],
   ([{ timestamp }, { playerName }]) => {
-    if (typeof timestamp !== "number" || typeof playerName !== "string" || playerName === "")
+    if (
+      typeof timestamp !== "number" ||
+      typeof playerName !== "string" ||
+      playerName === ""
+    )
       return;
     const { MAX_SAFE_INTEGER } = Number;
     return [
@@ -74,17 +78,22 @@ export const seed = derived(
   }
 );
 
-export function initGame() {
+function newGame(count) {
   energy.set(energyInit);
   game.set({
     timestamp: Date.now(),
     moves: [],
   });
+  score.set(scoreInit);
+  if (count-- > 0) requestAnimationFrame(() => newGame(count));
+}
+
+export function initGame(showOverlay = false, count = 10) {
   log.set(logInit);
   matchedIndexes.set(matchedIndexesInit);
-  overlay.set(false);
+  overlay.set(showOverlay);
   phase.set("idle");
   plusIndex.set(plusIndexInit);
   randomColor.set(randomColorInit);
-  score.set(scoreInit);
+  newGame(get(options).transitions ? count : 0);
 }

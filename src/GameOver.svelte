@@ -4,6 +4,8 @@
   import Energy from "./Energy.svelte";
   import Score from "./Score.svelte";
 
+  const newGameClick = () => initGame();
+
   $: isEnergyOut = $energy.buffer === 0 && $energy.value === 0;
 </script>
 
@@ -23,7 +25,7 @@
   <div class="section-3">
     {#if isEnergyOut}
       <div class="col" in:blur={{ delay: $options.transitions ? 600 : 0 }}>
-        <button on:click={initGame}>new game</button>
+        <button on:click={newGameClick}>new game</button>
       </div>
     {/if}
   </div>

@@ -23,9 +23,9 @@ body,
 }
 html {
   --color-base: hsl(60, 20%, 60%);
-  --color-body: hsl(60, 20%, 10%);
-  --color-dark: hsl(60, 20%, 25%);
   --color-zero: hsl(60, 20%, 40%);
+  --color-dark: hsl(60, 20%, 25%);
+  --color-body: hsl(60, 20%, 10%);
   --color-black-04: rgba(0, 0, 0, 0.4);
   --color-black-08: rgba(0, 0, 0, 0.8);
   --pixel: 1px;
@@ -44,11 +44,19 @@ body {
   text-shadow: var(--shadow-1);
   user-select: none;
 }
-button, input[type="text"], input[type="checkbox"] + label {
+button,
+input[type="text"],
+input[type="checkbox"] + label {
   font-family: inherit;
   font-size: 4rem;
-  margin: 6rem 0;
+  line-height: inherit;
+  margin: 7rem 0;
   padding: 3rem;
+}
+.compact button,
+.compact input[type="text"],
+.compact input[type="checkbox"] + label {
+  margin: 5rem 0;
 }
 button {
   background-color: white;
@@ -66,8 +74,13 @@ button:active {
   background-color: var(--color-black-04);
   color: white;
 }
-button:active, input[type="text"] {
-  margin: calc(6rem - 1px) 0;
+button:active,
+input[type="text"] {
+  margin: calc(7rem - 1px) 0;
+}
+.compact button:active,
+.compact input[type="text"] {
+  margin: calc(5rem - 1px) 0;
 }
 button:active {
   background-color: var(--color-black-08);
@@ -486,14 +499,17 @@ input[type="checkbox"]:checked + label::before {
   animation: octocat-wave 560ms ease-in-out;
 }
 @keyframes octocat-wave {
-  0%, 100% {
-    transform: rotate(0)
+  0%,
+  100% {
+    transform: rotate(0);
   }
-  20%, 60% {
-    transform: rotate(-25deg)
+  20%,
+  60% {
+    transform: rotate(-25deg);
   }
-  40%, 80% {
-    transform: rotate(10deg)
+  40%,
+  80% {
+    transform: rotate(10deg);
   }
 }
 @media (max-aspect-ratio: 1/1) {
