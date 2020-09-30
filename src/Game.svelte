@@ -9,7 +9,7 @@
   const openOverlayClick = () => ($overlay = true);
 
   $: style = (() => {
-    if (!$options.seedground) return;
+    if (!$seed || !$options.seedground) return;
 
     let arr = [
         2,
@@ -67,23 +67,25 @@
 <div class="game" class:blur={$overlay === true}>
   <div class="seedground" {style} />
   <div class="content">
-    <div class="section-1">
-      <button
-        class="digifall"
-        class:screen={$log.length > 0}
-        on:click={openOverlayClick}>
-        <span>work in progress</span>
-        <Log />
-      </button>
-    </div>
-    <div class="section-2">
-      <Score />
-    </div>
-    <div class="section-3">
-      <Board />
-    </div>
-    <div class="section-4">
-      <Energy />
-    </div>
+    {#if $seed}
+      <div class="section-1">
+        <button
+          class="digifall"
+          class:screen={$log.length > 0}
+          on:click={openOverlayClick}>
+          <span>work in progress</span>
+          <Log />
+        </button>
+      </div>
+      <div class="section-2">
+        <Score />
+      </div>
+      <div class="section-3">
+        <Board />
+      </div>
+      <div class="section-4">
+        <Energy />
+      </div>
+    {/if}
   </div>
 </div>

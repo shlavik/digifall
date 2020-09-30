@@ -23,7 +23,7 @@ body,
 }
 html {
   --color-base: hsl(60, 20%, 60%);
-  --color-board: hsl(60, 20%, 10%);
+  --color-body: hsl(60, 20%, 10%);
   --color-dark: hsl(60, 20%, 25%);
   --color-zero: hsl(60, 20%, 40%);
   --color-black-04: rgba(0, 0, 0, 0.4);
@@ -32,7 +32,7 @@ html {
   font-size: var(--pixel);
 }
 body {
-  background-color: black;
+  background-color: var(--color-body);
   color: white;
   font-family: pixel;
   font-size: 5rem;
@@ -113,7 +113,7 @@ input[type="checkbox"]:checked + label {
 }
 input[type="checkbox"] + label::before {
   color: var(--color-zero);
-  content: "o";
+  content: "0";
   letter-spacing: 0;
   position: absolute;
   right: 3rem;
@@ -167,7 +167,7 @@ input[type="checkbox"]:checked + label::before {
   filter: blur(3rem);
 }
 .board {
-  background-color: var(--color-board);
+  background-color: var(--color-body);
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity=".6"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
   background-size: 6rem 6rem;
   border: 1rem solid var(--color-dark);
@@ -309,7 +309,7 @@ input[type="checkbox"]:checked + label::before {
 .game .content {
   background-color: var(--color-base);
   box-shadow: -1rem 0 0 0 var(--color-base), 1rem 0 0 0 var(--color-base),
-    var(--shadow-21);
+    var(--shadow-11);
 }
 .game .digifall,
 .game .digifall:focus,
@@ -460,4 +460,44 @@ input[type="checkbox"]:checked + label::before {
   padding-right: 3rem;
   text-align: right;
   width: 100%;
+}
+.github-corner {
+  z-index: 1;
+}
+.github-corner svg {
+  border: 0;
+  color: var(--color-body);
+  fill: var(--color-octo);
+  filter: drop-shadow(var(--shadow-github));
+  height: 80px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: all 400ms ease;
+  width: 80px;
+}
+.github-corner .octo-arm {
+  transform-origin: 130px 106px;
+}
+.github-corner:hover svg {
+  fill: white;
+}
+.github-corner:hover .octo-arm {
+  animation: octocat-wave 560ms ease-in-out;
+}
+@keyframes octocat-wave {
+  0%, 100% {
+    transform: rotate(0)
+  }
+  20%, 60% {
+    transform: rotate(-25deg)
+  }
+  40%, 80% {
+    transform: rotate(10deg)
+  }
+}
+@media (max-aspect-ratio: 1/1) {
+  .github-corner svg {
+    right: -80px;
+  }
 }

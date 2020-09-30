@@ -1,13 +1,13 @@
 <script>
-  export let index,
-    clickable,
-    duration,
-    fallPhase,
-    matched,
-    plused,
-    value,
-    x = 0,
-    y = 0;
+  export let clickable;
+  export let duration;
+  export let fallPhase;
+  export let index;
+  export let matched;
+  export let plused;
+  export let value;
+  export let x = 0;
+  export let y = 0;
 
   $: nextValue = value < 9 ? value + 1 : 0;
 

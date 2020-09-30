@@ -139,13 +139,14 @@ function getDiffFromBuffer(buffer) {
 function doEnergyLogic() {
   if (get(randomColor) === "white") updateRandomColor();
   const { buffer, value } = get(energy);
-  const diff =
-    get(phase) === "gameover" ? sign(buffer) : getDiffFromBuffer(buffer);
-  if (get(phase) === "extra") {
+  const $phase = get(phase);
+  const diff = $phase === "gameover" ? sign(buffer) : getDiffFromBuffer(buffer);
+  if ($phase === "extra") {
     if (buffer === 0) return delayTransition(() => phase.set("total"), 800);
-    const [{ extra }] = get(log).slice(-1);
+    const $log = get(log);
+    const [{ extra }] = $log.slice(-1);
     log.set(
-      get(log)
+      $log
         .slice(0, -1)
         .concat({ extra: extra - diff })
     );
@@ -153,9 +154,10 @@ function doEnergyLogic() {
   if (buffer === 0) return;
   delayTransition(
     () => {
+      const { transitions } = get(options);
       energy.set({
-        buffer: get(options).transitions ? buffer - diff : 0,
-        value: get(options).transitions ? value + diff : value + buffer,
+        buffer: transitions ? buffer - diff : 0,
+        value: transitions ? value + diff : value + buffer,
       });
     },
     get(phase) === "gameover" ? 200 : 20
@@ -164,18 +166,18 @@ function doEnergyLogic() {
 
 /* PHASE LOGIC ****************************************************************/
 
-function doIdlePhase() {}
+function doIdlePhase() { }
 
 function doPlusPhase() {
   cards.set(
     get(cards).map((card, cardIndex) =>
       get(plusIndex) === cardIndex && card.y < 6
         ? {
-            x: card.x,
-            y: card.y,
-            value: card.value < 9 ? card.value + 1 : 0,
-            duration: 0,
-          }
+          x: card.x,
+          y: card.y,
+          value: card.value < 9 ? card.value + 1 : 0,
+          duration: 0,
+        }
         : card
     )
   );
@@ -313,9 +315,10 @@ function doScoreLogic() {
     get(phase) === "gameover" ? sign(buffer) : getDiffFromBuffer(buffer);
   const ms = get(phase) === "gameover" ? 200 : getTimeFromDiff(diff);
   delayTransition(() => {
+    const { transitions } = get(options);
     score.set({
-      buffer: get(options).transitions ? buffer - diff : 0,
-      value: get(options).transitions ? value + diff : value + buffer,
+      buffer: transitions ? buffer - diff : 0,
+      value: transitions ? value + diff : value + buffer,
     });
   }, ms);
 }
@@ -364,7 +367,9 @@ export function getFieldInitial() {
 }
 
 function doSeedLogic() {
-  getNewCardValue = createGetNewCardValue(get(seed));
+  const $seed = get(seed)
+  if (!$seed) return;
+  getNewCardValue = createGetNewCardValue($seed);
   cards.set(getFieldInitial());
 }
 

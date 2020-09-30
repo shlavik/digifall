@@ -61,8 +61,8 @@ export const score = writable(scoreInit);
 export const seed = derived(
   [game, options],
   ([{ timestamp }, { playerName }]) => {
-    timestamp = typeof timestamp === "number" ? timestamp : 0;
-    playerName = typeof playerName === "string" ? playerName : '';
+    if (typeof timestamp !== "number" || typeof playerName !== "string" || playerName === "")
+      return;
     const { MAX_SAFE_INTEGER } = Number;
     return [
       timestamp,

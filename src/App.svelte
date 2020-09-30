@@ -18,13 +18,20 @@
 
   onresize = updatePixelSize;
 
+  $: {
+    document.documentElement.style.setProperty(
+      "--color-octo",
+      $overlay ? "white" : "var(--color-base)"
+    );
+  }
+
   // DELME
-  onkeydown = ({ key }) => {
-    if (key === "1") $energy = { buffer: 0, value: 10 };
-    else if (key === "0") $energy = { buffer: 0, value: 100 };
-    else if (key === "ArrowRight") $energy = { ...$energy, buffer: 1 };
-    else if (key === "ArrowLeft") $energy = { ...$energy, buffer: -1 };
-  };
+  // onkeydown = ({ key }) => {
+  //   if (key === "1") $energy = { buffer: 0, value: 10 };
+  //   else if (key === "0") $energy = { buffer: 0, value: 100 };
+  //   else if (key === "ArrowRight") $energy = { ...$energy, buffer: 1 };
+  //   else if (key === "ArrowLeft") $energy = { ...$energy, buffer: -1 };
+  // };
 </script>
 
 <div class="app">
