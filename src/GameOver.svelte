@@ -14,9 +14,8 @@
   in:blur={{ delay: $options.transitions ? 200 : 0 }}>
   <div class="section-1">
     {#if isEnergyOut}
-      <span
-        class="text-big"
-        in:blur={{ delay: $options.transitions ? 600 : 0 }}>game over</span>
+      <span class="big" in:blur={{ delay: $options.transitions ? 600 : 0 }}>game
+        over</span>
     {/if}
   </div>
   <div class="section-2">

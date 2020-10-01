@@ -33,13 +33,9 @@
   $: if (playerName === "" && kind === "main") {
     kind = "name";
     initGame(true);
+  } else {
+    playerName = playerName.toLowerCase().replace(/[^a-z0-9@&$!_\?\.\-]/g, "");
   }
-
-  const playerNameKeydown = (event) => {
-    if (!event.key.match(/[A-Za-z0-9@&$!_\?\.\-]/)) event.preventDefault();
-  };
-
-  const playerNameChange = () => (playerName = playerName.toLowerCase());
 
   const setShadow = (on = true) => {
     const { style } = document.documentElement;
@@ -53,14 +49,12 @@
       "inset 0 0.5rem 0.5rem var(--color-black-04), 0 1px 0 white";
     const shadowInset2 =
       "inset 0 1rem 1rem var(--color-black-04), 0 1px 0 white";
-    const shadowGithub = "0 0 5rem black";
     style.setProperty("--shadow-0", on ? shadow0 : none);
     style.setProperty("--shadow-1", on ? shadow1 : none);
     style.setProperty("--shadow-2", on ? shadow2 : none);
     style.setProperty("--shadow-11", on ? shadow11 : transparent);
     style.setProperty("--shadow-inset-1", on ? shadowInset1 : none);
     style.setProperty("--shadow-inset-2", on ? shadowInset2 : none);
-    style.setProperty("--shadow-github", on ? shadowGithub : none);
   };
 
   $: setShadow($options.shadows);
@@ -68,7 +62,7 @@
 
 {#if kind === 'main'}
   <div class="content" in:blur={{ duration: $options.transitions ? 400 : 0 }}>
-    <div class="section-1"><span>work in progress</span></div>
+    <div class="section-1"><span class="big">digifall</span></div>
     <div class="section-2" />
     <div class="section-3">
       <div class="col">
@@ -96,7 +90,7 @@
   <div
     class="content compact"
     in:blur={{ duration: $options.transitions ? 400 : 0 }}>
-    <div class="section-1"><span>options</span></div>
+    <div class="section-1"><span class="big">options</span></div>
     <div class="section-2" />
     <div class="section-3">
       <div class="col">
@@ -104,8 +98,6 @@
           type="text"
           placeholder="player name"
           maxlength="24"
-          on:keydown={playerNameKeydown}
-          on:change={playerNameChange}
           bind:value={playerName} />
         <input type="checkbox" id="shadows" bind:checked={$options.shadows} />
         <label for="shadows">shadows</label>
@@ -126,7 +118,7 @@
   </div>
 {:else if kind === 'name'}
   <div class="content">
-    <div class="section-1"><span>work in progress</span></div>
+    <div class="section-1"><span class="big">digifall</span></div>
     <div class="section-2" />
     <div class="section-3">
       <div class="col">
@@ -134,8 +126,6 @@
           type="text"
           placeholder="player name"
           maxlength="24"
-          on:keydown={playerNameKeydown}
-          on:change={playerNameChange}
           bind:value={playerName} />
         <button on:click={startClick}>start</button>
       </div>

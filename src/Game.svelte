@@ -73,7 +73,7 @@
           class="digifall"
           class:screen={$log.length > 0}
           on:click={openOverlayClick}>
-          <span>work in progress</span>
+          <span class="big">digifall</span>
           <Log />
         </button>
       </div>

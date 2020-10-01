@@ -36,11 +36,11 @@ body {
   color: white;
   font-family: pixel;
   font-size: 5rem;
-  letter-spacing: 1rem;
+  letter-spacing: 2rem;
   line-height: 1;
   margin: 0;
   overflow: hidden;
-  text-indent: 1rem;
+  text-indent: 2rem;
   text-shadow: var(--shadow-1);
   user-select: none;
 }
@@ -49,9 +49,11 @@ input[type="text"],
 input[type="checkbox"] + label {
   font-family: inherit;
   font-size: 4rem;
+  letter-spacing: inherit;
   line-height: inherit;
   margin: 7rem 0;
   padding: 3rem;
+  text-indent: inherit;
 }
 .compact button,
 .compact input[type="text"],
@@ -64,9 +66,7 @@ button {
   color: black;
   cursor: pointer;
   font-weight: bold;
-  letter-spacing: 2rem;
   outline: 1rem solid white;
-  text-indent: 2rem;
 }
 button:focus,
 button:hover,
@@ -93,7 +93,6 @@ input[type="text"] {
   border: 1px solid white;
   color: white;
   font-style: italic;
-  letter-spacing: inherit;
   line-height: 6rem;
   outline: 1px solid white;
   padding: calc(2rem - 1px) calc(3rem - 1px);
@@ -126,7 +125,7 @@ input[type="checkbox"]:checked + label {
 }
 input[type="checkbox"] + label::before {
   color: var(--color-zero);
-  content: "0";
+  content: "o";
   letter-spacing: 0;
   position: absolute;
   right: 3rem;
@@ -244,24 +243,6 @@ input[type="checkbox"]:checked + label::before {
   animation: blink 200ms steps(2, end) 2, fade-out 400ms ease 400ms forwards;
   box-shadow: none;
 }
-@media (hover: hover) and (pointer: fine) {
-  .card.clickable:hover {
-    box-shadow: none;
-    cursor: pointer;
-    z-index: 2;
-  }
-  .card.clickable:hover .current,
-  .card.clickable:hover .next {
-    border-bottom: 1px solid var(--color);
-    box-shadow: var(--shadow-1);
-    top: -1px;
-  }
-  .card.clickable:active .current {
-    border-bottom: none;
-    box-shadow: var(--shadow-0);
-    top: 0;
-  }
-}
 @keyframes blink {
   from {
     background-color: white;
@@ -282,12 +263,32 @@ input[type="checkbox"]:checked + label::before {
     -webkit-clip-path: circle(0);
   }
 }
+@media (hover: hover) and (pointer: fine) {
+  .card.clickable:hover {
+    box-shadow: none;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .card.clickable:hover .current,
+  .card.clickable:hover .next {
+    border-bottom: 1px solid var(--color);
+    box-shadow: var(--shadow-1);
+    top: -1px;
+  }
+  .card.clickable:active .current {
+    border-bottom: none;
+    box-shadow: var(--shadow-0);
+    top: 0;
+  }
+}
 .energy {
   background-color: var(--color-dark);
   box-shadow: var(--shadow-inset-1);
   display: flex;
   font-size: 7rem;
+  letter-spacing: 1rem;
   position: relative;
+  text-indent: 1rem;
   width: 100%;
 }
 .energy .left-bar,
@@ -333,6 +334,7 @@ input[type="checkbox"]:checked + label::before {
   color: var(--color-zero);
   flex-grow: 1;
   font-size: inherit;
+  font-weight: bold;
   margin: auto;
   outline: none;
   position: relative;
@@ -347,10 +349,6 @@ input[type="checkbox"]:checked + label::before {
   color: var(--color-dark);
   text-shadow: var(--shadow-0);
 }
-.game-over .text-big {
-  font-size: 7rem;
-  font-weight: normal;
-}
 .game-over .energy {
   background-color: transparent;
   box-shadow: none;
@@ -361,7 +359,7 @@ input[type="checkbox"]:checked + label::before {
 .game-over .energy-out {
   font-size: 0;
   height: 7rem;
-  padding-left: 10rem;
+  padding-left: 11rem;
   padding-top: 2rem;
   position: absolute;
   text-indent: 0;
@@ -424,15 +422,58 @@ input[type="checkbox"]:checked + label::before {
   position: absolute;
   width: 100%;
 }
+.overlay .github-corner {
+  animation: slide 400ms ease both;
+  color: black;
+  fill: white;
+  position: fixed;
+  right: -23rem;
+  text-indent: 0;
+  top: -23rem;
+  width: 23rem;
+  z-index: 1;
+}
+@keyframes slide {
+  from {
+    right: -23rem;
+    top: -23rem;
+  }
+  to {
+    right: 0;
+    top: 0;
+  }
+}
+@media (max-aspect-ratio: 1/1) {
+  .overlay .github-corner {
+    display: none;
+  }
+}
+.overlay .github-corner .octo-arm {
+  transform-origin: 130px 106px;
+}
+.overlay .github-corner:hover .octo-arm {
+  animation: octocat-wave 560ms ease-in-out;
+}
+@keyframes octocat-wave {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20%,
+  60% {
+    transform: rotate(-25deg);
+  }
+  40%,
+  80% {
+    transform: rotate(10deg);
+  }
+}
 .overlay .content {
   height: 100%;
 }
 .section-1 {
   flex-basis: 37rem;
-  font-weight: bold;
-  letter-spacing: 2rem;
   text-align: center;
-  text-indent: 2rem;
 }
 .section-2 {
   flex-basis: 13rem;
@@ -469,51 +510,13 @@ input[type="checkbox"]:checked + label::before {
 .score .value {
   font-size: 7rem;
   font-weight: bold;
-  letter-spacing: 2rem;
   padding-right: 3rem;
   text-align: right;
   width: 100%;
 }
-.github-corner {
-  z-index: 1;
-}
-.github-corner svg {
-  border: 0;
-  color: var(--color-body);
-  fill: var(--color-octo);
-  filter: drop-shadow(var(--shadow-github));
-  height: 80px;
-  position: absolute;
-  right: 0;
-  top: 0;
-  transition: all 400ms ease;
-  width: 80px;
-}
-.github-corner .octo-arm {
-  transform-origin: 130px 106px;
-}
-.github-corner:hover svg {
-  fill: white;
-}
-.github-corner:hover .octo-arm {
-  animation: octocat-wave 560ms ease-in-out;
-}
-@keyframes octocat-wave {
-  0%,
-  100% {
-    transform: rotate(0);
-  }
-  20%,
-  60% {
-    transform: rotate(-25deg);
-  }
-  40%,
-  80% {
-    transform: rotate(10deg);
-  }
-}
-@media (max-aspect-ratio: 1/1) {
-  .github-corner svg {
-    right: -80px;
-  }
+span.big {
+  font-size: 7rem;
+  font-weight: normal;
+  letter-spacing: 3rem;
+  text-indent: 3rem;
 }

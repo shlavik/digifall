@@ -27,6 +27,7 @@ export function localStorageStore(key, initialValue) {
 const energyInit = { buffer: 0, value: 100 };
 const logInit = [];
 const matchedIndexesInit = [];
+const movesInit = [];
 const phaseInit = "idle";
 const plusIndexInit = undefined;
 const randomColorInit = "white";
@@ -34,10 +35,6 @@ const scoreInit = { buffer: 0, value: 0 };
 
 export const cards = writable([]);
 export const energy = writable(energyInit);
-export const game = localStorageStore("game", {
-  timestamp: Date.now(),
-  moves: [],
-});
 export const leaderboard = localStorageStore("leaderboard", {
   bestMoves: {},
   highScores: {},
@@ -45,6 +42,7 @@ export const leaderboard = localStorageStore("leaderboard", {
 });
 export const log = writable(logInit);
 export const matchedIndexes = writable(matchedIndexesInit);
+export const moves = localStorageStore("moves", movesInit);
 export const options = localStorageStore("options", {
   playerName: "",
   scoreLabel: false,
@@ -57,19 +55,20 @@ export const phase = writable(phaseInit);
 export const plusIndex = writable(plusIndexInit);
 export const randomColor = writable(randomColorInit);
 export const score = writable(scoreInit);
+export const timestamp = localStorageStore("timestamp", Date.now());
 
 export const seed = derived(
-  [game, options],
-  ([{ timestamp }, { playerName }]) => {
+  [timestamp, options],
+  ([$timestamp, { playerName }]) => {
     if (
-      typeof timestamp !== "number" ||
+      typeof $timestamp !== "number" ||
       typeof playerName !== "string" ||
       playerName === ""
     )
       return;
     const { MAX_SAFE_INTEGER } = Number;
     return [
-      timestamp,
+      $timestamp,
       ...[...playerName].map((letter) => letter.charCodeAt()),
     ].reduce((result, item) => {
       const number = Number(`${result}${item}`);
@@ -78,22 +77,20 @@ export const seed = derived(
   }
 );
 
-function newGame(count) {
-  energy.set(energyInit);
-  game.set({
-    timestamp: Date.now(),
-    moves: [],
-  });
-  score.set(scoreInit);
-  if (count-- > 0) requestAnimationFrame(() => newGame(count));
+function newTimestamp(count) {
+  timestamp.set(Date.now());
+  if (count-- > 0) requestAnimationFrame(() => newTimestamp(count));
 }
 
 export function initGame(showOverlay = false, count = 10) {
+  energy.set(energyInit);
   log.set(logInit);
   matchedIndexes.set(matchedIndexesInit);
+  moves.set(movesInit);
   overlay.set(showOverlay);
   phase.set("idle");
   plusIndex.set(plusIndexInit);
   randomColor.set(randomColorInit);
-  newGame(get(options).transitions ? count : 0);
+  score.set(scoreInit);
+  newTimestamp(get(options).transitions ? count : 0);
 }

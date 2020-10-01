@@ -3,6 +3,7 @@
     cards,
     energy,
     matchedIndexes,
+    moves,
     options,
     phase,
     plusIndex,
@@ -18,6 +19,7 @@
     if ($phase !== "idle" || $plusIndex) return;
     $plusIndex = Number(getTargetDataIndex(target));
     if (!Number.isNaN($plusIndex)) {
+      $moves = $moves.concat($plusIndex);
       $energy = { ...$energy, buffer: -10 };
       if ($options.transitions) setTimeout(() => ($phase = "plus"), 400);
       else $phase = "plus";

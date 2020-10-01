@@ -4,6 +4,7 @@ import {
   energy,
   log,
   matchedIndexes,
+  moves,
   options,
   overlay,
   phase,
@@ -17,6 +18,7 @@ import { getRandom } from "./utils";
 const { abs, floor, random, sign, sqrt, trunc } = Math;
 
 let getNewCardValue;
+let moveCount = 0;
 
 function delayTransition(callback, timeout) {
   if (get(options).transitions) setTimeout(callback, timeout);
@@ -24,6 +26,19 @@ function delayTransition(callback, timeout) {
 }
 
 /* CARDS LOGIC ****************************************************************/
+
+function getCardsPlused(cards, plusIndex) {
+  return cards.map((card, cardIndex) =>
+    plusIndex === cardIndex && card.y < 6
+      ? {
+          x: card.x,
+          y: card.y,
+          value: card.value < 9 ? card.value + 1 : 0,
+          duration: 0,
+        }
+      : card
+  );
+}
 
 function getFieldUndefined() {
   const arr0 = Array(12).fill();
@@ -136,9 +151,9 @@ function getDiffFromBuffer(buffer) {
   return sign(buffer) * trunc(sqrt(abs(buffer)));
 }
 
-function doEnergyLogic() {
+function doEnergyLogic($energy) {
   if (get(randomColor) === "white") updateRandomColor();
-  const { buffer, value } = get(energy);
+  const { buffer, value } = $energy;
   const $phase = get(phase);
   const diff = $phase === "gameover" ? sign(buffer) : getDiffFromBuffer(buffer);
   if ($phase === "extra") {
@@ -156,7 +171,7 @@ function doEnergyLogic() {
         value: transitions ? value + diff : value + buffer,
       });
     },
-    get(phase) === "gameover" ? 200 : 20
+    $phase === "gameover" ? 200 : 20
   );
 }
 
@@ -165,28 +180,18 @@ function doEnergyLogic() {
 function doIdlePhase() {}
 
 function doPlusPhase() {
-  cards.set(
-    get(cards).map((card, cardIndex) =>
-      get(plusIndex) === cardIndex && card.y < 6
-        ? {
-            x: card.x,
-            y: card.y,
-            value: card.value < 9 ? card.value + 1 : 0,
-            duration: 0,
-          }
-        : card
-    )
-  );
+  cards.update(($cards) => getCardsPlused($cards, get(plusIndex)));
   phase.set("blink");
 }
 
 function doBlinkPhase() {
-  let newMatchedIndexes = getMatchedIndexes(get(cards));
+  const $cards = get(cards);
+  let newMatchedIndexes = getMatchedIndexes($cards);
   if (newMatchedIndexes.length > 0) {
-    log.set(
-      get(log).concat(
+    log.update(($log) =>
+      $log.concat(
         newMatchedIndexes.reduce((result, index) => {
-          const { value } = get(cards)[index];
+          const { value } = $cards[index];
           result[value] = (result[value] || 0) + value;
           result.sum = (result.sum || 0) + value;
           return result;
@@ -194,7 +199,7 @@ function doBlinkPhase() {
       )
     );
     const buffer = newMatchedIndexes.reduce(
-      (result, index) => result + get(cards)[index].value,
+      (result, index) => result + $cards[index].value,
       0
     );
     delayTransition(() => energy.set({ ...get(energy), buffer }), 400);
@@ -213,18 +218,18 @@ function doBlinkPhase() {
 }
 
 function doMatchPhase() {
-  cards.set(getCardsMatched(get(cards), get(matchedIndexes)));
+  cards.update(($cards) => getCardsMatched($cards, get(matchedIndexes)));
   matchedIndexes.set([]);
   delayTransition(() => phase.set("fall"), 400);
 }
 
 function doFallPhase() {
-  cards.set(getCardsFallen(get(cards)));
+  cards.update(($cards) => getCardsFallen($cards));
   delayTransition(() => phase.set("blink"), 400);
 }
 
 function doExtraPhase() {
-  log.set(get(log).concat({ extra: 0 }));
+  log.update(($log) => $log.concat({ extra: 0 }));
   energy.set({ ...get(energy), buffer: 100 - get(energy).value });
 }
 
@@ -243,10 +248,10 @@ function doScorePhase() {
   score.set({ ...get(score) });
 }
 
-function doGameoverPhase() {
+function doGameoverPhase($phase) {
   overlay.set(true);
   delayTransition(() => {
-    if (get(phase) !== "gameover") return;
+    if ($phase !== "gameover") return;
     energy.set({
       ...get(energy),
       buffer: -get(energy).value,
@@ -258,7 +263,7 @@ function doGameoverPhase() {
   }, 400);
 }
 
-function doPhaseLogic() {
+function doPhaseLogic($phase) {
   Object({
     idle: doIdlePhase,
     plus: doPlusPhase,
@@ -269,7 +274,7 @@ function doPhaseLogic() {
     total: doTotalPhase,
     score: doScorePhase,
     gameover: doGameoverPhase,
-  })[get(phase)]();
+  })[$phase]($phase);
 }
 
 /* SCORE LOGIC ****************************************************************/
@@ -296,20 +301,20 @@ export function getTimeFromDiff(diff) {
   }
 }
 
-function doScoreLogic() {
-  if (get(phase) !== "gameover" && get(phase) !== "score") return;
-  const { buffer, value } = get(score);
+function doScoreLogic($score) {
+  const $phase = get(phase);
+  if ($phase !== "gameover" && $phase !== "score") return;
+  const { buffer, value } = $score;
   if (buffer === 0) {
-    if (get(phase) !== "gameover")
+    if ($phase !== "gameover")
       delayTransition(() => {
         log.set([]);
         phase.set("idle");
       }, 200);
     return;
   }
-  const diff =
-    get(phase) === "gameover" ? sign(buffer) : getDiffFromBuffer(buffer);
-  const ms = get(phase) === "gameover" ? 200 : getTimeFromDiff(diff);
+  const diff = $phase === "gameover" ? sign(buffer) : getDiffFromBuffer(buffer);
+  const ms = $phase === "gameover" ? 200 : getTimeFromDiff(diff);
   delayTransition(() => {
     const { transitions } = get(options);
     score.set({
@@ -362,8 +367,7 @@ export function getFieldInitial() {
   return getFieldPrepared(getFieldRandom());
 }
 
-function doSeedLogic() {
-  const $seed = get(seed);
+function doSeedLogic($seed) {
   if (!$seed) return;
   getNewCardValue = createGetNewCardValue($seed);
   cards.set(getFieldInitial());
@@ -372,8 +376,8 @@ function doSeedLogic() {
 /* CORE INITIALIZATION ********************************************************/
 
 export function initCore() {
-  energy.subscribe(() => doEnergyLogic());
-  phase.subscribe(() => doPhaseLogic());
-  score.subscribe(() => doScoreLogic());
-  seed.subscribe(() => doSeedLogic());
+  energy.subscribe(($energy) => doEnergyLogic($energy));
+  phase.subscribe(($phase) => doPhaseLogic($phase));
+  score.subscribe(($score) => doScoreLogic($score));
+  seed.subscribe(($seed) => doSeedLogic($seed));
 }
