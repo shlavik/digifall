@@ -13,22 +13,24 @@ import {
   score,
   seed,
 } from "./stores.js";
-import { getRandom } from "./utils";
+import { getArrayFromBase64, getRandom } from "./utils";
 
 const { abs, floor, random, sign, sqrt, trunc } = Math;
 
 let getNewCardValue;
 let moveCount = 0;
+let movesInitial;
 
 function delayTransition(callback, timeout) {
-  if (get(options).transitions) setTimeout(callback, timeout);
+  if (movesInitial === undefined && get(options).transitions)
+    setTimeout(callback, timeout);
   else callback();
 }
 
 /* CARDS LOGIC ****************************************************************/
 
-function getCardsPlused(cards, plusIndex) {
-  return cards.map((card, cardIndex) =>
+function getCardsPlused($cards, plusIndex) {
+  return $cards.map((card, cardIndex) =>
     plusIndex === cardIndex && card.y < 6
       ? {
           x: card.x,
@@ -50,26 +52,29 @@ function getFieldUndefined() {
   return [arr0, arr1, arr2, arr3, arr4, arr5];
 }
 
-function getFieldIndexes(cards) {
+function getFieldIndexes($cards) {
   const field = getFieldUndefined();
-  cards.forEach((card, index) => (field[card.x][card.y] = index));
+  $cards.forEach((card, index) => (field[card.x][card.y] = index));
   return field;
 }
 
-function getCardsFallen(cards) {
+function getCardsFallen($cards) {
   const result = [];
-  const field = getFieldIndexes(cards);
+  const field = getFieldIndexes($cards);
   for (let x in field) {
     let count = 0;
     for (let y in field[x]) {
       const index = field[x][y];
       if (index !== undefined) {
-        const card = cards[index];
+        const card = $cards[index];
         result[index] = {
           x: card.x,
           y: y - count,
           value: card.value,
-          duration: get(options).transitions ? 100 * sqrt(2 * count) : 0,
+          duration:
+            movesInitial === undefined && get(options).transitions
+              ? 100 * sqrt(2 * count)
+              : 0,
         };
       } else ++count;
     }
@@ -77,12 +82,12 @@ function getCardsFallen(cards) {
   return result;
 }
 
-function getMatchedIndexes(cards) {
-  const field = getFieldIndexes(cards);
+function getMatchedIndexes($cards) {
+  const field = getFieldIndexes($cards);
   let groupedArray = [];
   let count = 0;
   const group = (index) => {
-    const { value, x, y } = cards[index];
+    const { value, x, y } = $cards[index];
     if (groupedArray[index]) return;
     groupedArray[index] = { value, group: count };
     let topIndex, rightIndex, bottomIndex, leftIndex;
@@ -90,13 +95,14 @@ function getMatchedIndexes(cards) {
     if (x < 5) rightIndex = field[x + 1][y];
     if (y > 0) bottomIndex = field[x][y - 1];
     if (x > 0) leftIndex = field[x - 1][y];
-    const isSameValue = (index) => index && cards[index].value === value;
+    const isSameValue = (index) =>
+      index !== undefined && $cards[index].value === value;
     if (isSameValue(topIndex)) group(topIndex);
     if (isSameValue(rightIndex)) group(rightIndex);
     if (isSameValue(bottomIndex)) group(bottomIndex);
     if (isSameValue(leftIndex)) group(leftIndex);
   };
-  for (let index in cards) {
+  for (let index in $cards) {
     ++count;
     group(index);
   }
@@ -116,14 +122,14 @@ function getMatchedIndexes(cards) {
   }, []);
 }
 
-function getCardsMatched(cards, matchedIndexes) {
+function getCardsMatched($cards, matchedIndexes) {
   const counts = [0, 0, 0, 0, 0, 0];
   const getNewY = (x) =>
     counts[x] +
-    cards
+    $cards
       .filter((card) => card.x === x)
       .sort(({ y: y1 }, { y: y2 }) => y1 - y2)[5].y;
-  return cards.map((card, index) => {
+  return $cards.map((card, index) => {
     if (matchedIndexes.includes(index) && card.y < 6) {
       ++counts[card.x];
       return {
@@ -151,24 +157,29 @@ function getDiffFromBuffer(buffer) {
   return sign(buffer) * trunc(sqrt(abs(buffer)));
 }
 
-function doEnergyLogic($energy) {
+function doEnergyLogic({ buffer, value }) {
   if (get(randomColor) === "white") updateRandomColor();
-  const { buffer, value } = $energy;
+  const { transitions } = get(options);
   const $phase = get(phase);
-  const diff = $phase === "gameover" ? sign(buffer) : getDiffFromBuffer(buffer);
+  const diff =
+    movesInitial === undefined && transitions
+      ? $phase === "gameover"
+        ? sign(buffer)
+        : getDiffFromBuffer(buffer)
+      : buffer;
   if ($phase === "extra") {
     if (buffer === 0) return delayTransition(() => phase.set("total"), 800);
-    const $log = get(log);
-    const [{ extra }] = $log.slice(-1);
-    log.set($log.slice(0, -1).concat({ extra: extra - diff }));
+    log.update(($log) => {
+      const [{ extra }] = $log.slice(-1);
+      return $log.slice(0, -1).concat({ extra: extra - diff });
+    });
   }
   if (buffer === 0) return;
   delayTransition(
     () => {
-      const { transitions } = get(options);
       energy.set({
-        buffer: transitions ? buffer - diff : 0,
-        value: transitions ? value + diff : value + buffer,
+        buffer: buffer - diff,
+        value: value + diff,
       });
     },
     $phase === "gameover" ? 200 : 20
@@ -177,16 +188,30 @@ function doEnergyLogic($energy) {
 
 /* PHASE LOGIC ****************************************************************/
 
-function doIdlePhase() {}
+function doInitPhase() {
+  setTimeout(() => phase.set("idle"));
+}
+
+function doIdlePhase() {
+  if (movesInitial !== undefined) {
+    if (moveCount < movesInitial.length) {
+      plusIndex.set(movesInitial[moveCount++]);
+      energy.update(({ buffer, value }) => ({ buffer, value: value - 10 }));
+      phase.set("plus");
+    } else movesInitial = undefined;
+  }
+}
 
 function doPlusPhase() {
   cards.update(($cards) => getCardsPlused($cards, get(plusIndex)));
+  plusIndex.set(undefined);
   phase.set("blink");
 }
 
 function doBlinkPhase() {
   const $cards = get(cards);
   let newMatchedIndexes = getMatchedIndexes($cards);
+  matchedIndexes.set(newMatchedIndexes);
   if (newMatchedIndexes.length > 0) {
     log.update(($log) =>
       $log.concat(
@@ -213,8 +238,6 @@ function doBlinkPhase() {
   } else {
     phase.set("idle");
   }
-  plusIndex.set(undefined);
-  matchedIndexes.set(newMatchedIndexes);
 }
 
 function doMatchPhase() {
@@ -265,6 +288,7 @@ function doGameoverPhase($phase) {
 
 function doPhaseLogic($phase) {
   Object({
+    init: doInitPhase,
     idle: doIdlePhase,
     plus: doPlusPhase,
     blink: doBlinkPhase,
@@ -301,10 +325,9 @@ export function getTimeFromDiff(diff) {
   }
 }
 
-function doScoreLogic($score) {
+function doScoreLogic({ buffer, value }) {
   const $phase = get(phase);
   if ($phase !== "gameover" && $phase !== "score") return;
-  const { buffer, value } = $score;
   if (buffer === 0) {
     if ($phase !== "gameover")
       delayTransition(() => {
@@ -363,14 +386,19 @@ function getFieldPrepared(field) {
   }
 }
 
-export function getFieldInitial() {
-  return getFieldPrepared(getFieldRandom());
-}
-
 function doSeedLogic($seed) {
   if (!$seed) return;
   getNewCardValue = createGetNewCardValue($seed);
-  cards.set(getFieldInitial());
+  cards.set(getFieldPrepared(getFieldRandom()));
+  const $moves = get(moves);
+  if (!$moves) return;
+  const movesArray = Array.isArray($moves)
+    ? $moves
+    : getArrayFromBase64($moves);
+  if (movesArray.length > 0) {
+    moveCount = 0;
+    movesInitial = movesArray;
+  } else movesInitial = undefined;
 }
 
 /* CORE INITIALIZATION ********************************************************/

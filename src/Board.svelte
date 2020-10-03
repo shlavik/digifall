@@ -8,6 +8,7 @@
     phase,
     plusIndex,
   } from "./stores.js";
+  import { getArrayFromBase64, getBase64FromArray } from "./utils";
   import Card from "./Card.svelte";
 
   const getTargetDataIndex = ({ dataset, parentNode }) => {
@@ -16,10 +17,13 @@
   };
 
   const boardClick = ({ target }) => {
-    if ($phase !== "idle" || $plusIndex) return;
+    if ($phase !== "idle" || $plusIndex !== undefined) return;
     $plusIndex = Number(getTargetDataIndex(target));
     if (!Number.isNaN($plusIndex)) {
-      $moves = $moves.concat($plusIndex);
+      const movesArray = Array.isArray($moves)
+        ? $moves
+        : getArrayFromBase64($moves);
+      $moves = getBase64FromArray(movesArray.concat($plusIndex));
       $energy = { ...$energy, buffer: -10 };
       if ($options.transitions) setTimeout(() => ($phase = "plus"), 400);
       else $phase = "plus";

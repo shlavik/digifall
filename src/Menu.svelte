@@ -23,7 +23,8 @@
     }
   };
 
-  const startClick = () => {
+  const startSubmit = (event) => {
+    event.preventDefault();
     if (!playerName) return;
     kind = "main";
     $options.playerName = playerName;
@@ -122,12 +123,14 @@
     <div class="section-2" />
     <div class="section-3">
       <div class="col">
-        <input
-          type="text"
-          placeholder="player name"
-          maxlength="24"
-          bind:value={playerName} />
-        <button on:click={startClick}>start</button>
+        <form on:submit={startSubmit}>
+          <input
+            type="text"
+            placeholder="player name"
+            maxlength="24"
+            bind:value={playerName} />
+          <button type="submit">start</button>
+        </form>
       </div>
     </div>
     <div class="section-4" />

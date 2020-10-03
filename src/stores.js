@@ -27,8 +27,8 @@ export function localStorageStore(key, initialValue) {
 const energyInit = { buffer: 0, value: 100 };
 const logInit = [];
 const matchedIndexesInit = [];
-const movesInit = [];
-const phaseInit = "idle";
+const movesInit = "";
+const phaseInit = "init";
 const plusIndexInit = undefined;
 const randomColorInit = "white";
 const scoreInit = { buffer: 0, value: 0 };
@@ -82,7 +82,7 @@ function newTimestamp(count) {
   if (count-- > 0) requestAnimationFrame(() => newTimestamp(count));
 }
 
-export function initGame(showOverlay = false, count = 10) {
+export function initGame(showOverlay = false, count = 0) {
   energy.set(energyInit);
   log.set(logInit);
   matchedIndexes.set(matchedIndexesInit);
