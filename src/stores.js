@@ -36,16 +36,18 @@ const scoreInit = { buffer: 0, value: 0 };
 export const cards = writable([]);
 export const energy = writable(energyInit);
 export const leaderboard = localStorageStore("leaderboard", {
-  bestMoves: {},
-  highScores: {},
-  size: 8,
+  hiScores: {},
+  hiTotals: {},
+  local: {
+    hiScore: {},
+    hiTotal: {},
+  },
 });
 export const log = writable(logInit);
 export const matchedIndexes = writable(matchedIndexesInit);
 export const moves = localStorageStore("moves", movesInit);
 export const options = localStorageStore("options", {
   playerName: "",
-  scoreLabel: false,
   seedground: true,
   shadows: true,
   transitions: true,
@@ -79,10 +81,10 @@ export const seed = derived(
 
 function newTimestamp(count) {
   timestamp.set(Date.now());
-  if (count-- > 0) requestAnimationFrame(() => newTimestamp(count));
+  if (count-- > 0) setTimeout(() => newTimestamp(count), 20);
 }
 
-export function initGame(showOverlay = false, count = 0) {
+export function initGame(showOverlay = false, count = 10) {
   energy.set(energyInit);
   log.set(logInit);
   matchedIndexes.set(matchedIndexesInit);

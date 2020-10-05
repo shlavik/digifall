@@ -506,14 +506,22 @@ input[type="checkbox"]:checked + label::before {
   flex-basis: 9rem;
 }
 .score {
-  align-self: flex-end;
+  align-items: baseline;
   cursor: pointer;
-  text-align: right;
+  display: flex;
+  padding: 3rem;
+  white-space: nowrap;
+}
+.score .mode {
+  display: none;
+}
+.score:hover .mode,
+.score .mode.visible {
+  display: inline;
 }
 .score .value {
   font-size: 7rem;
   font-weight: bold;
-  padding-right: 3rem;
   text-align: right;
   width: 100%;
 }

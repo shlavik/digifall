@@ -2,6 +2,7 @@ import { get } from "svelte/store";
 import {
   cards,
   energy,
+  leaderboard,
   log,
   matchedIndexes,
   moves,
@@ -12,6 +13,7 @@ import {
   randomColor,
   score,
   seed,
+  timestamp,
 } from "./stores.js";
 import { getArrayFromBase64, getRandom } from "./utils";
 
@@ -59,6 +61,7 @@ function getFieldIndexes($cards) {
 }
 
 function getCardsFallen($cards) {
+  const { transitions } = get(options);
   const result = [];
   const field = getFieldIndexes($cards);
   for (let x in field) {
@@ -72,7 +75,7 @@ function getCardsFallen($cards) {
           y: y - count,
           value: card.value,
           duration:
-            movesInitial === undefined && get(options).transitions
+            movesInitial === undefined && transitions
               ? 100 * sqrt(2 * count)
               : 0,
         };
@@ -142,6 +145,29 @@ function getCardsMatched($cards, matchedIndexes) {
   });
 }
 
+/* CHECK LOGIC ****************************************************************/
+
+function checkLocalScore(key = "hiScore", value) {
+  const $leaderboard = get(leaderboard);
+  const { local: { hiScore = {}, hiTotal = {} } = {} } = $leaderboard;
+  const currentValue =
+    Object.keys(key === "hiScore" ? hiScore : hiTotal)[0] || 0;
+  if (value < currentValue) return;
+  leaderboard.set({
+    ...$leaderboard,
+    local: {
+      ...$leaderboard.local,
+      [key]: {
+        [value]: {
+          moves: get(moves),
+          playerName: get(options).playerName,
+          timestamp: get(timestamp),
+        },
+      },
+    },
+  });
+}
+
 /* ENERGY LOGIC ***************************************************************/
 
 function updateRandomColor() {
@@ -159,10 +185,9 @@ function getDiffFromBuffer(buffer) {
 
 function doEnergyLogic({ buffer, value }) {
   if (get(randomColor) === "white") updateRandomColor();
-  const { transitions } = get(options);
   const $phase = get(phase);
   const diff =
-    movesInitial === undefined && transitions
+    movesInitial === undefined && get(options).transitions
       ? $phase === "gameover"
         ? sign(buffer)
         : getDiffFromBuffer(buffer)
@@ -193,7 +218,9 @@ function doInitPhase() {
 }
 
 function doIdlePhase() {
-  if (movesInitial !== undefined) {
+  if (movesInitial === undefined) {
+    checkLocalScore("hiScore", get(score).value);
+  } else {
     if (moveCount < movesInitial.length) {
       plusIndex.set(movesInitial[moveCount++]);
       energy.update(({ buffer, value }) => ({ buffer, value: value - 10 }));
@@ -212,6 +239,7 @@ function doBlinkPhase() {
   const $cards = get(cards);
   let newMatchedIndexes = getMatchedIndexes($cards);
   matchedIndexes.set(newMatchedIndexes);
+  const { value } = get(energy);
   if (newMatchedIndexes.length > 0) {
     log.update(($log) =>
       $log.concat(
@@ -227,11 +255,11 @@ function doBlinkPhase() {
       (result, index) => result + $cards[index].value,
       0
     );
-    delayTransition(() => energy.set({ ...get(energy), buffer }), 400);
+    delayTransition(() => energy.set({ buffer, value }), 400);
     delayTransition(() => phase.set("match"), 800);
-  } else if (get(energy).value > 100) {
+  } else if (value > 100) {
     phase.set("extra");
-  } else if (get(energy).value < 10) {
+  } else if (value < 10) {
     phase.set("gameover");
   } else if (get(log).length > 0) {
     phase.set("total");
@@ -252,37 +280,39 @@ function doFallPhase() {
 }
 
 function doExtraPhase() {
+  energy.update(({ value }) => ({ buffer: 100 - value, value }));
   log.update(($log) => $log.concat({ extra: 0 }));
-  energy.set({ ...get(energy), buffer: 100 - get(energy).value });
 }
 
 function doTotalPhase() {
-  score.set({
-    ...get(score),
-    buffer: get(log).reduce(
-      (result, { extra, sum }, index) => result + (index + 1) * (sum || extra),
-      0
-    ),
-  });
+  const total = get(log).reduce(
+    (result, { extra, sum }, index) => result + (index + 1) * (sum || extra),
+    0
+  );
+  checkLocalScore("hiTotal", total);
+  score.update(({ value }) => ({
+    buffer: total,
+    value,
+  }));
   delayTransition(() => phase.set("score"), get(log).length > 1 ? 800 : 0);
 }
 
 function doScorePhase() {
-  score.set({ ...get(score) });
+  score.update(($score) => ({ ...$score }));
 }
 
 function doGameoverPhase($phase) {
   overlay.set(true);
+  if ($phase !== "gameover") return;
   delayTransition(() => {
-    if ($phase !== "gameover") return;
-    energy.set({
-      ...get(energy),
-      buffer: -get(energy).value,
-    });
-    score.set({
-      ...get(score),
+    energy.update(({ value }) => ({
+      buffer: -value,
+      value,
+    }));
+    score.update(({ value }) => ({
       buffer: get(energy).value,
-    });
+      value,
+    }));
   }, 400);
 }
 
@@ -336,15 +366,21 @@ function doScoreLogic({ buffer, value }) {
       }, 200);
     return;
   }
-  const diff = $phase === "gameover" ? sign(buffer) : getDiffFromBuffer(buffer);
-  const ms = $phase === "gameover" ? 200 : getTimeFromDiff(diff);
-  delayTransition(() => {
-    const { transitions } = get(options);
-    score.set({
-      buffer: transitions ? buffer - diff : 0,
-      value: transitions ? value + diff : value + buffer,
-    });
-  }, ms);
+  const diff =
+    movesInitial === undefined && get(options).transitions
+      ? $phase === "gameover"
+        ? sign(buffer)
+        : getDiffFromBuffer(buffer)
+      : buffer;
+  delayTransition(
+    () => {
+      score.set({
+        buffer: buffer - diff,
+        value: value + diff,
+      });
+    },
+    $phase === "gameover" ? 200 : getTimeFromDiff(diff)
+  );
 }
 
 /* SEED LOGIC *****************************************************************/
