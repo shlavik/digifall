@@ -25,8 +25,8 @@
 
   $: value = (() => {
     if (mode === "score") return $score.value;
-    const { local: { hiTotal = {}, hiScore = {} } = {} } = $leaderboard;
-    return Object.keys(mode === "hi-score" ? hiScore : hiTotal)[0] || 0;
+    const { local: { highTotal = {}, highScore = {} } = {} } = $leaderboard;
+    return Object.keys(mode === "hi-score" ? highScore : highTotal)[0] || 0;
   })();
 </script>
 

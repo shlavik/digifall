@@ -1,9 +1,27 @@
 <script>
+  import { onMount } from "svelte";
   import { fade } from "svelte/transition";
-  import { energy, options, overlay, phase } from "./stores.js";
+  import { energy, options, overlay, phase, touch } from "./stores.js";
   import Game from "./Game.svelte";
   import GameOver from "./GameOver.svelte";
   import Menu from "./Menu.svelte";
+
+  let localTouch = $touch;
+
+  onMount(() => {
+    localTouch = Date.now();
+    $touch = localTouch;
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      localTouch = Date.now();
+      $touch = localTouch;
+    } else {
+      const currentTouch = Number(localStorage.getItem("touch"));
+      if (localTouch < currentTouch) document.location = document.location;
+    }
+  });
 
   const updatePixelSize = () => {
     const { style, offsetHeight, offsetWidth } = document.documentElement;

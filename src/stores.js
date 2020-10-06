@@ -36,11 +36,11 @@ const scoreInit = { buffer: 0, value: 0 };
 export const cards = writable([]);
 export const energy = writable(energyInit);
 export const leaderboard = localStorageStore("leaderboard", {
-  hiScores: {},
-  hiTotals: {},
+  highScores: {},
+  highTotals: {},
   local: {
-    hiScore: {},
-    hiTotal: {},
+    highScore: {},
+    highTotal: {},
   },
 });
 export const log = writable(logInit);
@@ -58,6 +58,7 @@ export const plusIndex = writable(plusIndexInit);
 export const randomColor = writable(randomColorInit);
 export const score = writable(scoreInit);
 export const timestamp = localStorageStore("timestamp", Date.now());
+export const touch = localStorageStore("touch", Date.now());
 
 export const seed = derived(
   [timestamp, options],
@@ -81,10 +82,10 @@ export const seed = derived(
 
 function newTimestamp(count) {
   timestamp.set(Date.now());
-  if (count-- > 0) setTimeout(() => newTimestamp(count), 20);
+  if (count-- > 0) requestAnimationFrame(() => newTimestamp(count));
 }
 
-export function initGame(showOverlay = false, count = 10) {
+export function initGame(showOverlay = false, count = 12) {
   energy.set(energyInit);
   log.set(logInit);
   matchedIndexes.set(matchedIndexesInit);

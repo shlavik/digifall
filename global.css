@@ -55,13 +55,17 @@ input[type="checkbox"] + label {
   letter-spacing: inherit;
   line-height: inherit;
   margin: 7rem 0;
-  padding: 3rem;
+  padding: 3rem 4rem;
   text-indent: inherit;
 }
 .compact button,
 .compact input[type="text"],
 .compact input[type="checkbox"] + label {
   margin: 5rem 0;
+}
+.compact button:active,
+.compact input[type="text"] {
+  margin: calc(5rem - 1px) 0;
 }
 button {
   background-color: white;
@@ -81,10 +85,6 @@ button:active,
 input[type="text"] {
   margin: calc(7rem - 1px) 0;
 }
-.compact button:active,
-.compact input[type="text"] {
-  margin: calc(5rem - 1px) 0;
-}
 button:active {
   background-color: var(--color-black-08);
   border: 1px solid white;
@@ -98,13 +98,13 @@ input[type="text"] {
   font-style: italic;
   line-height: 6rem;
   outline: 1px solid white;
-  padding: calc(2rem - 1px) calc(3rem - 1px);
+  padding: calc(3rem - 1px) calc(4rem - 1px);
   text-indent: 0;
 }
 input[type="text"]:focus {
-  border: none;
-  outline: 1rem solid white;
-  padding: 2rem 3rem;
+  border: 1rem solid white;
+  outline: none;
+  padding: calc(3rem - 1rem) calc(4rem - 1rem);
 }
 input[type="text"]::placeholder {
   color: var(--color-dark);
@@ -203,8 +203,8 @@ input[type="checkbox"]:checked + label::before {
 }
 .card .current,
 .card .next {
-  backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   background-color: var(--color);
   box-shadow: var(--shadow-0);
   color: white;
@@ -218,8 +218,8 @@ input[type="checkbox"]:checked + label::before {
 }
 .card .current {
   box-sizing: content-box;
-  clip-path: circle(100%);
   -webkit-clip-path: circle(100%);
+  clip-path: circle(100%);
   will-change: clip-path;
 }
 .card .next {
@@ -258,12 +258,12 @@ input[type="checkbox"]:checked + label::before {
 }
 @keyframes fade-out {
   from {
-    clip-path: circle(100%);
     -webkit-clip-path: circle(100%);
+    clip-path: circle(100%);
   }
   to {
-    clip-path: circle(0);
     -webkit-clip-path: circle(0);
+    clip-path: circle(0);
   }
 }
 @media (hover: hover) and (pointer: fine) {
@@ -326,7 +326,7 @@ input[type="checkbox"]:checked + label::before {
 .game .content {
   background-color: var(--color-base);
   box-shadow: -1rem 0 0 0 var(--color-base), 1rem 0 0 0 var(--color-base),
-    var(--shadow-11);
+    var(--shadow-3);
 }
 .game .digifall,
 .game .digifall:focus,
@@ -426,25 +426,14 @@ input[type="checkbox"]:checked + label::before {
   width: 100%;
 }
 .overlay .github-corner {
-  animation: slide 400ms ease both;
   color: black;
   fill: white;
   position: fixed;
-  right: -23rem;
+  right: 0;
   text-indent: 0;
-  top: -23rem;
+  top: 0;
   width: 23rem;
   z-index: 1;
-}
-@keyframes slide {
-  from {
-    right: -23rem;
-    top: -23rem;
-  }
-  to {
-    right: 0;
-    top: 0;
-  }
 }
 @media (max-aspect-ratio: 1/1) {
   .overlay .github-corner {
@@ -511,6 +500,10 @@ input[type="checkbox"]:checked + label::before {
   display: flex;
   padding: 3rem;
   white-space: nowrap;
+}
+.score:active {
+  color: var(--color-base);
+  text-shadow: var(--shadow-0);
 }
 .score .mode {
   display: none;

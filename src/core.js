@@ -147,11 +147,11 @@ function getCardsMatched($cards, matchedIndexes) {
 
 /* CHECK LOGIC ****************************************************************/
 
-function checkLocalScore(key = "hiScore", value) {
+function checkLocalScore(key = "highScore", value) {
   const $leaderboard = get(leaderboard);
-  const { local: { hiScore = {}, hiTotal = {} } = {} } = $leaderboard;
+  const { local: { highScore = {}, highTotal = {} } = {} } = $leaderboard;
   const currentValue =
-    Object.keys(key === "hiScore" ? hiScore : hiTotal)[0] || 0;
+    Object.keys(key === "highScore" ? highScore : highTotal)[0] || 0;
   if (value < currentValue) return;
   leaderboard.set({
     ...$leaderboard,
@@ -219,7 +219,7 @@ function doInitPhase() {
 
 function doIdlePhase() {
   if (movesInitial === undefined) {
-    checkLocalScore("hiScore", get(score).value);
+    checkLocalScore("highScore", get(score).value);
   } else {
     if (moveCount < movesInitial.length) {
       plusIndex.set(movesInitial[moveCount++]);
@@ -289,7 +289,7 @@ function doTotalPhase() {
     (result, { extra, sum }, index) => result + (index + 1) * (sum || extra),
     0
   );
-  checkLocalScore("hiTotal", total);
+  checkLocalScore("highTotal", total);
   score.update(({ value }) => ({
     buffer: total,
     value,
