@@ -16,18 +16,18 @@
     if (parentNode) return getTargetDataIndex(parentNode);
   };
 
-  const boardClick = ({ target }) => {
+  const boardClick = (event) => {
     if ($phase !== "idle" || $plusIndex !== undefined) return;
-    $plusIndex = Number(getTargetDataIndex(target));
-    if (!Number.isNaN($plusIndex)) {
-      const movesArray = Array.isArray($moves)
-        ? $moves
-        : getArrayFromBase64($moves);
-      $moves = getBase64FromArray(movesArray.concat($plusIndex));
-      $energy = { ...$energy, buffer: -10 };
-      if ($options.transitions) setTimeout(() => ($phase = "plus"), 400);
-      else $phase = "plus";
-    }
+    const index = getTargetDataIndex(event.target);
+    if (index === undefined) return;
+    $plusIndex = Number(index);
+    const movesArray = Array.isArray($moves)
+      ? $moves
+      : getArrayFromBase64($moves);
+    $moves = getBase64FromArray(movesArray.concat($plusIndex));
+    $energy = { ...$energy, buffer: -10 };
+    if ($options.transitions) setTimeout(() => ($phase = "plus"), 400);
+    else $phase = "plus";
   };
 </script>
 
