@@ -70,13 +70,12 @@ export const seed = derived(
     )
       return;
     const { MAX_SAFE_INTEGER } = Number;
-    return [
-      $timestamp,
-      ...[...playerName].map((letter) => letter.charCodeAt()),
-    ].reduce((result, item) => {
-      const number = Number(`${result}${item}`);
-      return number > MAX_SAFE_INTEGER ? number % MAX_SAFE_INTEGER : number;
-    });
+    return [$timestamp]
+      .concat(Array.from(playerName).map((letter) => letter.charCodeAt()))
+      .reduce((result, item) => {
+        const number = Number(`${result}${item}`);
+        return number > MAX_SAFE_INTEGER ? number % MAX_SAFE_INTEGER : number;
+      });
   }
 );
 

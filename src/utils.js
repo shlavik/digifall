@@ -7,7 +7,7 @@ export function getBase64FromArray(array) {
 }
 
 export function getArrayFromBase64(base64) {
-  return [...atob(base64)].map((letter) => letter.charCodeAt());
+  return Array.from(atob(base64)).map((letter) => letter.charCodeAt());
 }
 
 export function curry(fn0) {

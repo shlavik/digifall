@@ -114,14 +114,14 @@ function getMatchedIndexes($cards) {
       ...result,
       [group]: {
         value,
-        indexes: [...(result[group] ? result[group].indexes : []), index],
+        indexes: (result[group] ? result[group].indexes : []).concat(index),
       },
     }),
     {}
   );
   return Object.keys(groupedObject).reduce((result, group) => {
     const { value, indexes } = groupedObject[group];
-    return value === indexes.length ? [...result, ...indexes] : result;
+    return value === indexes.length ? result.concat(indexes) : result;
   }, []);
 }
 

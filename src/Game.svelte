@@ -10,7 +10,6 @@
 
   $: style = (() => {
     if (!$seed || !$options.seedground) return;
-
     let arr = [
         2,
         3,
@@ -41,18 +40,14 @@
       index = 0,
       random = getRandom($seed),
       temp = [];
-
     while (++index < 5) {
       const [value] = arr.splice((random = getRandom(random)) % arr.length, 1);
-      temp = [...temp, value];
+      temp = temp.concat(value);
     }
-
     const [a, b, c, d] = temp;
-
     const getColor = (lightness = 12) => {
       return `hsl(${(random = getRandom(random) % 360)},50%,${lightness}%)`;
     };
-
     return `
       background-color: ${getColor()};
       background-image:
