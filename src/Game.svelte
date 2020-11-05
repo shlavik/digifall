@@ -1,10 +1,11 @@
 <script>
-  import { log, options, overlay, seed } from "./stores.js";
-  import { getRandom } from "./utils.js";
   import Board from "./Board.svelte";
   import Energy from "./Energy.svelte";
   import Log from "./Log.svelte";
   import Score from "./Score.svelte";
+
+  import { log, options, overlay, seed } from "./stores.js";
+  import { getRandom } from "./utils.js";
 
   const openOverlayClick = () => ($overlay = true);
 

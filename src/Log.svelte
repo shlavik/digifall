@@ -1,5 +1,7 @@
 <script>
   import { fade, slide } from "svelte/transition";
+
+  import { EMPTY_STRING, PHASE_SCORE, PHASE_TOTAL } from "./consts.js";
   import { log, phase, randomColor, score } from "./stores.js";
 
   $: collapse = $log.length === 1;
@@ -7,7 +9,7 @@
 
 {#if $log.length > 0}
   <ol class="log">
-    {#if $phase !== 'score'}
+    {#if $phase !== PHASE_SCORE}
       {#each $log as { extra, sum, ...combo }, index1}
         <li
           class="combo"
@@ -19,23 +21,27 @@
               <span class="plus">+</span>
             {/if}
           {/each}
-          {#if extra !== undefined}
+          {#if extra === undefined}
+            <span class="sum">{(index1 + 1) * sum}</span>
+          {:else}
             <span class="extra" style={`color: ${$randomColor}`}>{extra}</span>
             <span class="sum">{(index1 + 1) * extra}</span>
-          {:else}<span class="sum">{(index1 + 1) * sum}</span>{/if}
+          {/if}
         </li>
       {/each}
     {/if}
-    {#if $phase === 'total' || $phase === 'score'}
+    {#if $phase === PHASE_TOTAL || $phase === PHASE_SCORE}
       <li
         class:collapse
         in:slide={{ duration: collapse ? 0 : 100 }}
         out:fade={{ duration: 200 }}>
-        {#if $phase !== 'score'}
-          <span out:fade={{ duration: 200 }}> {collapse ? '' : 'total:'} </span>
+        {#if $phase !== PHASE_SCORE}
+          <span
+            out:fade={{ duration: 200 }}>{collapse ? EMPTY_STRING : 'total:'}
+          </span>
         {/if}
         <span class="sum">
-          {`${$phase === 'score' && $score.buffer > 0 ? '+' : ''}${$score.buffer}`}
+          {`${$phase === PHASE_SCORE && $score.buffer > 0 ? '+' : EMPTY_STRING}${$score.buffer}`}
         </span>
       </li>
     {/if}

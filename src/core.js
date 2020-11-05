@@ -1,4 +1,28 @@
 import { get } from "svelte/store";
+
+import {
+  INITIAL_RANDOM_COLOR,
+  KEY_HIGH_SCORE,
+  KEY_HIGH_TOTAL,
+  KEY_LOCAL,
+  PHASE_BLINK,
+  PHASE_EXTRA,
+  PHASE_FALL,
+  PHASE_GAMEOVER,
+  PHASE_IDLE,
+  PHASE_INITIAL,
+  PHASE_MATCH,
+  PHASE_PLUS,
+  PHASE_SCORE,
+  PHASE_TOTAL,
+} from "./consts.js";
+import {
+  playSoundBleep,
+  playSoundBlink,
+  playSoundGameOver,
+  playSoundKick,
+  resetSounds,
+} from "./sound.js";
 import {
   cards,
   energy,
@@ -15,18 +39,36 @@ import {
   seed,
   timestamp,
 } from "./stores.js";
-import { getArrayFromBase64, getRandom } from "./utils";
+import { getArrayFromBase64, getRandom } from "./utils.js";
 
 const { abs, floor, random, sign, sqrt, trunc } = Math;
 
 let getNewCardValue;
 let moveCount = 0;
-let movesInitial;
+export let movesInitial;
 
-function delayTransition(callback, timeout) {
-  if (movesInitial === undefined && get(options).transitions)
+function delayTransition(callback, timeout = 0) {
+  if (
+    movesInitial !== undefined ||
+    get(options).transitions === false ||
+    timeout === 0
+  ) {
+    callback();
+  } else {
     setTimeout(callback, timeout);
-  else callback();
+  }
+}
+
+function checkSound(callback) {
+  if (
+    movesInitial !== undefined ||
+    get(options).sound === false ||
+    get(phase) === PHASE_INITIAL
+  ) {
+    return;
+  } else {
+    callback();
+  }
 }
 
 /* CARDS LOGIC ****************************************************************/
@@ -63,25 +105,30 @@ function getFieldIndexes($cards) {
 function getCardsFallen($cards) {
   const { transitions } = get(options);
   const result = [];
+  const set = new Set();
   const field = getFieldIndexes($cards);
   for (let x in field) {
     let count = 0;
     for (let y in field[x]) {
       const index = field[x][y];
-      if (index !== undefined) {
+      if (index === undefined) ++count;
+      else {
         const card = $cards[index];
+        const duration =
+          !movesInitial && transitions ? 100 * sqrt(2 * count) : 0;
         result[index] = {
           x: card.x,
           y: y - count,
           value: card.value,
-          duration:
-            movesInitial === undefined && transitions
-              ? 100 * sqrt(2 * count)
-              : 0,
+          duration,
         };
-      } else ++count;
+        if (count > 0 && duration > 0 && !set.has(duration)) set.add(duration);
+      }
     }
   }
+  checkSound(() =>
+    set.forEach((delay) => setTimeout(() => playSoundKick(), delay))
+  );
   return result;
 }
 
@@ -147,15 +194,13 @@ function getCardsMatched($cards, matchedIndexes) {
 
 /* CHECK LOGIC ****************************************************************/
 
-function checkLocalScore(key = "highScore", value) {
+function checkLocalScore(key = KEY_HIGH_SCORE, value) {
   const $leaderboard = get(leaderboard);
-  const { local: { highScore = {}, highTotal = {} } = {} } = $leaderboard;
-  const currentValue =
-    Object.keys(key === "highScore" ? highScore : highTotal)[0] || 0;
+  const currentValue = Object.keys($leaderboard[KEY_LOCAL][key] || {})[0] || 0;
   if (value < currentValue) return;
   leaderboard.set({
     ...$leaderboard,
-    local: {
+    [KEY_LOCAL]: {
       ...$leaderboard.local,
       [key]: {
         [value]: {
@@ -171,11 +216,11 @@ function checkLocalScore(key = "highScore", value) {
 /* ENERGY LOGIC ***************************************************************/
 
 function updateRandomColor() {
-  if (get(energy).value > 100 || get(phase) !== "score") {
+  if (get(energy).value > 100 || get(phase) !== PHASE_SCORE) {
     randomColor.set(`hsl(${floor(360 * random())}, 100%, 50%)`);
     requestAnimationFrame(updateRandomColor);
   } else {
-    randomColor.set("white");
+    randomColor.set(INITIAL_RANDOM_COLOR);
   }
 }
 
@@ -184,15 +229,15 @@ function getDiffFromBuffer(buffer) {
 }
 
 function doEnergyLogic({ buffer, value }) {
-  if (get(randomColor) === "white") updateRandomColor();
+  if (get(randomColor) === INITIAL_RANDOM_COLOR) updateRandomColor();
   const $phase = get(phase);
   const diff =
-    movesInitial === undefined && get(options).transitions
-      ? $phase === "gameover"
+    !movesInitial && get(options).transitions
+      ? $phase === PHASE_GAMEOVER
         ? sign(buffer)
         : getDiffFromBuffer(buffer)
       : buffer;
-  if ($phase === "extra") {
+  if ($phase === PHASE_EXTRA) {
     if (buffer === 0) return delayTransition(() => phase.set("total"), 800);
     log.update(($log) => {
       const [{ extra }] = $log.slice(-1);
@@ -207,7 +252,7 @@ function doEnergyLogic({ buffer, value }) {
         value: value + diff,
       });
     },
-    $phase === "gameover" ? 200 : 20
+    $phase === PHASE_GAMEOVER ? 200 : 20
   );
 }
 
@@ -218,14 +263,15 @@ function doInitPhase() {
 }
 
 function doIdlePhase() {
-  if (movesInitial === undefined) {
-    checkLocalScore("highScore", get(score).value);
-  } else {
+  resetSounds();
+  if (movesInitial) {
     if (moveCount < movesInitial.length) {
       plusIndex.set(movesInitial[moveCount++]);
       energy.update(({ buffer, value }) => ({ buffer, value: value - 10 }));
       phase.set("plus");
     } else movesInitial = undefined;
+  } else {
+    checkLocalScore(KEY_HIGH_SCORE, get(score).value);
   }
 }
 
@@ -241,6 +287,7 @@ function doBlinkPhase() {
   matchedIndexes.set(newMatchedIndexes);
   const { value } = get(energy);
   if (newMatchedIndexes.length > 0) {
+    checkSound(playSoundBlink);
     log.update(($log) =>
       $log.concat(
         newMatchedIndexes.reduce((result, index) => {
@@ -289,21 +336,22 @@ function doTotalPhase() {
     (result, { extra, sum }, index) => result + (index + 1) * (sum || extra),
     0
   );
-  checkLocalScore("highTotal", total);
+  checkLocalScore(KEY_HIGH_TOTAL, total);
   score.update(({ value }) => ({
     buffer: total,
     value,
   }));
-  delayTransition(() => phase.set("score"), get(log).length > 1 ? 800 : 0);
+  delayTransition(() => phase.set(PHASE_SCORE), get(log).length > 1 ? 800 : 0);
 }
 
 function doScorePhase() {
   score.update(($score) => ({ ...$score }));
 }
 
-function doGameoverPhase($phase) {
+function doGameOverPhase($phase) {
+  checkSound(playSoundGameOver);
   overlay.set(true);
-  if ($phase !== "gameover") return;
+  if ($phase !== PHASE_GAMEOVER) return;
   delayTransition(() => {
     energy.update(({ value }) => ({
       buffer: -value,
@@ -318,16 +366,16 @@ function doGameoverPhase($phase) {
 
 function doPhaseLogic($phase) {
   Object({
-    init: doInitPhase,
-    idle: doIdlePhase,
-    plus: doPlusPhase,
-    blink: doBlinkPhase,
-    match: doMatchPhase,
-    fall: doFallPhase,
-    extra: doExtraPhase,
-    total: doTotalPhase,
-    score: doScorePhase,
-    gameover: doGameoverPhase,
+    [PHASE_INITIAL]: doInitPhase,
+    [PHASE_IDLE]: doIdlePhase,
+    [PHASE_PLUS]: doPlusPhase,
+    [PHASE_BLINK]: doBlinkPhase,
+    [PHASE_MATCH]: doMatchPhase,
+    [PHASE_FALL]: doFallPhase,
+    [PHASE_EXTRA]: doExtraPhase,
+    [PHASE_TOTAL]: doTotalPhase,
+    [PHASE_SCORE]: doScorePhase,
+    [PHASE_GAMEOVER]: doGameOverPhase,
   })[$phase]($phase);
 }
 
@@ -357,18 +405,18 @@ export function getTimeFromDiff(diff) {
 
 function doScoreLogic({ buffer, value }) {
   const $phase = get(phase);
-  if ($phase !== "gameover" && $phase !== "score") return;
+  if ($phase !== PHASE_GAMEOVER && $phase !== PHASE_SCORE) return;
   if (buffer === 0) {
-    if ($phase !== "gameover")
-      delayTransition(() => {
-        log.set([]);
-        phase.set("idle");
-      }, 200);
-    return;
+    if ($phase === PHASE_GAMEOVER) return;
+    return delayTransition(() => {
+      log.set([]);
+      phase.set("idle");
+    }, 200);
   }
+  checkSound(playSoundBleep);
   const diff =
-    movesInitial === undefined && get(options).transitions
-      ? $phase === "gameover"
+    !movesInitial && get(options).transitions
+      ? $phase === PHASE_GAMEOVER
         ? sign(buffer)
         : getDiffFromBuffer(buffer)
       : buffer;
@@ -379,7 +427,7 @@ function doScoreLogic({ buffer, value }) {
         value: value + diff,
       });
     },
-    $phase === "gameover" ? 200 : getTimeFromDiff(diff)
+    $phase === PHASE_GAMEOVER ? 200 : getTimeFromDiff(diff)
   );
 }
 
@@ -398,7 +446,7 @@ function createGetNewCardValue(seed) {
     if (column < 0 || 5 < column) return;
     let result = randoms[column];
     randoms[column] = getRandom(result);
-    return Number(result % 10);
+    return result % 10;
   };
 }
 

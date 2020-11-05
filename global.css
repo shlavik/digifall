@@ -505,11 +505,11 @@ input[type="checkbox"]:checked + label::before {
   color: var(--color-base);
   text-shadow: var(--shadow-0);
 }
-.score .mode {
+.score .key {
   display: none;
 }
-.score:hover .mode,
-.score .mode.visible {
+.score:hover .key,
+.score .key.visible {
   display: inline;
 }
 .score .value {

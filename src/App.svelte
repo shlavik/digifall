@@ -1,10 +1,13 @@
 <script>
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
-  import { energy, options, overlay, phase, touch } from "./stores.js";
+
   import Game from "./Game.svelte";
   import GameOver from "./GameOver.svelte";
   import Menu from "./Menu.svelte";
+
+  import { PHASE_GAMEOVER } from "./consts.js";
+  import { energy, options, overlay, phase, touch } from "./stores.js";
 
   let localTouch = $touch;
 
@@ -36,13 +39,6 @@
 
   onresize = updatePixelSize;
 
-  $: {
-    document.documentElement.style.setProperty(
-      "--color-octo",
-      $overlay ? "white" : "var(--color-base)"
-    );
-  }
-
   // onkeydown = ({ key }) => {
   //   if (key === "1") $energy = { buffer: 0, value: 10 };
   //   else if (key === "0") $energy = { buffer: 0, value: 100 };
@@ -57,7 +53,7 @@
     <div
       class="overlay"
       transition:fade={{ duration: $options.transitions ? 200 : 0 }}>
-      {#if $phase === 'gameover'}
+      {#if $phase === PHASE_GAMEOVER}
         <GameOver />
       {:else}
         <a

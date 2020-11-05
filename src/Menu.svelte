@@ -1,69 +1,80 @@
 <script>
   import { blur } from "svelte/transition";
+
+  import {
+    EMPTY_STRING,
+    MENU_MAIN,
+    MENU_NAME,
+    MENU_NEW_GAME,
+    MENU_OPTIONS,
+    PROP_SHADOW_0,
+    PROP_SHADOW_1,
+    PROP_SHADOW_2,
+    PROP_SHADOW_3,
+    PROP_SHADOW_INSET_1,
+    PROP_SHADOW_INSET_2,
+    STYLE_NONE,
+    STYLE_SHADOW_0,
+    STYLE_SHADOW_1,
+    STYLE_SHADOW_2,
+    STYLE_SHADOW_3,
+    STYLE_SHADOW_INSET_1,
+    STYLE_SHADOW_INSET_2,
+    STYLE_TRANSPARENT,
+  } from "./consts.js";
   import { initGame, options, overlay } from "./stores.js";
 
-  let kind = "main";
+  let menu = MENU_MAIN;
   let playerName = $options.playerName;
 
   const resumeClick = () => ($overlay = false);
 
-  const newGameClick = () => (kind = "new game");
+  const newGameClick = () => (menu = MENU_NEW_GAME);
 
-  const optionsClick = () => (kind = "options");
+  const optionsClick = () => (menu = MENU_OPTIONS);
 
-  const mainMenuClick = () => (kind = "main");
+  const mainMenuClick = () => (menu = MENU_MAIN);
 
   const initGameClick = () => initGame();
 
   const optionsBackClick = () => {
-    kind = "main";
-    if ($options.playerName !== playerName) {
-      $options.playerName = playerName;
-      initGame();
-    }
+    menu = MENU_MAIN;
+    if ($options.playerName === playerName) return;
+    $options.playerName = playerName;
+    initGame();
   };
 
   const startSubmit = (event) => {
     event.preventDefault();
     if (!playerName) return;
-    kind = "main";
+    menu = MENU_MAIN;
     $options.playerName = playerName;
     initGame();
   };
 
-  $: if (playerName === "" && kind === "main") {
-    kind = "name";
+  $: if (playerName.length === 0 && menu === MENU_MAIN) {
+    menu = MENU_NAME;
     initGame(true);
   } else {
     playerName = playerName
       .toLowerCase()
-      .replace(/[^a-z0-9\@\&\$\!\_\?\.\-\+\=]/g, "");
+      .replace(/[^a-z0-9\@\&\$\!\_\?\.\-\+\=]/g, EMPTY_STRING);
   }
 
   const setShadow = (on = true) => {
-    const { style } = document.documentElement;
-    const none = "none";
-    const transparent = "0 0 0 transparent";
-    const shadow0 = "0 0 1px black";
-    const shadow1 = "0 0.5rem 0.5rem var(--color-black-04), 0 -1px 0 white";
-    const shadow2 = "0 1rem 1rem var(--color-black-04), 0 -1px 0 white";
-    const shadow3 = "0 0 3rem 2rem var(--color-black-04)";
-    const shadowInset1 =
-      "inset 0 0.5rem 0.5rem var(--color-black-04), 0 1px 0 white";
-    const shadowInset2 =
-      "inset 0 1rem 1rem var(--color-black-04), 0 1px 0 white";
-    style.setProperty("--shadow-0", on ? shadow0 : none);
-    style.setProperty("--shadow-1", on ? shadow1 : none);
-    style.setProperty("--shadow-2", on ? shadow2 : none);
-    style.setProperty("--shadow-3", on ? shadow3 : transparent);
-    style.setProperty("--shadow-inset-1", on ? shadowInset1 : none);
-    style.setProperty("--shadow-inset-2", on ? shadowInset2 : none);
+    const { style: s } = document.documentElement;
+    s.setProperty(PROP_SHADOW_0, on ? STYLE_SHADOW_0 : STYLE_NONE);
+    s.setProperty(PROP_SHADOW_1, on ? STYLE_SHADOW_1 : STYLE_NONE);
+    s.setProperty(PROP_SHADOW_2, on ? STYLE_SHADOW_2 : STYLE_NONE);
+    s.setProperty(PROP_SHADOW_3, on ? STYLE_SHADOW_3 : STYLE_TRANSPARENT);
+    s.setProperty(PROP_SHADOW_INSET_1, on ? STYLE_SHADOW_INSET_1 : STYLE_NONE);
+    s.setProperty(PROP_SHADOW_INSET_2, on ? STYLE_SHADOW_INSET_2 : STYLE_NONE);
   };
 
   $: setShadow($options.shadows);
 </script>
 
-{#if kind === 'main'}
+{#if menu === MENU_MAIN}
   <div class="content" in:blur={{ duration: $options.transitions ? 400 : 0 }}>
     <div class="section-1"><span class="big">digifall</span></div>
     <div class="section-2" />
@@ -77,7 +88,7 @@
     </div>
     <div class="section-4" />
   </div>
-{:else if kind === 'new game'}
+{:else if menu === MENU_NEW_GAME}
   <div class="content" in:blur={{ duration: $options.transitions ? 400 : 0 }}>
     <div class="section-1"><span>start a new game?</span></div>
     <div class="section-2" />
@@ -89,7 +100,7 @@
     </div>
     <div class="section-4" />
   </div>
-{:else if kind === 'options'}
+{:else if menu === MENU_OPTIONS}
   <div
     class="content compact"
     in:blur={{ duration: $options.transitions ? 400 : 0 }}>
@@ -102,6 +113,8 @@
           placeholder="player name"
           maxlength="24"
           bind:value={playerName} />
+        <input type="checkbox" id="sound" bind:checked={$options.sound} />
+        <label for="sound">sound fx</label>
         <input type="checkbox" id="shadows" bind:checked={$options.shadows} />
         <label for="shadows">shadows</label>
         <input
@@ -119,7 +132,7 @@
     </div>
     <div class="section-4" />
   </div>
-{:else if kind === 'name'}
+{:else if menu === MENU_NAME}
   <div class="content">
     <div class="section-1"><span class="big">digifall</span></div>
     <div class="section-2" />

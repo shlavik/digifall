@@ -1,8 +1,9 @@
 <script>
-  import { blur, fly } from "svelte/transition";
-  import { energy, options, initGame } from "./stores.js";
   import Energy from "./Energy.svelte";
   import Score from "./Score.svelte";
+
+  import { blur, fly } from "svelte/transition";
+  import { energy, options, initGame } from "./stores.js";
 
   const newGameClick = () => initGame();
 
@@ -35,7 +36,7 @@
         {#each 'ut of energy' as letter, index}
           <span
             class="letter"
-            in:fly={$options.transitions ? { delay: index * 50, duration: 400, y: 50 } : {}}>
+            in:fly={$options.transitions ? { delay: index * 50, duration: 200, y: 50 } : {}}>
             {letter}
           </span>
         {/each}

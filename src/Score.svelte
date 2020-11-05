@@ -1,38 +1,39 @@
 <script>
   import { blur } from "svelte/transition";
+
+  import { KEY_HIGH_SCORE, KEY_HIGH_TOTAL, KEY_LOCAL, KEY_SCORE } from "./consts.js";
   import { leaderboard, score } from "./stores.js";
 
-  let mode = "score";
+  let key = KEY_SCORE;
   let timeoutId;
   let visible = false;
 
   const resetMode = () => {
-    mode = "score";
+    key = KEY_SCORE;
     visible = false;
   };
 
   const scoreClick = () => {
-    mode =
-      mode === "score"
-        ? "hi-score"
-        : mode === "hi-score"
-        ? "hi-total"
-        : "score";
+    key =
+      key === KEY_SCORE
+        ? KEY_HIGH_SCORE
+        : key === KEY_HIGH_SCORE
+        ? KEY_HIGH_TOTAL
+        : KEY_SCORE;
     visible = true;
     clearTimeout(timeoutId);
     timeoutId = setTimeout(resetMode, 3000);
   };
 
   $: value = (() => {
-    if (mode === "score") return $score.value;
-    const { local: { highTotal = {}, highScore = {} } = {} } = $leaderboard;
-    return Object.keys(mode === "hi-score" ? highScore : highTotal)[0] || 0;
+    if (key === KEY_SCORE) return $score.value;
+    return Object.keys($leaderboard[KEY_LOCAL][key] || {})[0] || 0;
   })();
 </script>
 
-{#key mode}
+{#key key}
   <span class="score" in:blur on:click={scoreClick}>
-    <span class="mode" class:visible>{mode}:</span>
+    <span class="key" class:visible>{key}:</span>
     <span class="value">{value}</span>
   </span>
 {/key}
