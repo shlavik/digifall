@@ -62,7 +62,7 @@ function delayTransition(callback, timeout = 0) {
 function checkSound(callback) {
   if (
     movesInitial !== undefined ||
-    get(options).sound === false ||
+    get(options).sound !== true ||
     get(phase) === PHASE_INITIAL
   ) {
     return;
@@ -194,7 +194,7 @@ function getCardsMatched($cards, matchedIndexes) {
 
 /* CHECK LOGIC ****************************************************************/
 
-function checkLocalScore(key = KEY_HIGH_SCORE, value) {
+function checkLocalScore(key, value) {
   const $leaderboard = get(leaderboard);
   const currentValue = Object.keys($leaderboard[KEY_LOCAL][key] || {})[0] || 0;
   if (value < currentValue) return;
@@ -348,10 +348,9 @@ function doScorePhase() {
   score.update(($score) => ({ ...$score }));
 }
 
-function doGameOverPhase($phase) {
+function doGameOverPhase() {
   checkSound(playSoundGameOver);
   overlay.set(true);
-  if ($phase !== PHASE_GAMEOVER) return;
   delayTransition(() => {
     energy.update(({ value }) => ({
       buffer: -value,
@@ -376,7 +375,7 @@ function doPhaseLogic($phase) {
     [PHASE_TOTAL]: doTotalPhase,
     [PHASE_SCORE]: doScorePhase,
     [PHASE_GAMEOVER]: doGameOverPhase,
-  })[$phase]($phase);
+  })[$phase]();
 }
 
 /* SCORE LOGIC ****************************************************************/
