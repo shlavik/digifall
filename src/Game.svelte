@@ -50,7 +50,6 @@
       return `hsl(${(random = getRandom(random) % 360)},50%,${lightness}%)`;
     };
     return `
-      background-color: ${getColor()};
       background-image:
         linear-gradient(90deg, ${getColor()} 50%, transparent 50%),
         linear-gradient(90deg, ${getColor()} 50%, transparent 50%),
@@ -68,7 +67,8 @@
         <button
           class="digifall"
           class:screen={$log.length > 0}
-          on:click={openOverlayClick}>
+          on:click={openOverlayClick}
+        >
           <span class="big">digifall</span>
           <Log />
         </button>

@@ -15,7 +15,7 @@ import {
   PHASE_PLUS,
   PHASE_SCORE,
   PHASE_TOTAL,
-} from "./consts.js";
+} from "./constants.js";
 import {
   playSoundBleep,
   playSoundBlink,
@@ -178,7 +178,7 @@ function getCardsMatched($cards, matchedIndexes) {
     counts[x] +
     $cards
       .filter((card) => card.x === x)
-      .sort(({ y: y1 }, { y: y2 }) => y1 - y2)[5].y;
+      .sort(({ y: y1 }, { y: y2 }) => y2 - y1)[0].y;
   return $cards.map((card, index) => {
     if (matchedIndexes.includes(index) && card.y < 6) {
       ++counts[card.x];

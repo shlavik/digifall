@@ -163,39 +163,41 @@ button:active {
 }
 
 .color-1 {
-  --color: hsl(90, 100%, 55%);
+  --color: #5dcc6c;
+  --color: #90cc4d;
 }
 
 .color-2 {
-  --color: hsl(48, 100%, 50%);
+  --color: #c7aa4d;
 }
 
 .color-3 {
-  --color: hsl(32, 100%, 50%);
+  --color: #cc804d;
 }
 
 .color-4 {
-  --color: hsl(4, 100%, 55%);
+  --color: #b31d03;
 }
 
 .color-5 {
-  --color: hsl(334, 100%, 65%);
+  --color: #cc3394;
+  --color: #bd4fb3;
 }
 
 .color-6 {
-  --color: hsl(296, 100%, 40%);
+  --color: #831963;
 }
 
 .color-7 {
-  --color: hsl(248, 100%, 60%);
+  --color: #3755e6;
 }
 
 .color-8 {
-  --color: hsl(206, 100%, 55%);
+  --color: #33aab6;
 }
 
 .color-9 {
-  --color: hsl(156, 100%, 45%);
+  --color: #1e5b54;
 }
 
 .content,
@@ -223,6 +225,32 @@ button:active {
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity=".6"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
   background-size: 6rem 6rem;
   filter: drop-shadow(var(--shadow-inset-2));
+}
+
+.board .slider {
+  position: absolute;
+  background-color: white;
+  transition: all 200ms ease-in-out;
+}
+
+.board .slider.top {
+  top: -1rem;
+  height: 1rem;
+}
+
+.board .slider.right {
+  right: -1rem;
+  width: 1rem;
+}
+
+.board .slider.bottom {
+  bottom: -1rem;
+  height: 1rem;
+}
+
+.board .slider.left {
+  left: -1rem;
+  width: 1rem;
 }
 
 .card {
@@ -375,15 +403,14 @@ button:active {
   width: 192rem;
   height: 100vw;
   background-blend-mode: difference;
+  background-color: var(--color-dark);
   background-position: center;
   transform: translate(-50%, -50%) rotate(90deg);
 }
 
 .game .content {
   background-color: var(--color-base);
-  box-shadow:
-    -1rem 0 0 0 var(--color-base),
-    1rem 0 0 0 var(--color-base),
+  box-shadow: -1rem 0 0 0 var(--color-base), 1rem 0 0 0 var(--color-base),
     var(--shadow-3);
 }
 
@@ -411,6 +438,11 @@ button:active {
   background-color: var(--color-dark);
   color: var(--color-dark);
   text-shadow: var(--shadow-0);
+}
+
+.game-over .score:active {
+  color: #22221a;
+  text-shadow: 0 0 1px white;
 }
 
 .game-over .energy {

@@ -20,7 +20,7 @@ import {
   KEY_TOUCH,
   TYPE_NUMBER,
   TYPE_STRING,
-} from "./consts.js";
+} from "./constants.js";
 
 const { MAX_SAFE_INTEGER } = Number;
 

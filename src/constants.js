@@ -49,10 +49,7 @@ export const STYLE_SHADOW_INSET_2 =
 export const TYPE_NUMBER = "number";
 export const TYPE_STRING = "string";
 
-export const EMPTY_ARRAY = [];
-export const EMPTY_STRING = "";
-
-export const INITIAL_CARDS = EMPTY_ARRAY;
+export const INITIAL_CARDS = [];
 export const INITIAL_ENERGY = { buffer: 0, value: 100 };
 export const INITIAL_LEADERBOARD = {
   [KEY_HIGH_SCORE]: {},
@@ -62,11 +59,11 @@ export const INITIAL_LEADERBOARD = {
     [KEY_HIGH_TOTAL]: {},
   },
 };
-export const INITIAL_LOG = EMPTY_ARRAY;
-export const INITIAL_MATCHED_INDEXES = EMPTY_ARRAY;
-export const INITIAL_MOVES = EMPTY_STRING;
+export const INITIAL_LOG = [];
+export const INITIAL_MATCHED_INDEXES = [];
+export const INITIAL_MOVES = "";
 export const INITIAL_OPTIONS = {
-  playerName: EMPTY_STRING,
+  playerName: "",
   seedground: true,
   shadows: true,
   sound: false,

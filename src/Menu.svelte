@@ -2,7 +2,6 @@
   import { blur } from "svelte/transition";
 
   import {
-    EMPTY_STRING,
     MENU_MAIN,
     MENU_NAME,
     MENU_NEW_GAME,
@@ -21,7 +20,7 @@
     STYLE_SHADOW_INSET_1,
     STYLE_SHADOW_INSET_2,
     STYLE_TRANSPARENT,
-  } from "./consts.js";
+  } from "./constants.js";
   import { initGame, options, overlay } from "./stores.js";
 
   let menu = MENU_MAIN;
@@ -58,7 +57,7 @@
   } else {
     playerName = playerName
       .toLowerCase()
-      .replace(/[^a-z0-9\@\&\$\!\_\?\.\-\+\=]/g, EMPTY_STRING);
+      .replace(/[^a-z0-9\@\&\$\!\?\-\+\=\.\:\/\_]/g, "");
   }
 
   const setShadow = (on = true) => {
@@ -103,7 +102,8 @@
 {:else if menu === MENU_OPTIONS}
   <div
     class="content compact"
-    in:blur={{ duration: $options.transitions ? 400 : 0 }}>
+    in:blur={{ duration: $options.transitions ? 400 : 0 }}
+  >
     <div class="section-1"><span class="big">options</span></div>
     <div class="section-2" />
     <div class="section-3">
@@ -112,7 +112,8 @@
           type="text"
           placeholder="player name"
           maxlength="24"
-          bind:value={playerName} />
+          bind:value={playerName}
+        />
         <input type="checkbox" id="sound" bind:checked={$options.sound} />
         <label for="sound">sound fx</label>
         <input type="checkbox" id="shadows" bind:checked={$options.shadows} />
@@ -120,12 +121,14 @@
         <input
           type="checkbox"
           id="seedground"
-          bind:checked={$options.seedground} />
+          bind:checked={$options.seedground}
+        />
         <label for="seedground">seedground</label>
         <input
           type="checkbox"
           id="transitions"
-          bind:checked={$options.transitions} />
+          bind:checked={$options.transitions}
+        />
         <label for="transitions">transitions</label>
         <button on:click={optionsBackClick}>back</button>
       </div>
@@ -143,7 +146,8 @@
             type="text"
             placeholder="player name"
             maxlength="24"
-            bind:value={playerName} />
+            bind:value={playerName}
+          />
           <button type="submit">start</button>
         </form>
       </div>

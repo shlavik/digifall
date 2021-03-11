@@ -24,7 +24,8 @@
   class:plused
   class:matched
   {style}
-  data-index={index}>
+  data-index={index}
+>
   <div class="value">
     <div class="current color-{value}">{value}</div>
     <div class="next color-{nextValue}">{nextValue}</div>

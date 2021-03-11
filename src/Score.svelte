@@ -1,7 +1,12 @@
 <script>
   import { blur } from "svelte/transition";
 
-  import { KEY_HIGH_SCORE, KEY_HIGH_TOTAL, KEY_LOCAL, KEY_SCORE } from "./consts.js";
+  import {
+    KEY_HIGH_SCORE,
+    KEY_HIGH_TOTAL,
+    KEY_LOCAL,
+    KEY_SCORE,
+  } from "./constants.js";
   import { leaderboard, score } from "./stores.js";
 
   let key = KEY_SCORE;

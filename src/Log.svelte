@@ -1,7 +1,7 @@
 <script>
   import { fade, slide } from "svelte/transition";
 
-  import { EMPTY_STRING, PHASE_SCORE, PHASE_TOTAL } from "./consts.js";
+  import { PHASE_SCORE, PHASE_TOTAL } from "./constants.js";
   import { log, phase, randomColor, score } from "./stores.js";
 
   $: collapse = $log.length === 1;
@@ -14,7 +14,8 @@
         <li
           class="combo"
           in:slide={{ duration: 100 }}
-          out:fade={{ duration: 200 }}>
+          out:fade={{ duration: 200 }}
+        >
           {#each Object.entries(combo) as [key, value], index2}
             <span class="value color-{key}">{value}</span>
             {#if index2 < Object.keys(combo).length - 1}
@@ -34,14 +35,15 @@
       <li
         class:collapse
         in:slide={{ duration: collapse ? 0 : 100 }}
-        out:fade={{ duration: 200 }}>
-        {#if $phase !== PHASE_SCORE}
-          <span
-            out:fade={{ duration: 200 }}>{collapse ? EMPTY_STRING : 'total:'}
-          </span>
+        out:fade={{ duration: 200 }}
+      >
+        {#if $phase === PHASE_TOTAL}
+          <span out:fade={{ duration: 200 }}>{collapse ? "" : "total:"}</span>
         {/if}
         <span class="sum">
-          {`${$phase === PHASE_SCORE && $score.buffer > 0 ? '+' : EMPTY_STRING}${$score.buffer}`}
+          {$phase === PHASE_SCORE && $score.buffer > 0
+            ? "+"
+            : ""}{$score.buffer}
         </span>
       </li>
     {/if}
