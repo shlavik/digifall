@@ -233,6 +233,10 @@ button:active {
   transition: all 200ms ease-in-out;
 }
 
+.board .slider.blink {
+  animation: blink 200ms steps(2, end) 2, fade-out 400ms ease 400ms forwards;
+}
+
 .board .slider.top {
   top: -1rem;
   height: 1rem;
@@ -520,7 +524,7 @@ button:active {
   margin-top: -7rem;
 }
 
-.overflow-hidden {
+.overflow {
   overflow: hidden;
 }
 

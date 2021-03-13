@@ -1,10 +1,16 @@
 <script>
   import Card from "./Card.svelte";
 
-  import { PHASE_FALL, PHASE_IDLE, PHASE_PLUS } from "./constants.js";
+  import {
+    PHASE_BLINK,
+    PHASE_FALL,
+    PHASE_IDLE,
+    PHASE_PLUS,
+  } from "./constants.js";
   import {
     cards,
     energy,
+    log,
     matchedIndexes,
     moves,
     options,
@@ -30,32 +36,23 @@
   };
 
   $: plusCard = $cards[$plusIndex];
-
+  $: plusCardMemoized = plusCard || plusCardMemoized;
+  $: blink = $matchedIndexes.length > 0 && $log.length === 1;
+  $: overflow = $phase !== PHASE_IDLE && !blink;
+  $: focus = plusCard || blink;
   $: sliderStyles = {
-    top: `
-      left: ${plusCard ? plusCard.x * 21 : -1}rem;
-      width: ${plusCard ? 21 : 128}rem;
+    horizontal: `
+      left: ${focus ? plusCardMemoized.x * 21 : -1}rem;
+      right: ${focus ? (5 - plusCardMemoized.x) * 21 : -1}rem;
     `,
-    right: `
-      bottom: ${plusCard ? plusCard.y * 21 : -1}rem;
-      height: ${plusCard ? 21 : 128}rem;
-    `,
-    bottom: `
-      left: ${plusCard ? plusCard.x * 21 : -1}rem;
-      width: ${plusCard ? 21 : 128}rem;
-    `,
-    left: `
-      bottom: ${plusCard ? plusCard.y * 21 : -1}rem;
-      height: ${plusCard ? 21 : 128}rem;
+    vertical: `
+      top: ${focus ? (5 - plusCardMemoized.y) * 21 : -1}rem;
+      bottom: ${focus ? plusCardMemoized.y * 21 : -1}rem;
     `,
   };
 </script>
 
-<div
-  class="board"
-  class:overflow-hidden={$phase !== PHASE_IDLE}
-  on:click={boardClick}
->
+<div class="board" class:overflow on:click={boardClick}>
   {#each $cards as card, index}
     <Card
       clickable={$phase === PHASE_IDLE && !$plusIndex}
@@ -66,8 +63,8 @@
       {index}
     />
   {/each}
-  <div class="slider top" style={sliderStyles.top} />
-  <div class="slider right" style={sliderStyles.right} />
-  <div class="slider bottom" style={sliderStyles.bottom} />
-  <div class="slider left" style={sliderStyles.left} />
+  <div class="slider top" class:blink style={sliderStyles.horizontal} />
+  <div class="slider right" class:blink style={sliderStyles.vertical} />
+  <div class="slider bottom" class:blink style={sliderStyles.horizontal} />
+  <div class="slider left" class:blink style={sliderStyles.vertical} />
 </div>

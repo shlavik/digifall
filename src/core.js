@@ -364,7 +364,7 @@ function doGameOverPhase() {
 }
 
 function doPhaseLogic($phase) {
-  Object({
+  ({
     [PHASE_INITIAL]: doInitPhase,
     [PHASE_IDLE]: doIdlePhase,
     [PHASE_PLUS]: doPlusPhase,
@@ -375,7 +375,7 @@ function doPhaseLogic($phase) {
     [PHASE_TOTAL]: doTotalPhase,
     [PHASE_SCORE]: doScorePhase,
     [PHASE_GAMEOVER]: doGameOverPhase,
-  })[$phase]();
+  }[$phase]());
 }
 
 /* SCORE LOGIC ****************************************************************/
