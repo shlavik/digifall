@@ -1,12 +1,7 @@
 <script>
   import Card from "./Card.svelte";
 
-  import {
-    PHASE_BLINK,
-    PHASE_FALL,
-    PHASE_IDLE,
-    PHASE_PLUS,
-  } from "./constants.js";
+  import { PHASES } from "./constants.js";
   import {
     cards,
     energy,
@@ -17,10 +12,10 @@
     phase,
     plusIndex,
   } from "./stores.js";
-  import { getArrayFromBase64, getBase64FromArray } from "./utils";
+  import { getArrayFromBase64, getBase64FromArray } from "./utils.js";
 
-  const boardClick = (event) => {
-    if ($phase !== PHASE_IDLE || $plusIndex !== undefined) return;
+  function boardClick(event) {
+    if ($phase !== PHASES.idle || $plusIndex !== undefined) return;
     const block = event
       .composedPath()
       .find(({ dataset }) => dataset && dataset.index);
@@ -31,14 +26,14 @@
       : getArrayFromBase64($moves);
     $moves = getBase64FromArray(movesArray.concat($plusIndex));
     $energy = { ...$energy, buffer: -10 };
-    if ($options.transitions) setTimeout(() => ($phase = PHASE_PLUS), 400);
-    else $phase = PHASE_PLUS;
-  };
+    if ($options.transitions) setTimeout(() => ($phase = PHASES.plus), 400);
+    else $phase = PHASES.plus;
+  }
 
   $: plusCard = $cards[$plusIndex];
   $: plusCardMemoized = plusCard || plusCardMemoized;
   $: blink = $matchedIndexes.length > 0 && $log.length === 1;
-  $: overflow = $phase !== PHASE_IDLE && !blink;
+  $: overflow = $phase !== PHASES.idle && !blink;
   $: focus = plusCard || blink;
   $: sliderStyles = {
     horizontal: `
@@ -55,8 +50,8 @@
 <div class="board" class:overflow on:click={boardClick}>
   {#each $cards as card, index}
     <Card
-      clickable={$phase === PHASE_IDLE && !$plusIndex}
-      fallPhase={$phase === PHASE_FALL}
+      clickable={$phase === PHASES.idle && !$plusIndex}
+      fallPhase={$phase === PHASES.fall}
       matched={$matchedIndexes.includes(index)}
       plused={$plusIndex === index}
       {...card}

@@ -1,50 +1,69 @@
 <script>
-  import { onMount } from "svelte";
   import { fade } from "svelte/transition";
 
   import Game from "./Game.svelte";
   import GameOver from "./GameOver.svelte";
   import Menu from "./Menu.svelte";
 
-  import { PHASE_GAMEOVER } from "./constants.js";
-  import { energy, options, overlay, phase, touch } from "./stores.js";
+  import { COLORS, PHASES, CSS_VARS, CSS_STYLES } from "./constants.js";
+  import { energy, options, overlay, phase, randomColor } from "./stores.js";
 
-  let localTouch = $touch;
-
-  onMount(() => {
-    localTouch = Date.now();
-    $touch = localTouch;
-  });
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      localTouch = Date.now();
-      $touch = localTouch;
-    } else {
-      const currentTouch = Number(localStorage.getItem("touch"));
-      if (localTouch < currentTouch) document.location = document.location;
-    }
-  });
-
-  const updatePixelSize = () => {
-    const { style, offsetHeight, offsetWidth } = document.documentElement;
-    if (offsetHeight / offsetWidth > 1.5) {
-      style.setProperty("--pixel", `${offsetWidth / 128}px`);
-    } else {
-      style.setProperty("--pixel", `${offsetHeight / 192}px`);
-    }
+  onstorage = function syncTabs() {
+    if (document.hasFocus()) return;
+    window.location = window.location;
   };
 
-  updatePixelSize();
+  function updatePixelSize() {
+    const { style, offsetHeight, offsetWidth } = document.documentElement;
+    const ratio = offsetHeight / offsetWidth;
+    const size = ratio > 1.5 ? offsetWidth / 128 : offsetHeight / 192;
+    style.setProperty(CSS_VARS.pixel, size + "px");
+  }
 
+  updatePixelSize();
   onresize = updatePixelSize;
 
-  // onkeydown = ({ key }) => {
-  //   if (key === "1") $energy = { buffer: 0, value: 10 };
-  //   else if (key === "0") $energy = { buffer: 0, value: 100 };
-  //   else if (key === "ArrowRight") $energy.buffer = 1;
-  //   else if (key === "ArrowLeft") $energy.buffer = -1;
-  // };
+  function updateRandomColor({ value }) {
+    if (value > 100 || $phase !== PHASES.score) {
+      const hue = Math.trunc(360 * Math.random());
+      $randomColor = `hsl(${hue}, 100%, 50%)`;
+      requestAnimationFrame(updateRandomColor);
+    } else {
+      $randomColor = COLORS.white;
+    }
+  }
+
+  $: updateRandomColor($energy);
+
+  function setShadowStyle({ shadows }) {
+    const { style } = document.documentElement;
+    style.setProperty(
+      CSS_VARS.shadow0,
+      shadows ? CSS_STYLES.shadow0 : CSS_STYLES.none
+    );
+    style.setProperty(
+      CSS_VARS.shadow1,
+      shadows ? CSS_STYLES.shadow1 : CSS_STYLES.none
+    );
+    style.setProperty(
+      CSS_VARS.shadow2,
+      shadows ? CSS_STYLES.shadow2 : CSS_STYLES.none
+    );
+    style.setProperty(
+      CSS_VARS.shadow3,
+      shadows ? CSS_STYLES.shadow3 : CSS_STYLES.transparent
+    );
+    style.setProperty(
+      CSS_VARS.shadowInset1,
+      shadows ? CSS_STYLES.shadowInset1 : CSS_STYLES.none
+    );
+    style.setProperty(
+      CSS_VARS.shadowInset2,
+      shadows ? CSS_STYLES.shadowInset2 : CSS_STYLES.none
+    );
+  }
+
+  $: setShadowStyle($options);
 </script>
 
 <div class="app">
@@ -54,9 +73,10 @@
       class="overlay"
       transition:fade={{ duration: $options.transitions ? 200 : 0 }}
     >
-      {#if $phase === PHASE_GAMEOVER}
+      {#if $phase === PHASES.gameover}
         <GameOver />
       {:else}
+        <Menu />
         <a
           href="https://github.com/shlavik/digifall"
           class="github-corner"
@@ -76,7 +96,6 @@
             />
           </svg>
         </a>
-        <Menu />
       {/if}
     </div>
   {/if}

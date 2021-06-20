@@ -407,7 +407,6 @@ button:active {
   width: 192rem;
   height: 100vw;
   background-blend-mode: difference;
-  background-color: var(--color-dark);
   background-position: center;
   transform: translate(-50%, -50%) rotate(90deg);
 }

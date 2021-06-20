@@ -1,26 +1,6 @@
 import { derived, get, writable } from "svelte/store";
 
-import {
-  INITIAL_CARDS,
-  INITIAL_ENERGY,
-  INITIAL_LEADERBOARD,
-  INITIAL_LOG,
-  INITIAL_MATCHED_INDEXES,
-  INITIAL_MOVES,
-  INITIAL_OPTIONS,
-  INITIAL_OVERLAY,
-  INITIAL_PHASE,
-  INITIAL_PLUS_INDEX,
-  INITIAL_RANDOM_COLOR,
-  INITIAL_SCORE,
-  KEY_LEADERBOARD,
-  KEY_MOVES,
-  KEY_OPTIONS,
-  KEY_TIMESTAMP,
-  KEY_TOUCH,
-  TYPE_NUMBER,
-  TYPE_STRING,
-} from "./constants.js";
+import { INITIAL_VALUES, KEYS } from "./constants.js";
 
 const { MAX_SAFE_INTEGER } = Number;
 
@@ -45,29 +25,30 @@ export function localStorageStore(key, initialValue) {
   };
 }
 
-export const cards = writable(INITIAL_CARDS);
-export const energy = writable(INITIAL_ENERGY);
+export const cards = writable(INITIAL_VALUES.cards);
+export const energy = writable(INITIAL_VALUES.energy);
 export const leaderboard = localStorageStore(
-  KEY_LEADERBOARD,
-  INITIAL_LEADERBOARD
+  KEYS.leaderboard,
+  INITIAL_VALUES.leaderboard
 );
-export const log = writable(INITIAL_LOG);
-export const matchedIndexes = writable(INITIAL_MATCHED_INDEXES);
-export const moves = localStorageStore(KEY_MOVES, INITIAL_MOVES);
-export const options = localStorageStore(KEY_OPTIONS, INITIAL_OPTIONS);
-export const overlay = writable(INITIAL_OVERLAY);
-export const phase = writable(INITIAL_PHASE);
-export const plusIndex = writable(INITIAL_PLUS_INDEX);
-export const randomColor = writable(INITIAL_RANDOM_COLOR);
-export const score = writable(INITIAL_SCORE);
-export const timestamp = localStorageStore(KEY_TIMESTAMP, Date.now());
-export const touch = localStorageStore(KEY_TOUCH, Date.now());
+export const log = writable(INITIAL_VALUES.log);
+export const matchedIndexes = writable(INITIAL_VALUES.matchedIndexes);
+export const moves = localStorageStore(KEYS.moves, INITIAL_VALUES.moves);
+export const options = localStorageStore(KEYS.options, INITIAL_VALUES.options);
+export const overlay = writable(INITIAL_VALUES.overlay);
+export const phase = writable(INITIAL_VALUES.phase);
+export const plusIndex = writable(INITIAL_VALUES.plusIndex);
+export const randomColor = writable(INITIAL_VALUES.randomColor);
+export const score = writable(INITIAL_VALUES.score);
+export const timestamp = localStorageStore(KEYS.timestamp, Date.now());
 
 export const seed = derived(
   [timestamp, options],
   ([$timestamp, { playerName }]) =>
-    typeof $timestamp === TYPE_NUMBER &&
-    typeof playerName === TYPE_STRING &&
+    typeof $timestamp === "number" &&
+    $timestamp > 0 &&
+    $timestamp < Infinity &&
+    typeof playerName === "string" &&
     playerName.length > 0 &&
     [$timestamp]
       .concat(Array.from(playerName).map((letter) => letter.charCodeAt()))
@@ -78,19 +59,20 @@ export const seed = derived(
 );
 
 function newTimestamp(count) {
-  phase.set(INITIAL_PHASE);
+  phase.set(INITIAL_VALUES.phase);
   timestamp.set(Date.now());
   if (count-- > 0) requestAnimationFrame(() => newTimestamp(count));
 }
 
 export function initGame(showOverlay = false, count = 12) {
-  energy.set(INITIAL_ENERGY);
-  log.set(INITIAL_LOG);
-  matchedIndexes.set(INITIAL_MATCHED_INDEXES);
-  moves.set(INITIAL_MOVES);
+  energy.set(INITIAL_VALUES.energy);
+  log.set(INITIAL_VALUES.log);
+  matchedIndexes.set(INITIAL_VALUES.matchedIndexes);
+  moves.set(INITIAL_VALUES.moves);
   overlay.set(showOverlay);
-  plusIndex.set(INITIAL_PLUS_INDEX);
-  randomColor.set(INITIAL_RANDOM_COLOR);
-  score.set(INITIAL_SCORE);
-  newTimestamp(get(options).transitions ? count : 0);
+  plusIndex.set(INITIAL_VALUES.plusIndex);
+  randomColor.set(INITIAL_VALUES.randomColor);
+  score.set(INITIAL_VALUES.score);
+  const { playerName, transitions } = get(options);
+  newTimestamp(playerName && transitions ? count : 0);
 }

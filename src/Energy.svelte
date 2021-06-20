@@ -1,18 +1,28 @@
 <script>
   import { energy, randomColor } from "./stores.js";
 
-  $: value = $energy.value;
-  $: isExtra = value > 100;
-  $: leftBarStyle = `flex: ${(isExtra ? 200 - value : value) / 100}; z-index: ${
-    isExtra ? 0 : 1
-  }`;
-  $: leftValueStyle = `position: ${isExtra ? "absolute" : "relative"}`;
-  $: rightBarStyle = `background-color: ${
-    isExtra ? $randomColor : "var(--color-dark)"
-  }; flex: ${isExtra ? (value - 100) / 100 : 0}; z-index: ${isExtra ? 1 : 0}`;
-  $: rightValueStyle = `left: ${
-    isExtra ? `calc(${value > 119 ? 0 : (value - 120) / 100} * 128rem)` : 0
-  }; position: ${isExtra ? "relative" : "absolute"}`;
+  import { CSS_VARS } from "./constants";
+
+  $: ({ value } = $energy);
+  $: extra = value > 100;
+  $: leftBarStyle = `
+    z-index: ${extra ? 0 : 1};
+    flex: ${(extra ? 200 - value : value) / 100};
+  `;
+  $: leftValueStyle = `
+    position: ${extra ? "absolute" : "relative"};
+  `;
+  $: rightBarStyle = `
+    z-index: ${extra ? 1 : 0};
+    flex: ${extra ? (value - 100) / 100 : 0};
+    background-color: ${extra ? $randomColor : `var(${CSS_VARS.colorDark})`};
+  `;
+  $: rightValueStyle = `
+    position: ${extra ? "relative" : "absolute"};
+    left: ${
+      extra ? `calc(${value > 119 ? 0 : (value - 120) / 100} * 128rem)` : 0
+    };
+  `;
 </script>
 
 <div class="energy">

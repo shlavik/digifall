@@ -1,76 +1,96 @@
-export const COLOR_WHITE = "white";
+export const COLORS = {
+  white: "white",
+};
 
-export const KEY_HIGH_SCORE = "hi-score";
-export const KEY_HIGH_TOTAL = "hi-total";
-export const KEY_LEADERBOARD = "leaderboard";
-export const KEY_LOCAL = "local";
-export const KEY_MOVES = "moves";
-export const KEY_OPTIONS = "options";
-export const KEY_SCORE = "score";
-export const KEY_TIMESTAMP = "timestamp";
-export const KEY_TOUCH = "touch";
+export const CSS_STYLES = {
+  none: "none",
+  transparent: "0 0 0 transparent",
+  shadow0: "0 0 1px black",
+  shadow1: "0 0.5rem 0.5rem var(--color-black-04), 0 -1px 0 white",
+  shadow2: "0 1rem 1rem var(--color-black-04), 0 -1px 0 white",
+  shadow3: "0 0 3rem 2rem var(--color-black-04)",
+  shadowInset1: "inset 0 0.5rem 0.5rem var(--color-black-04), 0 1px 0 white",
+  shadowInset2: "inset 0 1rem 1rem var(--color-black-04), 0 1px 0 white",
+};
 
-export const MENU_MAIN = "main";
-export const MENU_NAME = "name";
-export const MENU_NEW_GAME = "new game";
-export const MENU_OPTIONS = "options";
+export const CSS_VARS = {
+  colorBase: "--color-base",
+  colorZero: "--color-zero",
+  colorDark: "--color-dark",
+  colorBody: "--color-body",
+  colorBlack04: "--color-black-04",
+  colorBlack08: "--color-black-08",
+  pixel: "--pixel",
+  shadow0: "--shadow-0",
+  shadow1: "--shadow-1",
+  shadow2: "--shadow-2",
+  shadow3: "--shadow-3",
+  shadowInset1: "--shadow-inset-1",
+  shadowInset2: "--shadow-inset-2",
+};
 
-export const PHASE_BLINK = "blink";
-export const PHASE_EXTRA = "extra";
-export const PHASE_FALL = "fall";
-export const PHASE_GAMEOVER = "gameover";
-export const PHASE_IDLE = "idle";
-export const PHASE_INITIAL = "initial";
-export const PHASE_MATCH = "match";
-export const PHASE_PLUS = "plus";
-export const PHASE_SCORE = "score";
-export const PHASE_TOTAL = "total";
+export const KEYS = {
+  highScore: "hi-score",
+  highTotal: "hi-total",
+  leaderboard: "leaderboard",
+  local: "local",
+  moves: "moves",
+  options: "options",
+  playerName: "playerName",
+  score: "score",
+  timestamp: "timestamp",
+};
 
-export const PROP_SHADOW_0 = "--shadow-0";
-export const PROP_SHADOW_1 = "--shadow-1";
-export const PROP_SHADOW_2 = "--shadow-2";
-export const PROP_SHADOW_3 = "--shadow-3";
-export const PROP_SHADOW_INSET_1 = "--shadow-inset-1";
-export const PROP_SHADOW_INSET_2 = "--shadow-inset-2";
+export const MENU = {
+  main: "main",
+  name: "name",
+  newGame: "new game",
+  options: "options",
+};
 
-export const STYLE_NONE = "none";
-export const STYLE_TRANSPARENT = "0 0 0 transparent";
-export const STYLE_SHADOW_0 = "0 0 1px black";
-export const STYLE_SHADOW_1 =
-  "0 0.5rem 0.5rem var(--color-black-04), 0 -1px 0 white";
-export const STYLE_SHADOW_2 =
-  "0 1rem 1rem var(--color-black-04), 0 -1px 0 white";
-export const STYLE_SHADOW_3 = "0 0 3rem 2rem var(--color-black-04)";
-export const STYLE_SHADOW_INSET_1 =
-  "inset 0 0.5rem 0.5rem var(--color-black-04), 0 1px 0 white";
-export const STYLE_SHADOW_INSET_2 =
-  "inset 0 1rem 1rem var(--color-black-04), 0 1px 0 white";
+export const PHASES = {
+  blink: "blink",
+  extra: "extra",
+  fall: "fall",
+  gameover: "gameover",
+  idle: "idle",
+  initial: "initial",
+  match: "match",
+  plus: "plus",
+  score: "score",
+  total: "total",
+};
 
-export const TYPE_NUMBER = "number";
-export const TYPE_STRING = "string";
-
-export const INITIAL_CARDS = [];
-export const INITIAL_ENERGY = { buffer: 0, value: 100 };
-export const INITIAL_LEADERBOARD = {
-  [KEY_HIGH_SCORE]: {},
-  [KEY_HIGH_TOTAL]: {},
-  [KEY_LOCAL]: {
-    [KEY_HIGH_SCORE]: {},
-    [KEY_HIGH_TOTAL]: {},
+export const INITIAL_VALUES = {
+  cards: [],
+  energy: {
+    buffer: 0,
+    value: 100,
+  },
+  [KEYS.leaderboard]: {
+    [KEYS.highScore]: {},
+    [KEYS.highTotal]: {},
+    [KEYS.local]: {
+      [KEYS.highScore]: {},
+      [KEYS.highTotal]: {},
+    },
+  },
+  log: [],
+  matchedIndexes: [],
+  [KEYS.moves]: "",
+  [KEYS.options]: {
+    [KEYS.playerName]: "",
+    seedground: true,
+    shadows: true,
+    sound: false,
+    transitions: true,
+  },
+  overlay: true,
+  phase: PHASES.initial,
+  plusIndex: undefined,
+  randomColor: COLORS.white,
+  [KEYS.score]: {
+    buffer: 0,
+    value: 0,
   },
 };
-export const INITIAL_LOG = [];
-export const INITIAL_MATCHED_INDEXES = [];
-export const INITIAL_MOVES = "";
-export const INITIAL_OPTIONS = {
-  playerName: "",
-  seedground: true,
-  shadows: true,
-  sound: false,
-  transitions: true,
-};
-export const INITIAL_OVERLAY = true;
-export const INITIAL_PHASE = PHASE_INITIAL;
-export const INITIAL_PLUS_INDEX = undefined;
-export const INITIAL_RANDOM_COLOR = COLOR_WHITE;
-export const INITIAL_SCORE = { buffer: 0, value: 0 };

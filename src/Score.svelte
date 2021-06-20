@@ -1,39 +1,34 @@
 <script>
   import { blur } from "svelte/transition";
 
-  import {
-    KEY_HIGH_SCORE,
-    KEY_HIGH_TOTAL,
-    KEY_LOCAL,
-    KEY_SCORE,
-  } from "./constants.js";
+  import { KEYS } from "./constants.js";
   import { leaderboard, score } from "./stores.js";
 
-  let key = KEY_SCORE;
+  let key = KEYS.score;
   let timeoutId;
   let visible = false;
 
-  const resetMode = () => {
-    key = KEY_SCORE;
+  function resetMode() {
+    key = KEYS.score;
     visible = false;
-  };
+  }
 
-  const scoreClick = () => {
+  function scoreClick() {
     key =
-      key === KEY_SCORE
-        ? KEY_HIGH_SCORE
-        : key === KEY_HIGH_SCORE
-        ? KEY_HIGH_TOTAL
-        : KEY_SCORE;
+      key === KEYS.score
+        ? KEYS.highScore
+        : key === KEYS.highScore
+        ? KEYS.highTotal
+        : KEYS.score;
     visible = true;
     clearTimeout(timeoutId);
     timeoutId = setTimeout(resetMode, 3000);
-  };
+  }
 
-  $: value = (() => {
-    if (key === KEY_SCORE) return $score.value;
-    return Object.keys($leaderboard[KEY_LOCAL][key] || {})[0] || 0;
-  })();
+  $: value =
+    key === KEYS.score
+      ? $score.value
+      : Object.keys($leaderboard[KEYS.local][key] || {})[0] || 0;
 </script>
 
 {#key key}

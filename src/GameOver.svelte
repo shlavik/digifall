@@ -6,9 +6,11 @@
 
   import { energy, options, initGame } from "./stores.js";
 
-  const newGameClick = () => initGame();
+  function startNewGame() {
+    initGame(false);
+  }
 
-  $: isEnergyOut = $energy.buffer === 0 && $energy.value === 0;
+  $: gameOver = $energy.buffer === 0 && $energy.value === 0;
 </script>
 
 <div
@@ -16,7 +18,7 @@
   in:blur={{ delay: $options.transitions ? 200 : 0 }}
 >
   <div class="section-1">
-    {#if isEnergyOut}
+    {#if gameOver}
       <span class="big" in:blur={{ delay: $options.transitions ? 600 : 0 }}>
         game over
       </span>
@@ -26,9 +28,9 @@
     <Score />
   </div>
   <div class="section-3">
-    {#if isEnergyOut}
+    {#if gameOver}
       <div class="col" in:blur={{ delay: $options.transitions ? 600 : 0 }}>
-        <button on:click={newGameClick}>new game</button>
+        <button on:click={startNewGame}>new game</button>
       </div>
     {/if}
   </div>
@@ -41,7 +43,7 @@
             class="letter"
             in:fly={$options.transitions
               ? { delay: index * 50, duration: 200, y: 50 }
-              : {}}
+              : undefined}
           >
             {letter}
           </span>

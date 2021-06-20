@@ -1,26 +1,26 @@
 <script>
   import { fade, slide } from "svelte/transition";
 
-  import { PHASE_SCORE, PHASE_TOTAL } from "./constants.js";
+  import { PHASES } from "./constants.js";
   import { log, phase, randomColor, score } from "./stores.js";
-
-  $: collapse = $log.length === 1;
 </script>
 
 {#if $log.length > 0}
   <ol class="log">
-    {#if $phase !== PHASE_SCORE}
+    {#if $phase !== PHASES.score}
       {#each $log as { extra, sum, ...combo }, index1}
         <li
           class="combo"
           in:slide={{ duration: 100 }}
           out:fade={{ duration: 200 }}
         >
-          {#each Object.entries(combo) as [key, value], index2}
-            <span class="value color-{key}">{value}</span>
-            {#if index2 < Object.keys(combo).length - 1}
-              <span class="plus">+</span>
-            {/if}
+          {#each [Object.keys(combo)] as comboKeys}
+            {#each comboKeys as key, index2}
+              <span class="value color-{key}">{combo[key]}</span>
+              {#if index2 < comboKeys.length - 1}
+                <span class="plus">+</span>
+              {/if}
+            {/each}
           {/each}
           {#if extra === undefined}
             <span class="sum">{(index1 + 1) * sum}</span>
@@ -31,21 +31,23 @@
         </li>
       {/each}
     {/if}
-    {#if $phase === PHASE_TOTAL || $phase === PHASE_SCORE}
-      <li
-        class:collapse
-        in:slide={{ duration: collapse ? 0 : 100 }}
-        out:fade={{ duration: 200 }}
-      >
-        {#if $phase === PHASE_TOTAL}
-          <span out:fade={{ duration: 200 }}>{collapse ? "" : "total:"}</span>
-        {/if}
-        <span class="sum">
-          {$phase === PHASE_SCORE && $score.buffer > 0
-            ? "+"
-            : ""}{$score.buffer}
-        </span>
-      </li>
+    {#if $phase === PHASES.total || $phase === PHASES.score}
+      {#each [$log.length === 1] as collapse}
+        <li
+          class:collapse
+          in:slide={{ duration: collapse ? 0 : 100 }}
+          out:fade={{ duration: 200 }}
+        >
+          {#if $phase === PHASES.total}
+            <span out:fade={{ duration: 200 }}>{collapse ? "" : "total:"}</span>
+          {/if}
+          <span class="sum">
+            {$phase === PHASES.score && $score.buffer > 0
+              ? "+"
+              : ""}{$score.buffer}
+          </span>
+        </li>
+      {/each}
     {/if}
   </ol>
 {/if}
