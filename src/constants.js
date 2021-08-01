@@ -5,12 +5,13 @@ export const COLORS = {
 export const CSS_STYLES = {
   none: "none",
   transparent: "0 0 0 transparent",
+  gloss: "0 -1px 0 white",
+  glossInset: "0 1px 0 white",
   shadow0: "0 0 1px black",
-  shadow1: "0 0.5rem 0.5rem var(--color-black-04), 0 -1px 0 white",
-  shadow2: "0 1rem 1rem var(--color-black-04), 0 -1px 0 white",
+  shadow1: "0 0.5rem 0.5rem var(--color-black-04)",
+  shadow2: "0 1rem 1rem var(--color-black-04)",
   shadow3: "0 0 3rem 2rem var(--color-black-04)",
-  shadowInset1: "inset 0 0.5rem 0.5rem var(--color-black-04), 0 1px 0 white",
-  shadowInset2: "inset 0 1rem 1rem var(--color-black-04), 0 1px 0 white",
+  shadowInset: "inset 0 0.5rem 0.5rem var(--color-black-04)",
 };
 
 export const CSS_VARS = {
@@ -20,13 +21,14 @@ export const CSS_VARS = {
   colorBody: "--color-body",
   colorBlack04: "--color-black-04",
   colorBlack08: "--color-black-08",
+  gloss: "--gloss",
+  glossInset: "--gloss-inset",
   pixel: "--pixel",
   shadow0: "--shadow-0",
   shadow1: "--shadow-1",
   shadow2: "--shadow-2",
   shadow3: "--shadow-3",
-  shadowInset1: "--shadow-inset-1",
-  shadowInset2: "--shadow-inset-2",
+  shadowInset: "--shadow-inset",
 };
 
 export const KEYS = {

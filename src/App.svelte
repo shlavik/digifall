@@ -35,35 +35,31 @@
 
   $: updateRandomColor($energy);
 
-  function setShadowStyle({ shadows }) {
-    const { style } = document.documentElement;
-    style.setProperty(
-      CSS_VARS.shadow0,
-      shadows ? CSS_STYLES.shadow0 : CSS_STYLES.none
-    );
-    style.setProperty(
-      CSS_VARS.shadow1,
-      shadows ? CSS_STYLES.shadow1 : CSS_STYLES.none
-    );
-    style.setProperty(
-      CSS_VARS.shadow2,
-      shadows ? CSS_STYLES.shadow2 : CSS_STYLES.none
-    );
-    style.setProperty(
-      CSS_VARS.shadow3,
-      shadows ? CSS_STYLES.shadow3 : CSS_STYLES.transparent
-    );
-    style.setProperty(
-      CSS_VARS.shadowInset1,
-      shadows ? CSS_STYLES.shadowInset1 : CSS_STYLES.none
-    );
-    style.setProperty(
-      CSS_VARS.shadowInset2,
-      shadows ? CSS_STYLES.shadowInset2 : CSS_STYLES.none
+  function setShadowStyle(
+    shadows,
+    cssVar,
+    cssStyle,
+    disabledStyle = CSS_STYLES.none
+  ) {
+    document.documentElement.style.setProperty(
+      cssVar,
+      shadows ? cssStyle : disabledStyle
     );
   }
 
-  $: setShadowStyle($options);
+  function updateShadowStyle(shadows) {
+    [
+      [CSS_VARS.gloss, CSS_STYLES.gloss],
+      [CSS_VARS.glossInset, CSS_STYLES.glossInset],
+      [CSS_VARS.shadow0, CSS_STYLES.shadow0],
+      [CSS_VARS.shadow1, CSS_STYLES.shadow1],
+      [CSS_VARS.shadow2, CSS_STYLES.shadow2],
+      [CSS_VARS.shadow3, CSS_STYLES.shadow3, CSS_STYLES.transparent],
+      [CSS_VARS.shadowInset, CSS_STYLES.shadowInset],
+    ].forEach((args) => setShadowStyle(shadows, ...args));
+  }
+
+  $: updateShadowStyle($options.shadows);
 </script>
 
 <div class="app">

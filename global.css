@@ -47,7 +47,7 @@ body {
   letter-spacing: 2rem;
   line-height: 1;
   text-indent: 2rem;
-  text-shadow: var(--shadow-1);
+  text-shadow: var(--shadow-1), var(--gloss);
   user-select: none;
 }
 
@@ -224,11 +224,24 @@ button:active {
   background-color: var(--color-body);
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity=".6"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
   background-size: 6rem 6rem;
-  filter: drop-shadow(var(--shadow-inset-2));
+  box-shadow: var(--shadow-inset), var(--gloss-inset);
+}
+
+.board::before {
+  position: absolute;
+  z-index: 1;
+  top: -1rem;
+  left: -1rem;
+  display: block;
+  width: 128rem;
+  height: 1rem;
+  box-shadow:var(--shadow-inset);
+  content: "";
 }
 
 .board .slider {
   position: absolute;
+  z-index: 2;
   background-color: white;
   transition: all 200ms ease-in-out;
 }
@@ -261,11 +274,15 @@ button:active {
   position: absolute;
   width: 21rem;
   height: 21rem;
-  box-shadow: var(--shadow-2);
+  box-shadow: var(--shadow-2), var(--gloss);
   cursor: progress;
   transition-property: bottom;
   transition-timing-function: cubic-bezier(0.56, 0, 1, 1);
   will-change: bottom;
+}
+
+.card.matt {
+  box-shadow: var(--shadow-2);
 }
 
 .card .current,
@@ -309,7 +326,7 @@ button:active {
 
 .card.plused .current,
 .card.plused .next {
-  box-shadow: var(--shadow-1);
+  box-shadow: var(--shadow-1), var(--gloss);
 }
 
 .card.matched {
@@ -356,7 +373,7 @@ button:active {
   .card.clickable:hover .next {
     top: -1px;
     border-bottom: 1px solid var(--color);
-    box-shadow: var(--shadow-1);
+    box-shadow: var(--shadow-1), var(--gloss);
   }
 
   .card.clickable:active .current {
@@ -371,7 +388,7 @@ button:active {
   display: flex;
   width: 100%;
   background-color: var(--color-dark);
-  box-shadow: var(--shadow-inset-1);
+  box-shadow: var(--shadow-inset), var(--gloss-inset);
   font-size: 7rem;
   letter-spacing: 1rem;
   text-indent: 1rem;
@@ -381,7 +398,7 @@ button:active {
 .energy .right-bar {
   overflow: hidden;
   padding: 1rem 0;
-  box-shadow: var(--shadow-1);
+  box-shadow: var(--shadow-1), var(--gloss);
 }
 
 .energy .left-bar {
@@ -426,12 +443,12 @@ button:active {
   border: none;
   margin: auto;
   background-color: var(--color-dark);
-  box-shadow: var(--shadow-inset-1);
+  box-shadow: var(--shadow-inset), var(--gloss-inset);
   color: var(--color-zero);
   font-size: inherit;
   font-weight: bold;
   outline: none;
-  text-shadow: var(--shadow-1);
+  text-shadow: var(--shadow-1), var(--gloss);
 }
 
 .game .digifall:active,
@@ -493,7 +510,7 @@ button:active {
   line-height: 7rem;
   list-style-type: none;
   text-indent: 1rem;
-  text-shadow: var(--shadow-1);
+  text-shadow: var(--shadow-1), var(--gloss);
 }
 
 .log li {

@@ -10,7 +10,7 @@
   export let y = 0;
 
   $: nextValue = value < 9 ? value + 1 : 0;
-
+  $: matt = y === 5;
   $: style = `
     bottom: ${y * 21}rem;
     left: ${x * 21}rem;
@@ -23,6 +23,7 @@
   class:clickable
   class:plused
   class:matched
+  class:matt
   {style}
   data-index={index}
 >
