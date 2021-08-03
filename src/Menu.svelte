@@ -45,6 +45,7 @@
       .toLowerCase()
       .replace(/[^a-z0-9\@\&\$\!\?\-\+\=\.\:\/\_]/g, "");
   }
+  $: if (!$options.transitions) $options.sound = false;
 </script>
 
 {#if menu === MENU.name}

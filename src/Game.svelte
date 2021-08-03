@@ -40,7 +40,7 @@
   })();
 </script>
 
-<div class="game" class:blur={$overlay === true}>
+<div class="game" class:blur={$overlay}>
   <div class="seedground" {style} />
   <div class="content">
     {#if $seed}

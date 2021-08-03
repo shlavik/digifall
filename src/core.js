@@ -27,30 +27,25 @@ import { getArrayFromBase64, getRandom } from "./utils.js";
 
 const { abs, sign, sqrt, trunc } = Math;
 
-let getNewCardValue;
+let getNextCardValue;
 let moveCount = 0;
 let movesInitial = null;
 
 function delayTransition(callback, timeout = 0) {
-  if (
-    movesInitial !== null ||
-    get(options).transitions === false ||
-    timeout === 0
-  ) {
-    callback();
-  } else {
+  if (movesInitial === null && get(options).transitions && timeout > 0) {
     setTimeout(callback, timeout);
+    return;
   }
+  callback();
 }
 
 function checkSound(callback) {
   if (
-    movesInitial !== null ||
-    get(options).sound !== true ||
-    get(phase) === PHASES.initial
+    movesInitial === null &&
+    get(options).sound &&
+    get(options).transitions &&
+    get(phase) !== PHASES.initial
   ) {
-    return;
-  } else {
     callback();
   }
 }
@@ -71,18 +66,14 @@ function getCardsPlused($cards, plusIndex) {
 }
 
 function getFieldUndefined() {
-  const arr0 = Array(12).fill();
-  const arr1 = Array(12).fill();
-  const arr2 = Array(12).fill();
-  const arr3 = Array(12).fill();
-  const arr4 = Array(12).fill();
-  const arr5 = Array(12).fill();
-  return [arr0, arr1, arr2, arr3, arr4, arr5];
+  return Array(6)
+    .fill()
+    .map(() => Array(12).fill());
 }
 
 function getFieldIndexes($cards) {
   const field = getFieldUndefined();
-  $cards.forEach((card, index) => (field[card.x][card.y] = index));
+  $cards.forEach(({ x, y }, index) => (field[x][y] = index));
   return field;
 }
 
@@ -91,25 +82,21 @@ function getCardsFallen($cards) {
   const result = [];
   const set = new Set();
   const field = getFieldIndexes($cards);
-  for (let x in field) {
+  field.forEach((col) => {
     let count = 0;
-    for (let y in field[x]) {
-      const index = field[x][y];
-      if (index === undefined) ++count;
-      else {
-        const card = $cards[index];
-        const duration =
-          !movesInitial && transitions ? 100 * sqrt(2 * count) : 0;
-        result[index] = {
-          x: card.x,
-          y: y - count,
-          value: card.value,
-          duration,
-        };
-        if (count > 0 && duration > 0 && !set.has(duration)) set.add(duration);
-      }
-    }
-  }
+    col.forEach((index, y) => {
+      if (index === undefined) return ++count;
+      const { x, value } = $cards[index];
+      const duration = !movesInitial && transitions ? 100 * sqrt(2 * count) : 0;
+      result[index] = {
+        x,
+        y: y - count,
+        value,
+        duration,
+      };
+      if (count > 0 && duration > 0 && !set.has(duration)) set.add(duration);
+    });
+  });
   checkSound(() =>
     set.forEach((delay) => setTimeout(() => playSoundKick(), delay))
   );
@@ -121,7 +108,7 @@ function getMatchedIndexes($cards) {
   let groupedArray = [];
   let count = 0;
   const group = (index) => {
-    const { value, x, y } = $cards[index];
+    const { x, y, value } = $cards[index];
     if (groupedArray[index]) return;
     groupedArray[index] = { value, group: count };
     let topIndex, rightIndex, bottomIndex, leftIndex;
@@ -136,10 +123,7 @@ function getMatchedIndexes($cards) {
     if (isSameValue(bottomIndex)) group(bottomIndex);
     if (isSameValue(leftIndex)) group(leftIndex);
   };
-  for (let index in $cards) {
-    ++count;
-    group(index);
-  }
+  $cards.forEach(() => group(count++));
   const groupedObject = groupedArray.reduce(
     (result, { value, group }, index) => ({
       ...result,
@@ -158,21 +142,22 @@ function getMatchedIndexes($cards) {
 
 function getCardsMatched($cards, matchedIndexes) {
   const counts = [0, 0, 0, 0, 0, 0];
-  const getNewY = (x) =>
-    counts[x] +
+  const getNextY = (nextX) =>
+    counts[nextX] +
     $cards
-      .filter((card) => card.x === x)
+      .filter(({ x }) => x === nextX)
       .sort(({ y: y1 }, { y: y2 }) => y2 - y1)[0].y;
   return $cards.map((card, index) => {
     if (matchedIndexes.includes(index) && card.y < 6) {
       ++counts[card.x];
       return {
         x: card.x,
-        y: getNewY(card.x),
-        value: getNewCardValue(card.x),
+        y: getNextY(card.x),
+        value: getNextCardValue(card.x),
         duration: 0,
       };
-    } else return card;
+    }
+    return card;
   });
 }
 
@@ -243,10 +228,12 @@ function doIdlePhase() {
       plusIndex.set(movesInitial[moveCount++]);
       energy.update(({ buffer, value }) => ({ buffer, value: value - 10 }));
       phase.set("plus");
-    } else movesInitial = null;
-  } else {
-    checkLocalScore(KEYS.highScore, get(score).value);
+      return;
+    }
+    movesInitial = null;
+    return;
   }
+  checkLocalScore(KEYS.highScore, get(score).value);
 }
 
 function doPlusPhase() {
@@ -257,14 +244,14 @@ function doPlusPhase() {
 
 function doBlinkPhase() {
   const $cards = get(cards);
-  let newMatchedIndexes = getMatchedIndexes($cards);
-  matchedIndexes.set(newMatchedIndexes);
+  let nextMatchedIndexes = getMatchedIndexes($cards);
+  matchedIndexes.set(nextMatchedIndexes);
   const { value } = get(energy);
-  if (newMatchedIndexes.length > 0) {
+  if (nextMatchedIndexes.length > 0) {
     checkSound(playSoundBlink);
     log.update(($log) =>
       $log.concat(
-        newMatchedIndexes.reduce((result, index) => {
+        nextMatchedIndexes.reduce((result, index) => {
           const { value } = $cards[index];
           result[value] = (result[value] || 0) + value;
           result.sum = (result.sum || 0) + value;
@@ -272,21 +259,27 @@ function doBlinkPhase() {
         }, {})
       )
     );
-    const buffer = newMatchedIndexes.reduce(
+    const buffer = nextMatchedIndexes.reduce(
       (result, index) => result + $cards[index].value,
       0
     );
     delayTransition(() => energy.set({ buffer, value }), 400);
     delayTransition(() => phase.set("match"), 800);
-  } else if (value > 100) {
-    phase.set("extra");
-  } else if (value < 10) {
-    phase.set("gameover");
-  } else if (get(log).length > 0) {
-    phase.set("total");
-  } else {
-    phase.set("idle");
+    return;
   }
+  if (value > 100) {
+    phase.set("extra");
+    return;
+  }
+  if (value < 10) {
+    phase.set("gameover");
+    return;
+  }
+  if (get(log).length > 0) {
+    phase.set("total");
+    return;
+  }
+  phase.set("idle");
 }
 
 function doMatchPhase() {
@@ -413,7 +406,7 @@ function getInitialRandoms(seed) {
   return result;
 }
 
-function createGetNewCardValue(seed) {
+function createGetNextCardValue(seed) {
   let randoms = getInitialRandoms(seed);
   return (column) => {
     if (column < 0 || 5 < column) return;
@@ -429,7 +422,7 @@ function getFieldRandom() {
     .map((_, index) => ({
       x: trunc(index / 6),
       y: index % 6,
-      value: getNewCardValue(trunc(index / 6)),
+      value: getNextCardValue(trunc(index / 6)),
       duration: 0,
     }));
 }
@@ -444,7 +437,7 @@ function getFieldPrepared(field) {
 
 function doSeedLogic($seed) {
   if (!$seed) return;
-  getNewCardValue = createGetNewCardValue($seed);
+  getNextCardValue = createGetNextCardValue($seed);
   cards.set(getFieldPrepared(getFieldRandom()));
   const $moves = get(moves);
   if (!$moves) return;
@@ -454,7 +447,9 @@ function doSeedLogic($seed) {
   if (movesArray.length > 0) {
     moveCount = 0;
     movesInitial = movesArray;
-  } else movesInitial = null;
+    return;
+  }
+  movesInitial = null;
 }
 
 /* CORE INITIALIZATION ********************************************************/

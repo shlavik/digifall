@@ -58,10 +58,10 @@ export const seed = derived(
       })
 );
 
-function newTimestamp(count) {
+function shuffle(count) {
   phase.set(INITIAL_VALUES.phase);
   timestamp.set(Date.now());
-  if (count-- > 0) requestAnimationFrame(() => newTimestamp(count));
+  if (count-- > 0) requestAnimationFrame(() => shuffle(count));
 }
 
 export function initGame(showOverlay = false, count = 12) {
@@ -74,5 +74,5 @@ export function initGame(showOverlay = false, count = 12) {
   randomColor.set(INITIAL_VALUES.randomColor);
   score.set(INITIAL_VALUES.score);
   const { playerName, transitions } = get(options);
-  newTimestamp(playerName && transitions ? count : 0);
+  shuffle(playerName && transitions ? count : 0);
 }
