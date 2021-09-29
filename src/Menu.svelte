@@ -2,7 +2,8 @@
   import { blur } from "svelte/transition";
 
   import { MENU } from "./constants.js";
-  import { initGame, options, overlay } from "./stores.js";
+  import { initGame } from "./core.js";
+  import { options, overlay } from "./stores.js";
 
   let menu = MENU.main;
   let playerName = $options.playerName;

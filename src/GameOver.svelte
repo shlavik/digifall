@@ -4,7 +4,8 @@
   import Energy from "./Energy.svelte";
   import Score from "./Score.svelte";
 
-  import { energy, options, initGame } from "./stores.js";
+  import { initGame } from "./core.js";
+  import { energy, options } from "./stores.js";
 
   function startNewGame() {
     initGame(false);

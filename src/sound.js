@@ -1,11 +1,11 @@
 import { Howl } from "howler";
 
-const { random, round } = Math;
+const { random, trunc } = Math;
 
 let blinkRateInitial = 0.6,
   blinkRate = blinkRateInitial;
 
-const sounds = {
+const SOUNDS = {
   bleep: new Howl({
     src: "sounds/bleep.mp3",
   }),
@@ -13,45 +13,62 @@ const sounds = {
     src: "sounds/blink.mp3",
     rate: blinkRateInitial,
   }),
+  fadeIn: new Howl({
+    src: "sounds/fadeIn.mp3",
+  }),
   gameover: new Howl({
     src: "sounds/gameover.mp3",
   }),
-  kick1: new Howl({
-    src: "sounds/kick1.mp3",
+  generate: new Howl({
+    src: "sounds/generate.mp3",
   }),
-  kick2: new Howl({
-    src: "sounds/kick2.mp3",
-  }),
+  kicks: [
+    new Howl({
+      src: "sounds/kick1.mp3",
+    }),
+    new Howl({
+      src: "sounds/kick2.mp3",
+    }),
+  ],
 };
 
 export function playSoundBleep() {
-  sounds.bleep.play();
+  SOUNDS.bleep.play();
 }
 
 export function playSoundBlink() {
   const play = () => {
-    sounds.blink.play();
-    sounds.blink.rate((blinkRate += 0.02));
+    SOUNDS.blink.play();
+    SOUNDS.blink.rate((blinkRate += 0.02));
   };
   play();
   setTimeout(play, 200);
   setTimeout(() => {
-    sounds.blink.play();
-    sounds.blink.rate((blinkRate += 0.06));
+    SOUNDS.blink.play();
+    SOUNDS.blink.rate((blinkRate += 0.04));
   }, 400);
 }
 
+export function playSoundFadeIn() {
+  SOUNDS.fadeIn.rate(1 - (random() - 0.5) / 10);
+  SOUNDS.fadeIn.play();
+}
+
 export function playSoundGameOver() {
-  sounds.gameover.play();
+  SOUNDS.gameover.play();
+}
+
+export function playSoundGenerate() {
+  SOUNDS.generate.play();
 }
 
 export function playSoundKick() {
-  const sound = [sounds.kick1, sounds.kick2][round(random())];
-  sound.rate(1 - (random() - 0.5) / 2);
-  sound.play();
+  const kick = SOUNDS.kicks[trunc(random())];
+  kick.rate(1 - (random() - 0.5) / 2);
+  kick.play();
 }
 
 export function resetSounds() {
   blinkRate = blinkRateInitial;
-  sounds.blink.rate(blinkRateInitial);
+  SOUNDS.blink.rate(blinkRateInitial);
 }

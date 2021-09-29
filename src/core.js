@@ -1,10 +1,12 @@
 import { get } from "svelte/store";
 
-import { KEYS, PHASES } from "./constants.js";
+import { INITIAL_VALUES, KEYS, PHASES } from "./constants.js";
 import {
   playSoundBleep,
   playSoundBlink,
+  playSoundFadeIn,
   playSoundGameOver,
+  playSoundGenerate,
   playSoundKick,
   resetSounds,
 } from "./sound.js";
@@ -19,11 +21,11 @@ import {
   overlay,
   phase,
   plusIndex,
+  randomColor,
   score,
   seed,
   timestamp,
 } from "./stores.js";
-import { getArrayFromBase64, getRandom } from "./utils.js";
 
 const { abs, sign, sqrt, trunc } = Math;
 
@@ -39,15 +41,32 @@ function delayTransition(callback, timeout = 0) {
   callback();
 }
 
-function checkSound(callback) {
+export function checkSound(callback) {
   if (
-    movesInitial === null &&
-    get(options).sound &&
-    get(options).transitions &&
-    get(phase) !== PHASES.initial
+    movesInitial !== null ||
+    get(options).sound === false ||
+    get(options).transitions === false ||
+    get(phase) === PHASES.initial
   ) {
-    callback();
+    return;
   }
+  if (Array.isArray(callback)) {
+    callback.forEach((cb) => cb());
+    return;
+  }
+  callback();
+}
+
+export function getRandom(previous = 0) {
+  return (previous * 16807 + 19487171) % 2147483647;
+}
+
+export function getBase64FromArray(array) {
+  return btoa(String.fromCodePoint(...array));
+}
+
+export function getArrayFromBase64(base64) {
+  return Array.from(atob(base64)).map((letter) => letter.charCodeAt());
 }
 
 /* CARDS LOGIC ****************************************************************/
@@ -197,7 +216,8 @@ function doEnergyLogic({ buffer, value }) {
         : getDiffFromBuffer(buffer)
       : buffer;
   if ($phase === PHASES.extra) {
-    if (buffer === 0) return delayTransition(() => phase.set("total"), 800);
+    if (buffer === 0)
+      return delayTransition(() => phase.set(PHASES.total), 800);
     log.update(($log) => {
       const [{ extra }] = $log.slice(-1);
       return $log.slice(0, -1).concat({ extra: extra - diff });
@@ -218,28 +238,28 @@ function doEnergyLogic({ buffer, value }) {
 /* PHASE LOGIC ****************************************************************/
 
 function doInitPhase() {
-  setTimeout(() => phase.set("idle"));
+  setTimeout(() => phase.set(PHASES.idle));
 }
 
 function doIdlePhase() {
-  resetSounds();
   if (movesInitial) {
     if (moveCount < movesInitial.length) {
       plusIndex.set(movesInitial[moveCount++]);
       energy.update(({ buffer, value }) => ({ buffer, value: value - 10 }));
-      phase.set("plus");
+      phase.set(PHASES.plus);
       return;
     }
     movesInitial = null;
     return;
   }
   checkLocalScore(KEYS.highScore, get(score).value);
+  checkSound(resetSounds);
 }
 
 function doPlusPhase() {
   cards.update(($cards) => getCardsPlused($cards, get(plusIndex)));
   plusIndex.set(undefined);
-  phase.set("blink");
+  phase.set(PHASES.blink);
 }
 
 function doBlinkPhase() {
@@ -248,7 +268,6 @@ function doBlinkPhase() {
   matchedIndexes.set(nextMatchedIndexes);
   const { value } = get(energy);
   if (nextMatchedIndexes.length > 0) {
-    checkSound(playSoundBlink);
     log.update(($log) =>
       $log.concat(
         nextMatchedIndexes.reduce((result, index) => {
@@ -264,33 +283,34 @@ function doBlinkPhase() {
       0
     );
     delayTransition(() => energy.set({ buffer, value }), 400);
-    delayTransition(() => phase.set("match"), 800);
+    delayTransition(() => phase.set(PHASES.match), 800);
+    checkSound(playSoundBlink);
     return;
   }
   if (value > 100) {
-    phase.set("extra");
+    phase.set(PHASES.extra);
     return;
   }
   if (value < 10) {
-    phase.set("gameover");
+    phase.set(PHASES.gameover);
     return;
   }
   if (get(log).length > 0) {
-    phase.set("total");
+    phase.set(PHASES.total);
     return;
   }
-  phase.set("idle");
+  phase.set(PHASES.idle);
 }
 
 function doMatchPhase() {
   cards.update(($cards) => getCardsMatched($cards, get(matchedIndexes)));
   matchedIndexes.set([]);
-  delayTransition(() => phase.set("fall"), 400);
+  delayTransition(() => phase.set(PHASES.fall), 400);
 }
 
 function doFallPhase() {
   cards.update(($cards) => getCardsFallen($cards));
-  delayTransition(() => phase.set("blink"), 400);
+  delayTransition(() => phase.set(PHASES.blink), 400);
 }
 
 function doExtraPhase() {
@@ -303,20 +323,21 @@ function doTotalPhase() {
     (result, { extra, sum }, index) => result + (index + 1) * (sum || extra),
     0
   );
-  checkLocalScore(KEYS.highTotal, total);
   score.update(({ value }) => ({
     buffer: total,
     value,
   }));
+  checkLocalScore(KEYS.highTotal, total);
   delayTransition(() => phase.set(PHASES.score), get(log).length > 1 ? 800 : 0);
 }
 
 function doScorePhase() {
-  score.update(($score) => ({ ...$score }));
+  if (get(log).length > 1) {
+    score.update(($score) => ({ ...$score }));
+  }
 }
 
 function doGameOverPhase() {
-  checkSound(playSoundGameOver);
   overlay.set(true);
   delayTransition(() => {
     energy.update(({ value }) => ({
@@ -328,6 +349,7 @@ function doGameOverPhase() {
       value,
     }));
   }, 400);
+  checkSound(playSoundGameOver);
 }
 
 function doPhaseLogic($phase) {
@@ -374,12 +396,13 @@ function doScoreLogic({ buffer, value }) {
   if ($phase !== PHASES.gameover && $phase !== PHASES.score) return;
   if (buffer === 0) {
     if ($phase === PHASES.gameover) return;
-    return delayTransition(() => {
+    delayTransition(() => {
       log.set([]);
-      phase.set("idle");
+      phase.set(PHASES.idle);
+      checkSound(playSoundFadeIn);
     }, 200);
+    return;
   }
-  checkSound(playSoundBleep);
   const diff =
     !movesInitial && get(options).transitions
       ? $phase === PHASES.gameover
@@ -395,6 +418,7 @@ function doScoreLogic({ buffer, value }) {
     },
     $phase === PHASES.gameover ? 200 : getTimeFromDiff(diff)
   );
+  checkSound(playSoundBleep);
 }
 
 /* SEED LOGIC *****************************************************************/
@@ -459,4 +483,26 @@ export function initCore() {
   phase.subscribe(($phase) => doPhaseLogic($phase));
   score.subscribe(($score) => doScoreLogic($score));
   seed.subscribe(($seed) => doSeedLogic($seed));
+}
+
+/* GAME INITIALIZATION ********************************************************/
+
+function shuffleBoard(count) {
+  phase.set(INITIAL_VALUES.phase);
+  timestamp.set(Date.now());
+  if (count-- > 0) setTimeout(() => shuffleBoard(count), 64);
+}
+
+export function initGame(showOverlay = false, count = 8) {
+  checkSound(playSoundGenerate);
+  energy.set(INITIAL_VALUES.energy);
+  log.set(INITIAL_VALUES.log);
+  matchedIndexes.set(INITIAL_VALUES.matchedIndexes);
+  moves.set(INITIAL_VALUES.moves);
+  overlay.set(showOverlay);
+  plusIndex.set(INITIAL_VALUES.plusIndex);
+  randomColor.set(INITIAL_VALUES.randomColor);
+  score.set(INITIAL_VALUES.score);
+  const { playerName, transitions } = get(options);
+  shuffleBoard(playerName && transitions ? count : 0);
 }

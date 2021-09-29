@@ -545,9 +545,9 @@ button:active {
 }
 
 .overlay {
-  position: absolute;
+  position: fixed;
+  z-index: 3;
   width: 100%;
-  align-items: center;
   background-color: var(--color-black-08);
 }
 
@@ -591,10 +591,6 @@ button:active {
   80% {
     transform: rotate(10deg);
   }
-}
-
-.overlay .content {
-  height: 100%;
 }
 
 .section-1 {

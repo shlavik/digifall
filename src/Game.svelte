@@ -5,8 +5,8 @@
   import Log from "./Log.svelte";
   import Score from "./Score.svelte";
 
+  import { getRandom } from "./core.js";
   import { log, options, overlay, seed } from "./stores.js";
-  import { getRandom } from "./utils.js";
 
   function showMenu() {
     $overlay = true;
@@ -15,20 +15,21 @@
   $: style = (() => {
     if (!$seed || !$options.seedground) return;
     let random = $seed;
+    const getNextRandom = () => (random = getRandom(random));
     const getColor = (lightness = 16) => {
-      return `hsl(${(random = getRandom(random) % 360)},50%,${lightness}%)`;
+      return `hsl(${getNextRandom() % 360},50%,${lightness}%)`;
     };
     const arr = [
       2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67,
-      71, 73, 79, 83, 89, 97,101, 103, 107, 109, 113, 127, 131, 137, 139, 149
+      71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149,
     ];
     let count = 4,
-      temp = [];
+      sizes = [];
     while (count--) {
-      const [value] = arr.splice((random = getRandom(random)) % arr.length, 1);
-      temp = temp.concat(value);
+      const [size] = arr.splice(getNextRandom() % arr.length, 1);
+      sizes = sizes.concat(size);
     }
-    const [a, b, c, d] = temp;
+    const [a, b, c, d] = sizes;
     return `
       background-color: var(${CSS_VARS.colorDark}));
       background-image:
@@ -40,7 +41,7 @@
   })();
 </script>
 
-<div class="game" class:blur={$overlay}>
+<div class="game" class:blur={$overlay && $options.shadows}>
   <div class="seedground" {style} />
   <div class="content">
     {#if $seed}

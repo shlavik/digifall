@@ -13,13 +13,12 @@
     visible = false;
   }
 
-  function scoreClick() {
-    key =
-      key === KEYS.score
-        ? KEYS.highScore
-        : key === KEYS.highScore
-        ? KEYS.highTotal
-        : KEYS.score;
+  function nextScore() {
+    key = {
+      [KEYS.score]: KEYS.highScore,
+      [KEYS.highScore]: KEYS.highTotal,
+      [KEYS.highTotal]: KEYS.score,
+    }[key];
     visible = true;
     clearTimeout(timeoutId);
     timeoutId = setTimeout(resetMode, 3000);
@@ -32,7 +31,7 @@
 </script>
 
 {#key key}
-  <span class="score" in:blur on:click={scoreClick}>
+  <span class="score" in:blur on:click={nextScore}>
     <span class="key" class:visible>{key}:</span>
     <span class="value">{value}</span>
   </span>

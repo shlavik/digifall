@@ -1,6 +1,6 @@
 # DIGIFALL
 
-## mathematactic survival game
+## entropy fighting mathematactic game
 
 https://digifall.app
 

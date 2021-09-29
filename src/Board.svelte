@@ -1,6 +1,7 @@
 <script>
   import Card from "./Card.svelte";
 
+  import { getArrayFromBase64, getBase64FromArray } from "./core.js";
   import { PHASES } from "./constants.js";
   import {
     cards,
@@ -12,7 +13,6 @@
     phase,
     plusIndex,
   } from "./stores.js";
-  import { getArrayFromBase64, getBase64FromArray } from "./utils.js";
 
   function boardClick(event) {
     if ($phase !== PHASES.idle || $plusIndex !== undefined) return;

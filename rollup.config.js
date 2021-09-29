@@ -40,7 +40,7 @@ export default {
     svelte({
       compilerOptions: {
         dev: !production,
-        // immutable: true,
+        immutable: false,
       },
     }),
     resolve({
