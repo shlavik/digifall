@@ -4,10 +4,12 @@ import { INITIAL_VALUES, KEYS, PHASES } from "./constants.js";
 import {
   playSoundBleep,
   playSoundBlink,
+  playSoundCardPlus,
   playSoundFadeIn,
   playSoundGameOver,
   playSoundGenerate,
   playSoundKick,
+  playSoundWordUp,
   resetSounds,
 } from "./sound.js";
 import {
@@ -29,7 +31,7 @@ import {
 
 const { abs, sign, sqrt, trunc } = Math;
 
-let getNextCardValue;
+let getNextCardValue = () => 0;
 let moveCount = 0;
 let movesInitial = null;
 
@@ -71,9 +73,9 @@ export function getArrayFromBase64(base64) {
 
 /* CARDS LOGIC ****************************************************************/
 
-function getCardsPlused($cards, plusIndex) {
-  return $cards.map((card, cardIndex) =>
-    plusIndex === cardIndex && card.y < 6
+function getCardsPlused($cards, $plusIndex) {
+  return $cards.map((card, index) =>
+    $plusIndex === index && card.y < 6
       ? {
           x: card.x,
           y: card.y,
@@ -216,8 +218,10 @@ function doEnergyLogic({ buffer, value }) {
         : getDiffFromBuffer(buffer)
       : buffer;
   if ($phase === PHASES.extra) {
-    if (buffer === 0)
-      return delayTransition(() => phase.set(PHASES.total), 800);
+    if (buffer === 0) {
+      delayTransition(() => phase.set(PHASES.total), 800);
+      return;
+    }
     log.update(($log) => {
       const [{ extra }] = $log.slice(-1);
       return $log.slice(0, -1).concat({ extra: extra - diff });
@@ -284,7 +288,7 @@ function doBlinkPhase() {
     );
     delayTransition(() => energy.set({ buffer, value }), 400);
     delayTransition(() => phase.set(PHASES.match), 800);
-    checkSound(playSoundBlink);
+    checkSound([playSoundWordUp, playSoundBlink]);
     return;
   }
   if (value > 100) {
@@ -316,6 +320,7 @@ function doFallPhase() {
 function doExtraPhase() {
   energy.update(({ value }) => ({ buffer: 100 - value, value }));
   log.update(($log) => $log.concat({ extra: 0 }));
+  checkSound(playSoundWordUp);
 }
 
 function doTotalPhase() {
@@ -329,6 +334,7 @@ function doTotalPhase() {
   }));
   checkLocalScore(KEYS.highTotal, total);
   delayTransition(() => phase.set(PHASES.score), get(log).length > 1 ? 800 : 0);
+  checkSound(playSoundWordUp);
 }
 
 function doScorePhase() {
@@ -365,6 +371,12 @@ function doPhaseLogic($phase) {
     [PHASES.score]: doScorePhase,
     [PHASES.gameover]: doGameOverPhase,
   }[$phase]());
+}
+
+/* PLUS INDEX LOGIC ***********************************************************/
+
+function doPlusIndexLogic($plusIndex) {
+  $plusIndex !== undefined && checkSound(playSoundCardPlus);
 }
 
 /* SCORE LOGIC ****************************************************************/
@@ -481,6 +493,7 @@ function doSeedLogic($seed) {
 export function initCore() {
   energy.subscribe(($energy) => doEnergyLogic($energy));
   phase.subscribe(($phase) => doPhaseLogic($phase));
+  plusIndex.subscribe(($plusIndex) => doPlusIndexLogic($plusIndex));
   score.subscribe(($score) => doScoreLogic($score));
   seed.subscribe(($seed) => doSeedLogic($seed));
 }

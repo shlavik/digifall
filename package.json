@@ -1,13 +1,13 @@
 {
   "name": "digifall",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "start": "sirv"
   },
   "dependencies": {
-    "@rollup/plugin-commonjs": "20.0.0",
+    "@rollup/plugin-commonjs": "21.0.0",
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "13.0.5",
     "howler": "2.2.3",

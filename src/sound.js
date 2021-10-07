@@ -1,9 +1,9 @@
 import { Howl } from "howler";
 
-const { random, trunc } = Math;
+const { random, round } = Math;
 
-let blinkRateInitial = 0.6,
-  blinkRate = blinkRateInitial;
+playSoundBlink.rateInitial = 0.6;
+playSoundBlink.rate = playSoundBlink.rateInitial;
 
 const SOUNDS = {
   bleep: new Howl({
@@ -11,13 +11,13 @@ const SOUNDS = {
   }),
   blink: new Howl({
     src: "sounds/blink.mp3",
-    rate: blinkRateInitial,
+    rate: playSoundBlink.rate,
   }),
   fadeIn: new Howl({
     src: "sounds/fadeIn.mp3",
   }),
-  gameover: new Howl({
-    src: "sounds/gameover.mp3",
+  gameOver: new Howl({
+    src: "sounds/gameOver.mp3",
   }),
   generate: new Howl({
     src: "sounds/generate.mp3",
@@ -30,6 +30,15 @@ const SOUNDS = {
       src: "sounds/kick2.mp3",
     }),
   ],
+  wordUp: new Howl({
+    src: "sounds/wordUp.mp3",
+  }),
+  wow: new Howl({
+    src: "sounds/wow.mp3",
+  }),
+  zoom: new Howl({
+    src: "sounds/zoom.mp3",
+  }),
 };
 
 export function playSoundBleep() {
@@ -37,16 +46,17 @@ export function playSoundBleep() {
 }
 
 export function playSoundBlink() {
-  const play = () => {
+  const play = (rateDiff = 0.02) => {
     SOUNDS.blink.play();
-    SOUNDS.blink.rate((blinkRate += 0.02));
+    SOUNDS.blink.rate((playSoundBlink.rate += rateDiff));
   };
   play();
   setTimeout(play, 200);
-  setTimeout(() => {
-    SOUNDS.blink.play();
-    SOUNDS.blink.rate((blinkRate += 0.04));
-  }, 400);
+  setTimeout(() => play(0.04), 400);
+}
+
+export function playSoundCardPlus() {
+  SOUNDS.zoom.play();
 }
 
 export function playSoundFadeIn() {
@@ -55,7 +65,7 @@ export function playSoundFadeIn() {
 }
 
 export function playSoundGameOver() {
-  SOUNDS.gameover.play();
+  SOUNDS.gameOver.play();
 }
 
 export function playSoundGenerate() {
@@ -63,12 +73,15 @@ export function playSoundGenerate() {
 }
 
 export function playSoundKick() {
-  const kick = SOUNDS.kicks[trunc(random())];
+  const kick = SOUNDS.kicks[round(random())];
   kick.rate(1 - (random() - 0.5) / 2);
   kick.play();
 }
 
+export function playSoundWordUp() {
+  SOUNDS.wordUp.play();
+}
+
 export function resetSounds() {
-  blinkRate = blinkRateInitial;
-  SOUNDS.blink.rate(blinkRateInitial);
+  playSoundBlink.rate = playSoundBlink.rateInitial;
 }

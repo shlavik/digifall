@@ -1,10 +1,10 @@
 <script>
-  import { energy, randomColor } from "./stores.js";
-
-  import { CSS_VARS } from "./constants";
+  import { CSS_VARS, PHASES } from "./constants";
+  import { energy, phase, randomColor } from "./stores.js";
 
   $: ({ value } = $energy);
   $: extra = value > 100;
+  $: warning =  value < 20 && $phase === PHASES.idle;
   $: leftBarStyle = `
     z-index: ${extra ? 0 : 1};
     flex: ${(extra ? 200 - value : value) / 100};
@@ -26,10 +26,14 @@
 </script>
 
 <div class="energy">
-  <div class="left-bar" style={leftBarStyle}>
-    <span class="left-value" style={leftValueStyle}>{$energy.value}</span>
+  <div class="left-bar" class:warning style={leftBarStyle}>
+    <span class="left-value" class:warning style={leftValueStyle}>
+      {$energy.value}
+    </span>
   </div>
   <div class="right-bar" style={rightBarStyle}>
-    <span class="right-value" style={rightValueStyle}>{$energy.value}</span>
+    <span class="right-value" class:warning style={rightValueStyle}>
+      {$energy.value}
+    </span>
   </div>
 </div>

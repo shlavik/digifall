@@ -415,6 +415,28 @@ button:active {
   color: white;
 }
 
+.energy .left-bar.warning,
+.energy .left-value.warning,
+.energy .right-value.warning {
+  animation: flick 2s infinite;
+}
+
+@keyframes flick {
+  20%,
+  25%,
+  30%,
+  35% {
+    opacity: 1;
+  }
+
+  21%,
+  24%,
+  31%,
+  34% {
+    opacity: 0;
+  }
+}
+
 .game .seedground {
   position: absolute;
   top: 50%;
@@ -452,9 +474,9 @@ button:active {
 }
 
 .game .digifall:active,
-.game .screen,
-.game .screen:focus,
-.game .screen:hover {
+.game .digifall.screen,
+.game .digifall.screen:focus,
+.game .digifall.screen:hover {
   background-color: var(--color-dark);
   color: var(--color-dark);
   text-shadow: var(--shadow-0);
@@ -596,6 +618,18 @@ button:active {
 .section-1 {
   flex-basis: 37rem;
   text-align: center;
+}
+
+@media (max-aspect-ratio: 128/203) {
+  .section-1 {
+    flex-basis: 44rem;
+  }
+}
+
+@media (max-aspect-ratio: 128/214) {
+  .section-1 {
+    flex-basis: 51rem;
+  }
 }
 
 .section-2 {
