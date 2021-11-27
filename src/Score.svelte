@@ -2,6 +2,7 @@
   import { blur } from "svelte/transition";
 
   import { KEYS } from "./constants.js";
+  import { checkTransition } from "./core.js";
   import { leaderboard, score } from "./stores.js";
 
   let key = KEYS.score;
@@ -31,7 +32,11 @@
 </script>
 
 {#key key}
-  <span class="score" in:blur on:click={nextScore}>
+  <span
+    class="score"
+    in:blur={checkTransition({ duration: 600 })}
+    on:click={nextScore}
+  >
     <span class="key" class:visible>{key}:</span>
     <span class="value">{value}</span>
   </span>

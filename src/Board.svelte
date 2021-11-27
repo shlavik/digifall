@@ -1,7 +1,11 @@
 <script>
   import Card from "./Card.svelte";
 
-  import { getArrayFromBase64, getBase64FromArray } from "./core.js";
+  import {
+    checkTransition,
+    getArrayFromBase64,
+    getBase64FromArray,
+  } from "./core.js";
   import { PHASES } from "./constants.js";
   import {
     cards,
@@ -9,7 +13,6 @@
     log,
     matchedIndexes,
     moves,
-    options,
     phase,
     plusIndex,
   } from "./stores.js";
@@ -24,10 +27,10 @@
     const movesArray = Array.isArray($moves)
       ? $moves
       : getArrayFromBase64($moves);
-    $moves = getBase64FromArray(movesArray.concat($plusIndex));
+    movesArray.push($plusIndex);
+    $moves = getBase64FromArray(movesArray);
     $energy = { ...$energy, buffer: -10 };
-    if ($options.transitions) setTimeout(() => ($phase = PHASES.plus), 400);
-    else $phase = PHASES.plus;
+    checkTransition(() => ($phase = PHASES.plus), 400);
   }
 
   $: plusCard = $cards[$plusIndex];

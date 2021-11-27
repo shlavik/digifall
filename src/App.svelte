@@ -6,11 +6,12 @@
   import Menu from "./Menu.svelte";
 
   import { COLORS, PHASES, CSS_VARS, CSS_STYLES } from "./constants.js";
+  import { checkTransition } from "./core";
   import { energy, options, overlay, phase, randomColor } from "./stores.js";
 
   onstorage = function syncTabs() {
     if (document.hasFocus()) return;
-    window.location = window.location;
+    location = location;
   };
 
   function updatePixelSize() {
@@ -51,6 +52,7 @@
     [
       [CSS_VARS.gloss, CSS_STYLES.gloss],
       [CSS_VARS.glossInset, CSS_STYLES.glossInset],
+      [CSS_VARS.glow, CSS_STYLES.glow],
       [CSS_VARS.shadow0, CSS_STYLES.shadow0],
       [CSS_VARS.shadow1, CSS_STYLES.shadow1],
       [CSS_VARS.shadow2, CSS_STYLES.shadow2],
@@ -65,10 +67,7 @@
 <div class="app">
   <Game />
   {#if $overlay}
-    <div
-      class="overlay"
-      transition:fade={{ duration: $options.transitions ? 200 : 0 }}
-    >
+    <div class="overlay" transition:fade={checkTransition({ duration: 200 })}>
       {#if $phase === PHASES.gameover}
         <GameOver />
       {:else}

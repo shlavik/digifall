@@ -47,7 +47,7 @@ body {
   letter-spacing: 2rem;
   line-height: 1;
   text-indent: 2rem;
-  text-shadow: var(--shadow-1), var(--gloss);
+  text-shadow: var(--gloss), var(--shadow-1);
   user-select: none;
 }
 
@@ -224,7 +224,7 @@ button:active {
   background-color: var(--color-body);
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity=".6"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
   background-size: 6rem 6rem;
-  box-shadow: var(--shadow-inset), var(--gloss-inset);
+  box-shadow: var(--gloss-inset), var(--shadow-inset);
 }
 
 .board::before {
@@ -235,7 +235,7 @@ button:active {
   display: block;
   width: 128rem;
   height: 1rem;
-  box-shadow:var(--shadow-inset);
+  box-shadow: var(--shadow-inset);
   content: "";
 }
 
@@ -274,7 +274,7 @@ button:active {
   position: absolute;
   width: 21rem;
   height: 21rem;
-  box-shadow: var(--shadow-2), var(--gloss);
+  box-shadow: var(--gloss), var(--shadow-2);
   cursor: progress;
   transition-property: bottom;
   transition-timing-function: cubic-bezier(0.56, 0, 1, 1);
@@ -326,7 +326,7 @@ button:active {
 
 .card.plused .current,
 .card.plused .next {
-  box-shadow: var(--shadow-1), var(--gloss);
+  box-shadow: var(--gloss), var(--shadow-1);
 }
 
 .card.matched {
@@ -373,7 +373,7 @@ button:active {
   .card.clickable:hover .next {
     top: -1px;
     border-bottom: 1px solid var(--color);
-    box-shadow: var(--shadow-1), var(--gloss);
+    box-shadow: var(--gloss), var(--shadow-1);
   }
 
   .card.clickable:active .current {
@@ -388,7 +388,7 @@ button:active {
   display: flex;
   width: 100%;
   background-color: var(--color-dark);
-  box-shadow: var(--shadow-inset), var(--gloss-inset);
+  box-shadow: var(--gloss-inset), var(--shadow-inset);
   font-size: 7rem;
   letter-spacing: 1rem;
   text-indent: 1rem;
@@ -398,7 +398,7 @@ button:active {
 .energy .right-bar {
   overflow: hidden;
   padding: 1rem 0;
-  box-shadow: var(--shadow-1), var(--gloss);
+  box-shadow: var(--gloss), var(--shadow-1);
 }
 
 .energy .left-bar {
@@ -452,7 +452,9 @@ button:active {
 
 .game .content {
   background-color: var(--color-base);
-  box-shadow: -1rem 0 0 0 var(--color-base), 1rem 0 0 0 var(--color-base),
+  box-shadow:
+    -1rem 0 0 0 var(--color-base),
+    1rem 0 0 0 var(--color-base),
     var(--shadow-3);
 }
 
@@ -465,12 +467,12 @@ button:active {
   border: none;
   margin: auto;
   background-color: var(--color-dark);
-  box-shadow: var(--shadow-inset), var(--gloss-inset);
+  box-shadow: var(--gloss-inset), var(--shadow-inset);
   color: var(--color-zero);
   font-size: inherit;
   font-weight: bold;
   outline: none;
-  text-shadow: var(--shadow-1), var(--gloss);
+  text-shadow: var(--gloss), var(--shadow-1);
 }
 
 .game .digifall:active,
@@ -484,7 +486,7 @@ button:active {
 
 .game-over .score:active {
   color: #22221a;
-  text-shadow: 0 0 1px white;
+  text-shadow: var(--glow);
 }
 
 .game-over .energy {
@@ -532,7 +534,7 @@ button:active {
   line-height: 7rem;
   list-style-type: none;
   text-indent: 1rem;
-  text-shadow: var(--shadow-1), var(--gloss);
+  text-shadow: var(--gloss), var(--shadow-1);
 }
 
 .log li {

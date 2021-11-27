@@ -50,10 +50,11 @@ export const seed = derived(
     $timestamp < Infinity &&
     typeof playerName === "string" &&
     playerName.length > 0 &&
-    [$timestamp]
-      .concat(Array.from(playerName).map((letter) => letter.charCodeAt()))
-      .reduce((result, item) => {
-        const number = Number(`${result}${item}`);
-        return number > MAX_SAFE_INTEGER ? number % MAX_SAFE_INTEGER : number;
-      })
+    [
+      $timestamp,
+      ...Array.from(playerName).map((letter) => letter.charCodeAt()),
+    ].reduce((result, item) => {
+      const number = Number(`${result}${item}`);
+      return number > MAX_SAFE_INTEGER ? number % MAX_SAFE_INTEGER : number;
+    })
 );

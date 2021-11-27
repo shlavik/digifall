@@ -4,8 +4,8 @@
   import Energy from "./Energy.svelte";
   import Score from "./Score.svelte";
 
-  import { initGame } from "./core.js";
-  import { energy, options } from "./stores.js";
+  import { checkTransition, initGame } from "./core.js";
+  import { energy } from "./stores.js";
 
   function startNewGame() {
     initGame(false);
@@ -14,13 +14,10 @@
   $: gameOver = $energy.buffer === 0 && $energy.value === 0;
 </script>
 
-<div
-  class="game-over content"
-  in:blur={{ delay: $options.transitions ? 200 : 0 }}
->
+<div class="game-over content" in:blur={checkTransition({ delay: 200 })}>
   <div class="section-1">
     {#if gameOver}
-      <span class="big" in:blur={{ delay: $options.transitions ? 600 : 0 }}>
+      <span class="big" in:blur={checkTransition({ delay: 600 })}>
         game over
       </span>
     {/if}
@@ -30,7 +27,7 @@
   </div>
   <div class="section-3">
     {#if gameOver}
-      <div class="col" in:blur={{ delay: $options.transitions ? 600 : 0 }}>
+      <div class="col" in:blur={checkTransition({ delay: 600 })}>
         <button on:click={startNewGame}>new game</button>
       </div>
     {/if}
@@ -42,9 +39,11 @@
         {#each "ut of energy" as letter, index}
           <span
             class="letter"
-            in:fly={$options.transitions
-              ? { delay: index * 50, duration: 200, y: 50 }
-              : undefined}
+            in:fly={checkTransition({
+              delay: index * 50,
+              duration: 200,
+              y: 50,
+            })}
           >
             {letter}
           </span>

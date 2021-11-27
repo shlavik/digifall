@@ -2,7 +2,7 @@
   import { blur } from "svelte/transition";
 
   import { MENU } from "./constants.js";
-  import { initGame } from "./core.js";
+  import { checkTransition, initGame } from "./core.js";
   import { options, overlay } from "./stores.js";
 
   let menu = MENU.main;
@@ -69,7 +69,7 @@
     <div class="section-4" />
   </div>
 {:else if menu === MENU.main}
-  <div class="content" in:blur={{ duration: $options.transitions ? 400 : 0 }}>
+  <div class="content" in:blur={checkTransition({ duration: 400 })}>
     <div class="section-1"><span class="big">digifall</span></div>
     <div class="section-2" />
     <div class="section-3">
@@ -83,7 +83,7 @@
     <div class="section-4" />
   </div>
 {:else if menu === MENU.newGame}
-  <div class="content" in:blur={{ duration: $options.transitions ? 400 : 0 }}>
+  <div class="content" in:blur={checkTransition({ duration: 400 })}>
     <div class="section-1"><span>start a new game?</span></div>
     <div class="section-2" />
     <div class="section-3">
@@ -95,10 +95,7 @@
     <div class="section-4" />
   </div>
 {:else if menu === MENU.options}
-  <div
-    class="content compact"
-    in:blur={{ duration: $options.transitions ? 400 : 0 }}
-  >
+  <div class="content compact" in:blur={checkTransition({ duration: 400 })}>
     <div class="section-1"><span class="big">options</span></div>
     <div class="section-2" />
     <div class="section-3">

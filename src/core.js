@@ -35,19 +35,23 @@ let getNextCardValue = () => 0;
 let moveCount = 0;
 let movesInitial = null;
 
-function delayTransition(callback, timeout = 0) {
-  if (movesInitial === null && get(options).transitions && timeout > 0) {
-    setTimeout(callback, timeout);
-    return;
+export function checkTransition(value, timeout = 0) {
+  const { transitions } = get(options);
+  if (typeof value === "function") {
+    return transitions && movesInitial === null && timeout > 0
+      ? setTimeout(value, timeout)
+      : value();
   }
-  callback();
+  if (typeof value === "object") {
+    return transitions ? value : { duration: 0 };
+  }
+  return transitions ? value : 0;
 }
 
 export function checkSound(callback) {
   if (
     movesInitial !== null ||
     get(options).sound === false ||
-    get(options).transitions === false ||
     get(phase) === PHASES.initial
   ) {
     return;
@@ -146,19 +150,23 @@ function getMatchedIndexes($cards) {
   };
   $cards.forEach(() => group(count++));
   const groupedObject = groupedArray.reduce(
-    (result, { value, group }, index) => ({
-      ...result,
-      [group]: {
+    (result, { value, group }, index) => {
+      const indexes = result[group] ? result[group].indexes : [];
+      indexes.push(index);
+      result[group] = {
         value,
-        indexes: (result[group] ? result[group].indexes : []).concat(index),
-      },
-    }),
+        indexes,
+      };
+      return result;
+    },
     {}
   );
-  return Object.keys(groupedObject).reduce((result, group) => {
+  const matchedIndexes = Object.keys(groupedObject).reduce((result, group) => {
     const { value, indexes } = groupedObject[group];
-    return value === indexes.length ? result.concat(indexes) : result;
+    if (value === indexes.length) result.push(...indexes);
+    return result;
   }, []);
+  return matchedIndexes;
 }
 
 function getCardsMatched($cards, matchedIndexes) {
@@ -219,16 +227,18 @@ function doEnergyLogic({ buffer, value }) {
       : buffer;
   if ($phase === PHASES.extra) {
     if (buffer === 0) {
-      delayTransition(() => phase.set(PHASES.total), 800);
+      checkTransition(() => phase.set(PHASES.total), 800);
       return;
     }
     log.update(($log) => {
-      const [{ extra }] = $log.slice(-1);
-      return $log.slice(0, -1).concat({ extra: extra - diff });
+      const lastIndex = $log.length - 1;
+      const { extra } = $log[lastIndex];
+      $log[lastIndex] = { extra: extra - diff };
+      return $log;
     });
   }
   if (buffer === 0) return;
-  delayTransition(
+  checkTransition(
     () => {
       energy.set({
         buffer: buffer - diff,
@@ -286,8 +296,8 @@ function doBlinkPhase() {
       (result, index) => result + $cards[index].value,
       0
     );
-    delayTransition(() => energy.set({ buffer, value }), 400);
-    delayTransition(() => phase.set(PHASES.match), 800);
+    checkTransition(() => energy.set({ buffer, value }), 400);
+    checkTransition(() => phase.set(PHASES.match), 800);
     checkSound([playSoundWordUp, playSoundBlink]);
     return;
   }
@@ -309,17 +319,20 @@ function doBlinkPhase() {
 function doMatchPhase() {
   cards.update(($cards) => getCardsMatched($cards, get(matchedIndexes)));
   matchedIndexes.set([]);
-  delayTransition(() => phase.set(PHASES.fall), 400);
+  checkTransition(() => phase.set(PHASES.fall), 400);
 }
 
 function doFallPhase() {
   cards.update(($cards) => getCardsFallen($cards));
-  delayTransition(() => phase.set(PHASES.blink), 400);
+  checkTransition(() => phase.set(PHASES.blink), 400);
 }
 
 function doExtraPhase() {
   energy.update(({ value }) => ({ buffer: 100 - value, value }));
-  log.update(($log) => $log.concat({ extra: 0 }));
+  log.update(($log) => {
+    $log.push({ extra: 0 });
+    return $log;
+  });
   checkSound(playSoundWordUp);
 }
 
@@ -333,7 +346,7 @@ function doTotalPhase() {
     value,
   }));
   checkLocalScore(KEYS.highTotal, total);
-  delayTransition(() => phase.set(PHASES.score), get(log).length > 1 ? 800 : 0);
+  checkTransition(() => phase.set(PHASES.score), get(log).length > 1 ? 800 : 0);
   checkSound(playSoundWordUp);
 }
 
@@ -345,7 +358,7 @@ function doScorePhase() {
 
 function doGameOverPhase() {
   overlay.set(true);
-  delayTransition(() => {
+  checkTransition(() => {
     energy.update(({ value }) => ({
       buffer: -value,
       value,
@@ -408,7 +421,7 @@ function doScoreLogic({ buffer, value }) {
   if ($phase !== PHASES.gameover && $phase !== PHASES.score) return;
   if (buffer === 0) {
     if ($phase === PHASES.gameover) return;
-    delayTransition(() => {
+    checkTransition(() => {
       log.set([]);
       phase.set(PHASES.idle);
       checkSound(playSoundFadeIn);
@@ -421,7 +434,7 @@ function doScoreLogic({ buffer, value }) {
         ? sign(buffer)
         : getDiffFromBuffer(buffer)
       : buffer;
-  delayTransition(
+  checkTransition(
     () => {
       score.set({
         buffer: buffer - diff,
@@ -436,9 +449,9 @@ function doScoreLogic({ buffer, value }) {
 /* SEED LOGIC *****************************************************************/
 
 function getInitialRandoms(seed) {
-  let count = 0,
-    result = [getRandom(seed)];
-  while (count++ < 5) result = result.concat(getRandom(count * result[0]));
+  let count = 0;
+  const result = [getRandom(seed)];
+  while (count++ < 5) result.push(getRandom(count * result[0]));
   return result;
 }
 
