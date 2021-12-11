@@ -542,12 +542,12 @@ button:active {
   height: 7rem;
 }
 
-.log .combo::before {
+.log .row::before {
   content: counter(num) "[";
   counter-increment: num;
 }
 
-.log .combo::after {
+.log .row::after {
   content: "]=";
 }
 

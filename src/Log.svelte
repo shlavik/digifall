@@ -9,39 +9,39 @@
 {#if $log.length > 0}
   <ol class="log">
     {#if $phase !== PHASES.score}
-      {#each $log as { extra, sum, ...combo }, index1}
+      {#each $log as { extra, sum, ...row }, logIndex}
         <li
-          class="combo"
+          class="row"
           in:slide={checkTransition({ duration: 100 })}
           out:fade={checkTransition({ duration: 200 })}
         >
-          {#each [Object.keys(combo)] as comboKeys}
-            {#each comboKeys as key, index2}
-              <span class="value color-{key}">{combo[key]}</span>
-              {#if index2 < comboKeys.length - 1}
+          {#each [Object.keys(row)] as rowKeys}
+            {#each rowKeys as key, rowIndex}
+              <span class="value color-{key}">{row[key]}</span>
+              {#if rowIndex < rowKeys.length - 1}
                 <span class="plus">+</span>
               {/if}
             {/each}
           {/each}
           {#if extra === undefined}
-            <span class="sum">{(index1 + 1) * sum}</span>
+            <span class="sum">{(logIndex + 1) * sum}</span>
           {:else}
             <span class="extra" style={`color: ${$randomColor}`}>{extra}</span>
-            <span class="sum">{(index1 + 1) * extra}</span>
+            <span class="sum">{(logIndex + 1) * extra}</span>
           {/if}
         </li>
       {/each}
     {/if}
-    {#if $phase === PHASES.total || $phase === PHASES.score}
+    {#if $phase === PHASES.combo || $phase === PHASES.score}
       {#each [$log.length === 1] as collapse}
         <li
           class:collapse
           in:slide={checkTransition({ duration: collapse ? 0 : 100 })}
           out:fade={checkTransition({ duration: 200 })}
         >
-          {#if $phase === PHASES.total}
+          {#if $phase === PHASES.combo}
             <span out:fade={checkTransition({ duration: 200 })}>
-              {collapse ? "" : "total:"}
+              {collapse ? "" : "combo:"}
             </span>
           {/if}
           <span class="sum">

@@ -77,39 +77,22 @@ export function getArrayFromBase64(base64) {
 
 /* CARDS LOGIC ****************************************************************/
 
-function getCardsPlused($cards, $plusIndex) {
-  return $cards.map((card, index) =>
-    $plusIndex === index && card.y < 6
-      ? {
-          x: card.x,
-          y: card.y,
-          value: card.value < 9 ? card.value + 1 : 0,
-          duration: 0,
-        }
-      : card
-  );
-}
-
-function getFieldUndefined() {
-  return Array(6)
+function getFieldFromCards($cards) {
+  const field = Array(6)
     .fill()
     .map(() => Array(12).fill());
-}
-
-function getFieldIndexes($cards) {
-  const field = getFieldUndefined();
   $cards.forEach(({ x, y }, index) => (field[x][y] = index));
   return field;
 }
 
 function getCardsFallen($cards) {
+  const field = getFieldFromCards($cards);
   const { transitions } = get(options);
   const result = [];
   const set = new Set();
-  const field = getFieldIndexes($cards);
-  field.forEach((col) => {
+  field.forEach((column) => {
     let count = 0;
-    col.forEach((index, y) => {
+    column.forEach((index, y) => {
       if (index === undefined) return ++count;
       const { x, value } = $cards[index];
       const duration = !movesInitial && transitions ? 100 * sqrt(2 * count) : 0;
@@ -129,7 +112,7 @@ function getCardsFallen($cards) {
 }
 
 function getMatchedIndexes($cards) {
-  const field = getFieldIndexes($cards);
+  const field = getFieldFromCards($cards);
   let groupedArray = [];
   let count = 0;
   const group = (index) => {
@@ -169,7 +152,7 @@ function getMatchedIndexes($cards) {
   return matchedIndexes;
 }
 
-function getCardsMatched($cards, matchedIndexes) {
+function getMatchedCards($cards, $matchedIndexes) {
   const counts = [0, 0, 0, 0, 0, 0];
   const getNextY = (nextX) =>
     counts[nextX] +
@@ -177,7 +160,7 @@ function getCardsMatched($cards, matchedIndexes) {
       .filter(({ x }) => x === nextX)
       .sort(({ y: y1 }, { y: y2 }) => y2 - y1)[0].y;
   return $cards.map((card, index) => {
-    if (matchedIndexes.includes(index) && card.y < 6) {
+    if (card.y < 6 && $matchedIndexes.includes(index)) {
       ++counts[card.x];
       return {
         x: card.x,
@@ -199,7 +182,7 @@ function checkLocalScore(key, value) {
   leaderboard.set({
     ...$leaderboard,
     [KEYS.local]: {
-      ...$leaderboard.local,
+      ...$leaderboard[KEYS.local],
       [key]: {
         [value]: {
           moves: get(moves),
@@ -227,7 +210,7 @@ function doEnergyLogic({ buffer, value }) {
       : buffer;
   if ($phase === PHASES.extra) {
     if (buffer === 0) {
-      checkTransition(() => phase.set(PHASES.total), 800);
+      checkTransition(() => phase.set(PHASES.combo), 800);
       return;
     }
     log.update(($log) => {
@@ -271,8 +254,17 @@ function doIdlePhase() {
 }
 
 function doPlusPhase() {
-  cards.update(($cards) => getCardsPlused($cards, get(plusIndex)));
-  plusIndex.set(undefined);
+  plusIndex.update(($plusIndex) => {
+    cards.update(($cards) => {
+      const card = $cards[$plusIndex];
+      if (card) {
+        card.value = card.value < 9 ? card.value + 1 : 0;
+        card.duration = 0;
+      }
+      return $cards;
+    });
+    return undefined;
+  });
   phase.set(PHASES.blink);
 }
 
@@ -305,20 +297,22 @@ function doBlinkPhase() {
     phase.set(PHASES.extra);
     return;
   }
-  if (value < 10) {
-    phase.set(PHASES.gameover);
+  if (get(log).length > 0) {
+    phase.set(PHASES.combo);
     return;
   }
-  if (get(log).length > 0) {
-    phase.set(PHASES.total);
+  if (value < 10) {
+    phase.set(PHASES.gameover);
     return;
   }
   phase.set(PHASES.idle);
 }
 
 function doMatchPhase() {
-  cards.update(($cards) => getCardsMatched($cards, get(matchedIndexes)));
-  matchedIndexes.set([]);
+  matchedIndexes.update(($matchedIndexes) => {
+    cards.update(($cards) => getMatchedCards($cards, $matchedIndexes));
+    return [];
+  });
   checkTransition(() => phase.set(PHASES.fall), 400);
 }
 
@@ -336,16 +330,16 @@ function doExtraPhase() {
   checkSound(playSoundWordUp);
 }
 
-function doTotalPhase() {
-  const total = get(log).reduce(
+function doComboPhase() {
+  const combo = get(log).reduce(
     (result, { extra, sum }, index) => result + (index + 1) * (sum || extra),
     0
   );
   score.update(({ value }) => ({
-    buffer: total,
+    buffer: combo,
     value,
   }));
-  checkLocalScore(KEYS.highTotal, total);
+  checkLocalScore(KEYS.highCombo, combo);
   checkTransition(() => phase.set(PHASES.score), get(log).length > 1 ? 800 : 0);
   checkSound(playSoundWordUp);
 }
@@ -359,6 +353,7 @@ function doScorePhase() {
 function doGameOverPhase() {
   overlay.set(true);
   checkTransition(() => {
+    if (!get(overlay)) return;
     energy.update(({ value }) => ({
       buffer: -value,
       value,
@@ -380,7 +375,7 @@ function doPhaseLogic($phase) {
     [PHASES.match]: doMatchPhase,
     [PHASES.fall]: doFallPhase,
     [PHASES.extra]: doExtraPhase,
-    [PHASES.total]: doTotalPhase,
+    [PHASES.combo]: doComboPhase,
     [PHASES.score]: doScorePhase,
     [PHASES.gameover]: doGameOverPhase,
   }[$phase]());
@@ -423,7 +418,7 @@ function doScoreLogic({ buffer, value }) {
     if ($phase === PHASES.gameover) return;
     checkTransition(() => {
       log.set([]);
-      phase.set(PHASES.idle);
+      phase.set(get(energy).value < 10 ? PHASES.gameover : PHASES.idle);
       checkSound(playSoundFadeIn);
     }, 200);
     return;
@@ -448,15 +443,15 @@ function doScoreLogic({ buffer, value }) {
 
 /* SEED LOGIC *****************************************************************/
 
-function getInitialRandoms(seed) {
+function getInitialRandoms($seed) {
   let count = 0;
-  const result = [getRandom(seed)];
+  const result = [getRandom($seed)];
   while (count++ < 5) result.push(getRandom(count * result[0]));
   return result;
 }
 
-function createGetNextCardValue(seed) {
-  let randoms = getInitialRandoms(seed);
+function createGetNextCardValue($seed) {
+  let randoms = getInitialRandoms($seed);
   return (column) => {
     if (column < 0 || 5 < column) return;
     let result = randoms[column];
@@ -465,9 +460,9 @@ function createGetNextCardValue(seed) {
   };
 }
 
-function getFieldRandom() {
+function getInitialCards() {
   return Array(36)
-    .fill(undefined)
+    .fill()
     .map((_, index) => ({
       x: trunc(index / 6),
       y: index % 6,
@@ -476,18 +471,18 @@ function getFieldRandom() {
     }));
 }
 
-function getFieldPrepared(field) {
+function getPreparedCards($cards) {
   while (true) {
-    const matchedIndexes = getMatchedIndexes(field);
-    if (matchedIndexes.length === 0) return field;
-    field = getCardsFallen(getCardsMatched(field, matchedIndexes));
+    const $matchedIndexes = getMatchedIndexes($cards);
+    if ($matchedIndexes.length === 0) return $cards;
+    $cards = getCardsFallen(getMatchedCards($cards, $matchedIndexes));
   }
 }
 
 function doSeedLogic($seed) {
   if (!$seed) return;
   getNextCardValue = createGetNextCardValue($seed);
-  cards.set(getFieldPrepared(getFieldRandom()));
+  cards.set(getPreparedCards(getInitialCards()));
   const $moves = get(moves);
   if (!$moves) return;
   const movesArray = Array.isArray($moves)
@@ -515,6 +510,12 @@ export function initCore() {
 
 function shuffleBoard(count) {
   phase.set(INITIAL_VALUES.phase);
+  log.set(INITIAL_VALUES.log);
+  matchedIndexes.set(INITIAL_VALUES.matchedIndexes);
+  moves.set(INITIAL_VALUES.moves);
+  plusIndex.set(INITIAL_VALUES.plusIndex);
+  randomColor.set(INITIAL_VALUES.randomColor);
+  score.set(INITIAL_VALUES.score);
   timestamp.set(Date.now());
   if (count-- > 0) setTimeout(() => shuffleBoard(count), 64);
 }
@@ -522,13 +523,7 @@ function shuffleBoard(count) {
 export function initGame(showOverlay = false, count = 8) {
   checkSound(playSoundGenerate);
   energy.set(INITIAL_VALUES.energy);
-  log.set(INITIAL_VALUES.log);
-  matchedIndexes.set(INITIAL_VALUES.matchedIndexes);
-  moves.set(INITIAL_VALUES.moves);
   overlay.set(showOverlay);
-  plusIndex.set(INITIAL_VALUES.plusIndex);
-  randomColor.set(INITIAL_VALUES.randomColor);
-  score.set(INITIAL_VALUES.score);
   const { playerName, transitions } = get(options);
   shuffleBoard(playerName && transitions ? count : 0);
 }

@@ -17,8 +17,8 @@
   function nextScore() {
     key = {
       [KEYS.score]: KEYS.highScore,
-      [KEYS.highScore]: KEYS.highTotal,
-      [KEYS.highTotal]: KEYS.score,
+      [KEYS.highScore]: KEYS.highCombo,
+      [KEYS.highCombo]: KEYS.score,
     }[key];
     visible = true;
     clearTimeout(timeoutId);

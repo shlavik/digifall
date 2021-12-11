@@ -34,8 +34,8 @@ export const CSS_VARS = {
 };
 
 export const KEYS = {
+  highCombo: "hi-combo",
   highScore: "hi-score",
-  highTotal: "hi-total",
   leaderboard: "leaderboard",
   local: "local",
   moves: "moves",
@@ -54,6 +54,7 @@ export const MENU = {
 
 export const PHASES = {
   blink: "blink",
+  combo: "combo",
   extra: "extra",
   fall: "fall",
   gameover: "gameover",
@@ -62,7 +63,6 @@ export const PHASES = {
   match: "match",
   plus: "plus",
   score: "score",
-  total: "total",
 };
 
 export const INITIAL_VALUES = {
@@ -73,10 +73,10 @@ export const INITIAL_VALUES = {
   },
   [KEYS.leaderboard]: {
     [KEYS.highScore]: {},
-    [KEYS.highTotal]: {},
+    [KEYS.highCombo]: {},
     [KEYS.local]: {
       [KEYS.highScore]: {},
-      [KEYS.highTotal]: {},
+      [KEYS.highCombo]: {},
     },
   },
   log: [],

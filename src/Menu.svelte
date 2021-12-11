@@ -106,8 +106,6 @@
           maxlength="24"
           bind:value={playerName}
         />
-        <input type="checkbox" id="sound" bind:checked={$options.sound} />
-        <label for="sound">sound fx</label>
         <input type="checkbox" id="shadows" bind:checked={$options.shadows} />
         <label for="shadows">shadows</label>
         <input
@@ -122,6 +120,8 @@
           bind:checked={$options.transitions}
         />
         <label for="transitions">transitions</label>
+        <input type="checkbox" id="sound" bind:checked={$options.sound} />
+        <label for="sound">sound fx</label>
         <button on:click={saveOptions}>back</button>
       </div>
     </div>

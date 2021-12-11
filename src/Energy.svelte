@@ -4,7 +4,7 @@
 
   $: ({ value } = $energy);
   $: extra = value > 100;
-  $: warning =  value < 20 && $phase === PHASES.idle;
+  $: warning = value < 20 && $phase === PHASES.idle;
   $: leftBarStyle = `
     z-index: ${extra ? 0 : 1};
     flex: ${(extra ? 200 - value : value) / 100};
@@ -28,12 +28,12 @@
 <div class="energy">
   <div class="left-bar" class:warning style={leftBarStyle}>
     <span class="left-value" class:warning style={leftValueStyle}>
-      {$energy.value}
+      {value}
     </span>
   </div>
   <div class="right-bar" style={rightBarStyle}>
     <span class="right-value" class:warning style={rightValueStyle}>
-      {$energy.value}
+      {value}
     </span>
   </div>
 </div>
