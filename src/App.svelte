@@ -7,7 +7,13 @@
 
   import { COLORS, PHASES, CSS_VARS, CSS_STYLES } from "./constants.js";
   import { checkTransition } from "./core";
-  import { energy, options, overlay, phase, randomColor } from "./stores.js";
+  import game, {
+    energy,
+    options,
+    overlay,
+    phase,
+    randomColor,
+  } from "./stores.js";
 
   onstorage = function syncTabs() {
     if (document.hasFocus()) return;
@@ -67,7 +73,10 @@
 <div class="app">
   <Game />
   {#if $overlay}
-    <div class="overlay" transition:fade={checkTransition({ duration: 200 })}>
+    <div
+      class="overlay"
+      transition:fade={checkTransition(game, { duration: 200 })}
+    >
       {#if $phase === PHASES.gameover}
         <GameOver />
       {:else}

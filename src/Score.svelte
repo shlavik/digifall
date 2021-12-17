@@ -3,7 +3,7 @@
 
   import { KEYS } from "./constants.js";
   import { checkTransition } from "./core.js";
-  import { leaderboard, score } from "./stores.js";
+  import game, { leaderboard, score } from "./stores.js";
 
   let key = KEYS.score;
   let timeoutId;
@@ -22,7 +22,7 @@
     }[key];
     visible = true;
     clearTimeout(timeoutId);
-    timeoutId = setTimeout(resetMode, 3000);
+    timeoutId = setTimeout(resetMode, 3200);
   }
 
   $: value =
@@ -34,7 +34,7 @@
 {#key key}
   <span
     class="score"
-    in:blur={checkTransition({ duration: 600 })}
+    in:blur={checkTransition(game, { duration: 600 })}
     on:click={nextScore}
   >
     <span class="key" class:visible>{key}:</span>

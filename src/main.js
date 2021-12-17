@@ -1,7 +1,8 @@
 import App from "./App.svelte";
 import { initCore } from "./core.js";
+import game from "./stores.js";
 
-initCore();
+initCore(game);
 
 var app = new App({
   target: document.body,

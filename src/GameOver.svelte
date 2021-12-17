@@ -4,20 +4,21 @@
   import Energy from "./Energy.svelte";
   import Score from "./Score.svelte";
 
-  import { checkTransition, initGame } from "./core.js";
-  import { energy } from "./stores.js";
+  import { checkTransition, resetGame } from "./core.js";
+  import game, { energy } from "./stores.js";
 
   function startNewGame() {
-    initGame(false);
+    resetGame(game, false);
   }
 
-  $: gameOver = $energy.buffer === 0 && $energy.value === 0;
+  $: energyOut = $energy.value === 0;
+  $: gameOver = energyOut && $energy.buffer === 0;
 </script>
 
-<div class="game-over content" in:blur={checkTransition({ delay: 200 })}>
+<div class="game-over content" in:blur={checkTransition(game, { delay: 200 })}>
   <div class="section-1">
     {#if gameOver}
-      <span class="big" in:blur={checkTransition({ delay: 600 })}>
+      <span class="big" in:blur={checkTransition(game, { delay: 600 })}>
         game over
       </span>
     {/if}
@@ -27,19 +28,19 @@
   </div>
   <div class="section-3">
     {#if gameOver}
-      <div class="col" in:blur={checkTransition({ delay: 600 })}>
+      <div class="col" in:blur={checkTransition(game, { delay: 600 })}>
         <button on:click={startNewGame}>new game</button>
       </div>
     {/if}
   </div>
   <div class="section-4">
     <Energy />
-    {#if $energy.value === 0}
+    {#if energyOut}
       <span class="energy-out">
         {#each "ut of energy" as letter, index}
           <span
             class="letter"
-            in:fly={checkTransition({
+            in:fly={checkTransition(game, {
               delay: index * 50,
               duration: 200,
               y: 50,

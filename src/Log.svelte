@@ -3,7 +3,9 @@
 
   import { PHASES } from "./constants.js";
   import { checkTransition } from "./core.js";
-  import { log, phase, randomColor, score } from "./stores.js";
+  import game, { log, phase, randomColor, score } from "./stores.js";
+
+  $: style = `color: ${$randomColor}`;
 </script>
 
 {#if $log.length > 0}
@@ -12,8 +14,8 @@
       {#each $log as { extra, sum, ...row }, logIndex}
         <li
           class="row"
-          in:slide={checkTransition({ duration: 100 })}
-          out:fade={checkTransition({ duration: 200 })}
+          in:slide={checkTransition(game, { duration: 100 })}
+          out:fade={checkTransition(game, { duration: 200 })}
         >
           {#each [Object.keys(row)] as rowKeys}
             {#each rowKeys as key, rowIndex}
@@ -26,7 +28,7 @@
           {#if extra === undefined}
             <span class="sum">{(logIndex + 1) * sum}</span>
           {:else}
-            <span class="extra" style={`color: ${$randomColor}`}>{extra}</span>
+            <span class="extra" {style}>{extra}</span>
             <span class="sum">{(logIndex + 1) * extra}</span>
           {/if}
         </li>
@@ -36,11 +38,11 @@
       {#each [$log.length === 1] as collapse}
         <li
           class:collapse
-          in:slide={checkTransition({ duration: collapse ? 0 : 100 })}
-          out:fade={checkTransition({ duration: 200 })}
+          in:slide={checkTransition(game, { duration: collapse ? 0 : 100 })}
+          out:fade={checkTransition(game, { duration: 200 })}
         >
           {#if $phase === PHASES.combo}
-            <span out:fade={checkTransition({ duration: 200 })}>
+            <span out:fade={checkTransition(game, { duration: 200 })}>
               {collapse ? "" : "combo:"}
             </span>
           {/if}

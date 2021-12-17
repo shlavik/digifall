@@ -1,10 +1,9 @@
 import { derived, get, writable } from "svelte/store";
 
 import { INITIAL_VALUES, KEYS } from "./constants.js";
+import { getSeed } from "./core.js";
 
-const { MAX_SAFE_INTEGER } = Number;
-
-export function localStorageStore(key, initialValue) {
+function localStorageStore(key, initialValue) {
   const store = writable(initialValue);
   const { set, subscribe } = store;
   const json = localStorage.getItem(key);
@@ -43,18 +42,23 @@ export const score = writable(INITIAL_VALUES.score);
 export const timestamp = localStorageStore(KEYS.timestamp, Date.now());
 
 export const seed = derived(
-  [timestamp, options],
-  ([$timestamp, { playerName }]) =>
-    typeof $timestamp === "number" &&
-    $timestamp > 0 &&
-    $timestamp < Infinity &&
-    typeof playerName === "string" &&
-    playerName.length > 0 &&
-    [
-      $timestamp,
-      ...Array.from(playerName).map((letter) => letter.charCodeAt()),
-    ].reduce((result, item) => {
-      const number = Number(`${result}${item}`);
-      return number > MAX_SAFE_INTEGER ? number % MAX_SAFE_INTEGER : number;
-    })
+  [options, timestamp],
+  ([{ playerName }, $timestamp]) => getSeed(playerName, $timestamp)
 );
+
+export default {
+  cards,
+  energy,
+  leaderboard,
+  log,
+  matchedIndexes,
+  moves,
+  options,
+  overlay,
+  phase,
+  plusIndex,
+  randomColor,
+  score,
+  seed,
+  timestamp,
+};

@@ -7,7 +7,7 @@
     getBase64FromArray,
   } from "./core.js";
   import { PHASES } from "./constants.js";
-  import {
+  import game, {
     cards,
     energy,
     log,
@@ -30,7 +30,7 @@
     movesArray.push($plusIndex);
     $moves = getBase64FromArray(movesArray);
     $energy = { ...$energy, buffer: -10 };
-    checkTransition(() => ($phase = PHASES.plus), 400);
+    checkTransition(game, () => ($phase = PHASES.plus), 400);
   }
 
   $: plusCard = $cards[$plusIndex];
