@@ -96,31 +96,29 @@ input[type="text"]::selection {
 }
 
 input[type="checkbox"] {
-  display: none;
+  appearance: none;
 }
 
 input[type="checkbox"] + label {
   position: relative;
-  color: var(--color-zero);
   cursor: pointer;
   text-indent: 0;
 }
 
-input[type="checkbox"]:checked + label {
-  color: white;
-}
-
-input[type="checkbox"] + label::before {
+input[type="checkbox"] + label::after {
   position: absolute;
   right: 3rem;
-  color: var(--color-zero);
   content: "o";
   letter-spacing: 0;
 }
 
-input[type="checkbox"]:checked + label::before {
-  color: white;
+input[type="checkbox"]:checked + label::after {
   content: "¤";
+}
+
+input[type="checkbox"]:disabled + label {
+  color: var(--color-zero);
+  cursor: not-allowed;
 }
 
 button {

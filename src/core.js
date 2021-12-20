@@ -45,9 +45,11 @@ export function checkTransition(game, value, timeout = 0) {
 }
 
 export function checkSound(game, callback) {
+  const { sound, transitions } = get(game.options);
   if (
+    !sound ||
+    !transitions ||
     game.movesInitial !== null ||
-    get(game.options).sound === false ||
     get(game.phase) === PHASES.initial
   ) {
     return;
@@ -83,7 +85,7 @@ function getFieldFromCards($cards) {
   return field;
 }
 
-function getCardsFallen(game, $cards) {
+function getFallenCards(game, $cards) {
   const field = getFieldFromCards($cards);
   const result = [];
   const set = new Set();
@@ -106,7 +108,7 @@ function getCardsFallen(game, $cards) {
     });
   });
   checkSound(game, () =>
-    set.forEach((delay) => setTimeout(() => playSoundKick(), delay))
+    set.forEach((delay) => setTimeout(playSoundKick, delay))
   );
   return result;
 }
@@ -304,7 +306,7 @@ function doMatchPhase(game) {
 }
 
 function doFallPhase(game) {
-  game.cards.update(($cards) => getCardsFallen(game, $cards));
+  game.cards.update(($cards) => getFallenCards(game, $cards));
   checkTransition(game, () => game.phase.set(PHASES.blink), 400);
 }
 
@@ -454,21 +456,25 @@ function doScoreLogic(game) {
 
 /* SEED LOGIC *****************************************************************/
 
-export function getSeed(playerName, timeStamp) {
+export function hash(...args) {
   const { MAX_SAFE_INTEGER } = Number;
+  return args.reduce((result, item) => {
+    const number = parseInt(`${result}${item}`, 10);
+    return number > MAX_SAFE_INTEGER ? number % MAX_SAFE_INTEGER : number;
+  }, 0);
+}
+
+export function getSeed(playerName, timeStamp) {
   return (
+    playerName &&
     typeof playerName === "string" &&
-    playerName.length > 0 &&
+    timeStamp &&
     typeof timeStamp === "number" &&
-    timeStamp > 0 &&
     timeStamp < Infinity &&
-    [
+    hash(
       timeStamp,
-      ...Array.from(playerName).map((letter) => letter.charCodeAt()),
-    ].reduce((result, item) => {
-      const number = Number(`${result}${item}`);
-      return number > MAX_SAFE_INTEGER ? number % MAX_SAFE_INTEGER : number;
-    })
+      ...Array.from(playerName).map((letter) => letter.charCodeAt())
+    )
   );
 }
 
@@ -504,7 +510,7 @@ function getPreparedCards(game, $cards) {
   while (true) {
     const $matchedIndexes = getMatchedIndexes($cards);
     if ($matchedIndexes.length === 0) return $cards;
-    $cards = getCardsFallen(
+    $cards = getFallenCards(
       game,
       getMatchedCards(game, $cards, $matchedIndexes)
     );
@@ -531,10 +537,21 @@ function doSeedLogic(game) {
 
 /* CORE INITIALIZATION ********************************************************/
 
+function updatePreviousScore(game) {
+  const $leaderboard = get(game.leaderboard);
+  game.previousHighCombo = Number(
+    Object.keys($leaderboard[KEYS.local][KEYS.highCombo] || {})[0] || 0
+  );
+  game.previousHighScore = Number(
+    Object.keys($leaderboard[KEYS.local][KEYS.highScore] || {})[0] || 0
+  );
+}
+
 export function initCore(game) {
   game.getNextCardValue = () => 0;
   game.moveCount = 0;
   game.movesInitial = null;
+  updatePreviousScore(game);
   game.energy.subscribe(() => doEnergyLogic(game));
   game.phase.subscribe(() => doPhaseLogic(game));
   game.plusIndex.subscribe(() => doPlusIndexLogic(game));
@@ -559,6 +576,7 @@ function shuffleBoard(game, count) {
 
 export function resetGame(game, showOverlay = false, count = 8) {
   checkSound(game, playSoundGenerate);
+  updatePreviousScore(game);
   game.energy.set(INITIAL_VALUES.energy);
   game.overlay.set(showOverlay);
   const { playerName, transitions } = get(game.options);

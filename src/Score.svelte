@@ -1,43 +1,70 @@
 <script>
   import { blur } from "svelte/transition";
 
-  import { KEYS } from "./constants.js";
+  import { KEYS, PHASES } from "./constants.js";
   import { checkTransition } from "./core.js";
-  import game, { leaderboard, score } from "./stores.js";
+  import game, { leaderboard, phase, score } from "./stores.js";
+
+  export let style;
+  export let newRecordHighCombo = false;
+  export let newRecordHighScore = false;
+  export let newRecord = false;
+  export let overlaid = false;
 
   let key = KEYS.score;
   let timeoutId;
   let visible = false;
 
-  function resetMode() {
+  function resetScoreMode() {
     key = KEYS.score;
-    visible = false;
+    visible = newRecord;
+  }
+
+  function getKeyRoute() {
+    return newRecord
+      ? {
+          [KEYS.highScore]: newRecordHighCombo
+            ? KEYS.highCombo
+            : KEYS.highScore,
+          [KEYS.highCombo]: newRecordHighScore
+            ? KEYS.highScore
+            : KEYS.highCombo,
+        }
+      : {
+          [KEYS.score]: KEYS.highScore,
+          [KEYS.highScore]: KEYS.highCombo,
+          [KEYS.highCombo]: KEYS.score,
+        };
   }
 
   function nextScore() {
-    key = {
-      [KEYS.score]: KEYS.highScore,
-      [KEYS.highScore]: KEYS.highCombo,
-      [KEYS.highCombo]: KEYS.score,
-    }[key];
+    key = getKeyRoute()[key];
     visible = true;
     clearTimeout(timeoutId);
-    timeoutId = setTimeout(resetMode, 3200);
+    if (newRecord) return;
+    timeoutId = setTimeout(resetScoreMode, 3200);
   }
 
   $: value =
     key === KEYS.score
       ? $score.value
       : Object.keys($leaderboard[KEYS.local][key] || {})[0] || 0;
+  $: if (newRecord) {
+    key = newRecordHighScore ? KEYS.highScore : KEYS.highCombo;
+    visible = true;
+  }
 </script>
 
 {#key key}
   <span
     class="score"
-    in:blur={checkTransition(game, { duration: 600 })}
+    {style}
+    in:blur={checkTransition(game, { duration: 400 })}
     on:click={nextScore}
   >
     <span class="key" class:visible>{key}:</span>
-    <span class="value">{value}</span>
+    {#if overlaid || $phase !== PHASES.gameover}
+      <span class="value">{value}</span>
+    {/if}
   </span>
 {/key}

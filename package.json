@@ -1,6 +1,6 @@
 {
   "name": "digifall",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "icon": "icon.png",
   "scripts": {
     "build": "rollup -c",

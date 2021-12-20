@@ -24,7 +24,7 @@ export async function isRecordValid(
   }
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject("RECORD VALIDATION: Timeout!"), 800);
-    const game = {
+    const game = initCore({
       cards: writable(INITIAL_VALUES.cards),
       energy: writable(INITIAL_VALUES.energy),
       leaderboard: writable(INITIAL_VALUES.leaderboard),
@@ -35,12 +35,9 @@ export async function isRecordValid(
       overlay: writable(INITIAL_VALUES.overlay),
       phase: writable(INITIAL_VALUES.phase),
       plusIndex: writable(INITIAL_VALUES.plusIndex),
-      randomColor: readable(INITIAL_VALUES.randomColor),
       score: writable(INITIAL_VALUES.score),
       seed: readable(getSeed(playerName, timestamp)),
-      timestamp: readable(timestamp),
-    };
-    initCore(game);
+    });
     game.leaderboard.subscribe(($leaderboard) => {
       const { movesInitial, phase } = game;
       if (movesInitial !== null && get(phase) !== PHASES.gameover) return;

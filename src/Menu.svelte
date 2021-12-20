@@ -46,7 +46,6 @@
       .toLowerCase()
       .replace(/[^a-z0-9\@\&\$\!\?\-\+\=\.\:\/\_]/g, "");
   }
-  $: if (!$options.transitions) $options.sound = false;
 </script>
 
 {#if menu === MENU.name}
@@ -109,12 +108,14 @@
           maxlength="24"
           bind:value={playerName}
         />
-        <input type="checkbox" id="shadows" bind:checked={$options.shadows} />
-        <label for="shadows">shadows</label>
+        <input type="checkbox" id="potato" bind:checked={$options.potato} />
+        <label for="potato">potato</label>
         <input
           type="checkbox"
           id="seedground"
-          bind:checked={$options.seedground}
+          disabled={!$options.landscape}
+          checked={$options.landscape && $options.seedground}
+          on:click={() => ($options.seedground = !$options.seedground)}
         />
         <label for="seedground">seedground</label>
         <input
@@ -123,7 +124,13 @@
           bind:checked={$options.transitions}
         />
         <label for="transitions">transitions</label>
-        <input type="checkbox" id="sound" bind:checked={$options.sound} />
+        <input
+          type="checkbox"
+          id="sound"
+          disabled={!$options.transitions}
+          checked={$options.transitions && $options.sound}
+          on:click={() => ($options.sound = !$options.sound)}
+        />
         <label for="sound">sound fx</label>
         <button on:click={saveOptions}>back</button>
       </div>

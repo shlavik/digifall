@@ -23,24 +23,30 @@
   function updatePixelSize() {
     const { style, offsetHeight, offsetWidth } = document.documentElement;
     const ratio = offsetHeight / offsetWidth;
-    const size = ratio > 1.5 ? offsetWidth / 128 : offsetHeight / 192;
+    const landscape = ratio < 1.5;
+    const size = landscape ? offsetHeight / 192 : offsetWidth / 128;
     style.setProperty(CSS_VARS.pixel, size + "px");
+    $options.landscape = landscape;
   }
 
   updatePixelSize();
   onresize = updatePixelSize;
 
-  function updateRandomColor({ value }) {
-    if (value > 100 || $phase !== PHASES.score) {
-      const hue = Math.trunc(360 * Math.random());
-      $randomColor = `hsl(${hue}, 100%, 50%)`;
-      requestAnimationFrame(updateRandomColor);
-    } else {
+  function updateRandomColor() {
+    if ($phase === PHASES.idle) {
       $randomColor = COLORS.white;
+      return;
     }
+    const hue = Math.trunc(360 * Math.random());
+    $randomColor = `hsl(${hue}, 100%, 50%)`;
+    requestAnimationFrame(updateRandomColor);
   }
 
-  $: updateRandomColor($energy);
+  energy.subscribe(({ value }) => {
+    if (value > 0 && value < 101) return;
+    if ($randomColor !== COLORS.white) return;
+    updateRandomColor();
+  });
 
   function setShadowStyle(
     shadows,
@@ -67,7 +73,7 @@
     ].forEach((args) => setShadowStyle(shadows, ...args));
   }
 
-  $: updateShadowStyle($options.shadows);
+  $: updateShadowStyle(!$options.potato);
 </script>
 
 <div class="app">

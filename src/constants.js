@@ -84,10 +84,10 @@ export const INITIAL_VALUES = {
   [KEYS.moves]: "",
   [KEYS.options]: {
     [KEYS.playerName]: "",
+    potato: false,
     seedground: true,
-    shadows: true,
-    sound: false,
     transitions: true,
+    sound: true,
   },
   overlay: true,
   phase: PHASES.initial,

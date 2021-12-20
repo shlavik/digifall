@@ -12,9 +12,7 @@
     $overlay = true;
   }
 
-  $: style = (() => {
-    if (!$seed || !$options.seedground) return;
-    let random = $seed;
+  function getSeedgroundStyle(random) {
     const getNextRandom = () => (random = getRandom(random));
     const getColor = (lightness = 16) => {
       return `hsl(${getNextRandom() % 360},50%,${lightness}%)`;
@@ -38,10 +36,15 @@
         linear-gradient(90deg, transparent 50%, ${getColor()} 50%),
         linear-gradient(90deg, transparent 50%, ${getColor()} 50%);
       background-size: ${a}rem, ${b}rem, ${c}rem, ${d}rem;`;
-  })();
+  }
+
+  $: style =
+    $options.landscape && $options.seedground && $seed
+      ? getSeedgroundStyle($seed)
+      : undefined;
 </script>
 
-<div class="game" class:blur={$overlay && $options.shadows}>
+<div class="game" class:blur={$overlay && !$options.potato}>
   <div class="seedground" {style} />
   <div class="content">
     {#if $seed}
@@ -51,8 +54,10 @@
           class:screen={$log.length > 0}
           on:click={showMenu}
         >
-          <span class="big">digifall</span>
           <Log />
+          {#if !$overlay}
+            <span class="big">digifall</span>
+          {/if}
         </button>
       </div>
       <div class="section-2">
