@@ -2,8 +2,13 @@
   import { blur } from "svelte/transition";
 
   import { KEYS, PHASES } from "./constants.js";
-  import { checkTransition } from "./core.js";
-  import game, { leaderboard, phase, score } from "./stores.js";
+  import {
+    checkTransition,
+    leaderboard,
+    options,
+    phase,
+    score,
+  } from "./stores.js";
 
   export let style;
   export let newRecordHighCombo = false;
@@ -59,7 +64,7 @@
   <span
     class="score"
     {style}
-    in:blur={checkTransition(game, { duration: 400 })}
+    in:blur={checkTransition({ duration: 400 })}
     on:click={nextScore}
   >
     <span class="key" class:visible>{key}:</span>

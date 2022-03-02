@@ -26,14 +26,15 @@ body,
 }
 
 html {
-  --color-base: hsl(60, 20%, 60%);
-  --color-zero: hsl(60, 20%, 40%);
-  --color-dark: hsl(60, 20%, 25%);
-  --color-body: hsl(60, 20%, 10%);
-  --color-black-04: rgba(0, 0, 0, 0.4);
-  --color-black-08: rgba(0, 0, 0, 0.8);
+  --color-base: hsl(60deg 20% 60%);
+  --color-zero: hsl(60deg 20% 40%);
+  --color-dark: hsl(60deg 20% 25%);
+  --color-body: hsl(60deg 20% 10%);
+  --color-black-04: rgb(0 0 0 / 40%);
+  --color-black-08: rgb(0 0 0 / 80%);
   --pixel: 1px;
 
+  color-scheme: only light;
   font-size: var(--pixel);
 }
 
@@ -161,7 +162,6 @@ button:active {
 }
 
 .color-1 {
-  --color: #5dcc6c;
   --color: #90cc4d;
 }
 
@@ -178,7 +178,6 @@ button:active {
 }
 
 .color-5 {
-  --color: #cc3394;
   --color: #bd4fb3;
 }
 
@@ -289,6 +288,7 @@ button:active {
   z-index: 1;
   width: 21rem;
   height: 21rem;
+  box-sizing: content-box;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   background-color: var(--color);
@@ -297,13 +297,6 @@ button:active {
   font-size: 13rem;
   line-height: 21rem;
   text-align: center;
-}
-
-.card .current {
-  box-sizing: content-box;
-  -webkit-clip-path: circle(100%);
-  clip-path: circle(100%);
-  will-change: clip-path;
 }
 
 .card .next {
@@ -355,7 +348,7 @@ button:active {
   }
 
   to {
-    -webkit-clip-path: circle(0);
+    -webkit-clip-path: circle(0%);
     clip-path: circle(0);
   }
 }

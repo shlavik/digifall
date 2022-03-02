@@ -1,22 +1,19 @@
 {
   "name": "digifall",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "icon": "icon.png",
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
-    "start": "sirv"
+    "start": "parcel index.html",
+    "build": "parcel build src/main.js",
+    "prebuild": "shx rm -rf dist/*",
+    "sirv": "sirv --dev --host"
   },
   "dependencies": {
-    "@rollup/plugin-commonjs": "21.0.1",
-    "@rollup/plugin-json": "4.1.0",
-    "@rollup/plugin-node-resolve": "13.1.1",
     "howler": "2.2.3",
-    "rollup": "2.61.1",
-    "rollup-plugin-livereload": "2.0.5",
-    "rollup-plugin-svelte": "7.1.0",
-    "rollup-plugin-terser": "7.0.2",
-    "sirv-cli": "1.0.14",
-    "svelte": "3.44.3"
+    "parcel": "2.3.2",
+    "parcel-transformer-svelte": "1.2.3",
+    "shx": "0.3.4",
+    "sirv-cli": "2.0.2",
+    "svelte": "3.46.4"
   }
 }

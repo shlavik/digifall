@@ -1,13 +1,10 @@
 <script>
   import Card from "./Card.svelte";
 
+  import { PHASES } from "./constants.js";
+  import { getArrayFromBase64, getBase64FromArray } from "./core.js";
   import {
     checkTransition,
-    getArrayFromBase64,
-    getBase64FromArray,
-  } from "./core.js";
-  import { PHASES } from "./constants.js";
-  import game, {
     cards,
     energy,
     log,
@@ -30,7 +27,7 @@
     movesArray.push($plusIndex);
     $moves = getBase64FromArray(movesArray);
     $energy = { ...$energy, buffer: -10 };
-    checkTransition(game, () => ($phase = PHASES.plus), 400);
+    checkTransition(() => ($phase = PHASES.plus), 400);
   }
 
   $: plusCard = $cards[$plusIndex];

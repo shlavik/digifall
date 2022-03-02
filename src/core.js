@@ -33,12 +33,13 @@ export function getArrayFromBase64(base64) {
 
 export function checkTransition(game, value, timeout = 0) {
   const { transitions } = get(game.options);
-  if (typeof value === "function") {
+  const type = typeof value;
+  if (type === "function") {
     return transitions && game.movesInitial === null && timeout > 0
       ? setTimeout(value, timeout)
       : value();
   }
-  if (typeof value === "object") {
+  if (type === "object") {
     return transitions ? value : { duration: 0 };
   }
   return transitions ? value : 0;
@@ -78,9 +79,7 @@ function checkLocalScore(game, key, value) {
 /* CARDS LOGIC ****************************************************************/
 
 function getFieldFromCards($cards) {
-  const field = Array(6)
-    .fill()
-    .map(() => Array(12).fill());
+  const field = Array.from({ length: 6 }).map(() => Array.from({ length: 12 }));
   $cards.forEach(({ x, y }, index) => (field[x][y] = index));
   return field;
 }
@@ -496,14 +495,12 @@ function createGetNextCardValue($seed) {
 }
 
 function getInitialCards(game) {
-  return Array(36)
-    .fill()
-    .map((_, index) => ({
-      x: trunc(index / 6),
-      y: index % 6,
-      value: game.getNextCardValue(trunc(index / 6)),
-      duration: 0,
-    }));
+  return Array.from({ length: 36 }).map((_, index) => ({
+    x: trunc(index / 6),
+    y: index % 6,
+    value: game.getNextCardValue(trunc(index / 6)),
+    duration: 0,
+  }));
 }
 
 function getPreparedCards(game, $cards) {

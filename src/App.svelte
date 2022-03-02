@@ -6,8 +6,8 @@
   import Menu from "./Menu.svelte";
 
   import { COLORS, PHASES, CSS_VARS, CSS_STYLES } from "./constants.js";
-  import { checkTransition } from "./core";
-  import game, {
+  import {
+    checkTransition,
     energy,
     options,
     overlay,
@@ -79,10 +79,7 @@
 <div class="app">
   <Game />
   {#if $overlay}
-    <div
-      class="overlay"
-      transition:fade={checkTransition(game, { duration: 200 })}
-    >
+    <div class="overlay" transition:fade={checkTransition({ duration: 200 })}>
       {#if $phase === PHASES.gameover}
         <GameOver />
       {:else}

@@ -2,9 +2,9 @@
   import { blur } from "svelte/transition";
 
   import { MENU } from "./constants.js";
-  import { checkTransition, resetGame } from "./core.js";
-  import game, { options, overlay } from "./stores.js";
+  import { checkTransition, options, overlay, resetGame } from "./stores.js";
 
+  const duration = 400;
   let menu = MENU.main;
   let playerName = $options.playerName;
 
@@ -12,7 +12,7 @@
     if (!playerName) return;
     if (!$options.playerName) $options.playerName = playerName;
     menu = MENU.main;
-    resetGame(game, false);
+    resetGame(false);
   }
 
   function resumeGame() {
@@ -35,12 +35,12 @@
     menu = MENU.main;
     if (playerName === $options.playerName) return;
     $options.playerName = playerName;
-    resetGame(game, false);
+    resetGame(false);
   }
 
   $: if (playerName.length === 0 && menu === MENU.main) {
     menu = MENU.name;
-    resetGame(game, true);
+    resetGame(true);
   } else {
     playerName = playerName
       .toLowerCase()
@@ -68,7 +68,7 @@
     <div class="section-4" />
   </div>
 {:else if menu === MENU.main}
-  <div class="content" in:blur={checkTransition(game, { duration: 400 })}>
+  <div class="content" in:blur={checkTransition({ duration })}>
     <div class="section-1"><span class="big">digifall</span></div>
     <div class="section-2" />
     <div class="section-3">
@@ -82,7 +82,7 @@
     <div class="section-4" />
   </div>
 {:else if menu === MENU.newGame}
-  <div class="content" in:blur={checkTransition(game, { duration: 400 })}>
+  <div class="content" in:blur={checkTransition({ duration })}>
     <div class="section-1"><span>start a new game?</span></div>
     <div class="section-2" />
     <div class="section-3">
@@ -94,10 +94,7 @@
     <div class="section-4" />
   </div>
 {:else if menu === MENU.options}
-  <div
-    class="content compact"
-    in:blur={checkTransition(game, { duration: 400 })}
-  >
+  <div class="content compact" in:blur={checkTransition({ duration })}>
     <div class="section-1"><span class="big">options</span></div>
     <div class="section-2" />
     <div class="section-3">

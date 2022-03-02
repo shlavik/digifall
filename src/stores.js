@@ -1,7 +1,11 @@
 import { derived, get, writable } from "svelte/store";
 
 import { INITIAL_VALUES, KEYS } from "./constants.js";
-import { getSeed } from "./core.js";
+import {
+  checkTransition as coreCheckTransition,
+  getSeed,
+  resetGame as coreResetGame,
+} from "./core.js";
 
 function localStorageStore(key, initialValue) {
   const store = writable(initialValue);
@@ -46,7 +50,7 @@ export const seed = derived(
   ([{ playerName }, $timestamp]) => getSeed(playerName, $timestamp)
 );
 
-export default {
+const game = {
   cards,
   energy,
   leaderboard,
@@ -62,3 +66,13 @@ export default {
   seed,
   timestamp,
 };
+
+export function checkTransition(value, timeout = 0) {
+  return coreCheckTransition(game, value, timeout);
+}
+
+export function resetGame(showOverlay = false, count = 8) {
+  return coreResetGame(game, showOverlay, count);
+}
+
+export default game;
