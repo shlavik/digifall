@@ -34,15 +34,26 @@ export const CSS_VARS = {
 };
 
 export const KEYS = {
-  highCombo: "hi-combo",
-  highScore: "hi-score",
+  digifall: "digifall",
+  highCombo: "highCombo",
+  highScore: "highScore",
   leaderboard: "leaderboard",
   local: "local",
   moves: "moves",
   options: "options",
   playerName: "playerName",
+  prevHighCombo: "prevHighCombo",
+  prevHighScore: "prevHighScore",
+  records: "records",
   score: "score",
   timestamp: "timestamp",
+  value: "value",
+};
+
+export const STRINGS = {
+  [KEYS.highCombo]: "hi-combo",
+  [KEYS.highScore]: "hi-score",
+  [KEYS.score]: "score",
 };
 
 export const MENU = {
@@ -71,14 +82,6 @@ export const INITIAL_VALUES = {
     buffer: 0,
     value: 100,
   },
-  [KEYS.leaderboard]: {
-    [KEYS.highScore]: {},
-    [KEYS.highCombo]: {},
-    [KEYS.local]: {
-      [KEYS.highScore]: {},
-      [KEYS.highCombo]: {},
-    },
-  },
   log: [],
   matchedIndexes: [],
   [KEYS.moves]: "",
@@ -93,6 +96,20 @@ export const INITIAL_VALUES = {
   phase: PHASES.initial,
   plusIndex: undefined,
   randomColor: COLORS.white,
+  [KEYS.records]: {
+    [KEYS.highScore]: {
+      [KEYS.playerName]: "",
+      [KEYS.timestamp]: 0,
+      [KEYS.moves]: "",
+      [KEYS.value]: 0,
+    },
+    [KEYS.highCombo]: {
+      [KEYS.playerName]: "",
+      [KEYS.timestamp]: 0,
+      [KEYS.moves]: "",
+      [KEYS.value]: 0,
+    },
+  },
   [KEYS.score]: {
     buffer: 0,
     value: 0,

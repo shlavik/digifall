@@ -1,5 +1,5 @@
 <script>
-  import { CSS_VARS, PHASES } from "./constants";
+  import { CSS_VARS, PHASES } from "./constants.js";
   import { energy, phase, randomColor } from "./stores.js";
 
   $: ({ value } = $energy);

@@ -4,13 +4,12 @@
   import Energy from "./Energy.svelte";
   import Score from "./Score.svelte";
 
-  import { KEYS } from "./constants";
+  import { KEYS } from "./constants.js";
   import game, {
     checkTransition,
     energy,
-    leaderboard,
-    options,
     randomColor,
+    records,
     resetGame,
     score,
   } from "./stores.js";
@@ -21,11 +20,9 @@
 
   $: energyOut = $energy.value === 0;
   $: gameOver = energyOut && $energy.buffer === 0;
-  $: highCombo = Number(
-    Object.keys($leaderboard[KEYS.local][KEYS.highCombo] || {})[0] || 0
-  );
-  $: newRecordHighCombo = gameOver && highCombo > game.previousHighCombo;
-  $: newRecordHighScore = gameOver && $score.value > game.previousHighScore;
+  $: highCombo = $records[KEYS.highCombo][KEYS.value];
+  $: newRecordHighCombo = gameOver && highCombo > game[KEYS.prevHighCombo];
+  $: newRecordHighScore = gameOver && $score.value > game[KEYS.prevHighScore];
   $: newRecord = newRecordHighCombo || newRecordHighScore;
   $: style = newRecord ? `color: ${$randomColor}` : undefined;
 </script>

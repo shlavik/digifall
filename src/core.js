@@ -17,8 +17,8 @@ const { abs, sign, sqrt, trunc } = Math;
 
 /* UTILITIES ******************************************************************/
 
-export function getRandom(previous = 0) {
-  return (previous * 16807 + 19487171) % 2147483647;
+export function getRandom(prev = 0) {
+  return (prev * 16807 + 19487171) % 2147483647;
 }
 
 export function getBase64FromArray(array) {
@@ -63,17 +63,17 @@ export function checkSound(game, callback) {
 }
 
 function checkLocalScore(game, key, value) {
-  const $leaderboard = get(game.leaderboard);
-  const currentValue = Object.keys($leaderboard[KEYS.local][key] || {})[0] || 0;
-  if (value < currentValue) return;
-  $leaderboard[KEYS.local][key] = {
-    [value]: {
-      moves: get(game.moves),
-      playerName: get(game.options).playerName,
-      timestamp: get(game.timestamp),
-    },
+  const $records = get(game.records);
+  const prevValue = $records[key][KEYS.value];
+  if (value <= prevValue) return;
+  const { playerName } = get(game.options);
+  $records[key] = {
+    [KEYS.moves]: get(game.moves),
+    [KEYS.playerName]: playerName,
+    [KEYS.timestamp]: get(game.timestamp),
+    [KEYS.value]: value,
   };
-  game.leaderboard.set($leaderboard);
+  game.records.set($records);
 }
 
 /* CARDS LOGIC ****************************************************************/
@@ -463,15 +463,15 @@ export function hash(...args) {
   }, 0);
 }
 
-export function getSeed(playerName, timeStamp) {
+export function getSeed({ playerName, timestamp }) {
   return (
     playerName &&
     typeof playerName === "string" &&
-    timeStamp &&
-    typeof timeStamp === "number" &&
-    timeStamp < Infinity &&
+    timestamp &&
+    typeof timestamp === "number" &&
+    timestamp < Infinity &&
     hash(
-      timeStamp,
+      timestamp,
       ...Array.from(playerName).map((letter) => letter.charCodeAt())
     )
   );
@@ -535,20 +535,16 @@ function doSeedLogic(game) {
 /* CORE INITIALIZATION ********************************************************/
 
 function updatePreviousScore(game) {
-  const $leaderboard = get(game.leaderboard);
-  game.previousHighCombo = Number(
-    Object.keys($leaderboard[KEYS.local][KEYS.highCombo] || {})[0] || 0
-  );
-  game.previousHighScore = Number(
-    Object.keys($leaderboard[KEYS.local][KEYS.highScore] || {})[0] || 0
-  );
+  const $records = get(game.records);
+  game[KEYS.prevHighCombo] = $records[KEYS.highCombo][KEYS.value];
+  game[KEYS.prevHighScore] = $records[KEYS.highScore][KEYS.value];
 }
 
 export function initCore(game) {
+  updatePreviousScore(game);
   game.getNextCardValue = () => 0;
   game.moveCount = 0;
   game.movesInitial = null;
-  updatePreviousScore(game);
   game.energy.subscribe(() => doEnergyLogic(game));
   game.phase.subscribe(() => doPhaseLogic(game));
   game.plusIndex.subscribe(() => doPlusIndexLogic(game));
@@ -561,6 +557,7 @@ export function initCore(game) {
 
 function shuffleBoard(game, count) {
   game.phase.set(INITIAL_VALUES.phase);
+  game.energy.set(INITIAL_VALUES.energy);
   game.log.set(INITIAL_VALUES.log);
   game.matchedIndexes.set(INITIAL_VALUES.matchedIndexes);
   game.moves.set(INITIAL_VALUES.moves);
@@ -574,7 +571,6 @@ function shuffleBoard(game, count) {
 export function resetGame(game, showOverlay = false, count = 8) {
   checkSound(game, playSoundGenerate);
   updatePreviousScore(game);
-  game.energy.set(INITIAL_VALUES.energy);
   game.overlay.set(showOverlay);
   const { playerName, transitions } = get(game.options);
   shuffleBoard(game, playerName && transitions ? count : 0);

@@ -49,18 +49,18 @@
   });
 
   function setShadowStyle(
-    shadows,
+    enabled,
     cssVar,
     cssStyle,
     disabledStyle = CSS_STYLES.none
   ) {
     document.documentElement.style.setProperty(
       cssVar,
-      shadows ? cssStyle : disabledStyle
+      enabled ? cssStyle : disabledStyle
     );
   }
 
-  function updateShadowStyle(shadows) {
+  function updateShadowStyle(enabled) {
     [
       [CSS_VARS.gloss, CSS_STYLES.gloss],
       [CSS_VARS.glossInset, CSS_STYLES.glossInset],
@@ -70,7 +70,7 @@
       [CSS_VARS.shadow2, CSS_STYLES.shadow2],
       [CSS_VARS.shadow3, CSS_STYLES.shadow3, CSS_STYLES.transparent],
       [CSS_VARS.shadowInset, CSS_STYLES.shadowInset],
-    ].forEach((args) => setShadowStyle(shadows, ...args));
+    ].forEach((args) => setShadowStyle(enabled, ...args));
   }
 
   $: updateShadowStyle(!$options.potato);

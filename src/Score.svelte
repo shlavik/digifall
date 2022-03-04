@@ -1,14 +1,8 @@
 <script>
   import { blur } from "svelte/transition";
 
-  import { KEYS, PHASES } from "./constants.js";
-  import {
-    checkTransition,
-    leaderboard,
-    options,
-    phase,
-    score,
-  } from "./stores.js";
+  import { KEYS, PHASES, STRINGS } from "./constants.js";
+  import { checkTransition, phase, records, score } from "./stores.js";
 
   export let style;
   export let newRecordHighCombo = false;
@@ -50,14 +44,11 @@
     timeoutId = setTimeout(resetScoreMode, 3200);
   }
 
-  $: value =
-    key === KEYS.score
-      ? $score.value
-      : Object.keys($leaderboard[KEYS.local][key] || {})[0] || 0;
   $: if (newRecord) {
     key = newRecordHighScore ? KEYS.highScore : KEYS.highCombo;
     visible = true;
   }
+  $: value = key === KEYS.score ? $score.value : $records[key][KEYS.value];
 </script>
 
 {#key key}
@@ -67,7 +58,7 @@
     in:blur={checkTransition({ duration: 400 })}
     on:click={nextScore}
   >
-    <span class="key" class:visible>{key}:</span>
+    <span class="key" class:visible>{STRINGS[key]}:</span>
     {#if overlaid || $phase !== PHASES.gameover}
       <span class="value">{value}</span>
     {/if}
