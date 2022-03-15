@@ -1,3 +1,5 @@
+export const PROTOCOL_VERSION = 1;
+
 export const COLORS = {
   white: "white",
 };
@@ -7,7 +9,6 @@ export const CSS_STYLES = {
   transparent: "0 0 0 transparent",
   gloss: "0 -1px 0 white",
   glossInset: "0 1px 0 white",
-  glow: "0 0 1px white",
   shadow0: "0 0 1px black",
   shadow1: "0 0.5rem 0.5rem var(--color-black-04)",
   shadow2: "0 1rem 1rem var(--color-black-04)",
@@ -24,7 +25,6 @@ export const CSS_VARS = {
   colorBlack08: "--color-black-08",
   gloss: "--gloss",
   glossInset: "--gloss-inset",
-  glow: "--glow",
   pixel: "--pixel",
   shadow0: "--shadow-0",
   shadow1: "--shadow-1",
@@ -41,26 +41,16 @@ export const KEYS = {
   local: "local",
   moves: "moves",
   options: "options",
+  peerId: "peerId",
   playerName: "playerName",
   prevHighCombo: "prevHighCombo",
   prevHighScore: "prevHighScore",
+  protocolVersion: "protocolVersion",
   records: "records",
   score: "score",
   timestamp: "timestamp",
+  type: "type",
   value: "value",
-};
-
-export const STRINGS = {
-  [KEYS.highCombo]: "hi-combo",
-  [KEYS.highScore]: "hi-score",
-  [KEYS.score]: "score",
-};
-
-export const MENU = {
-  main: "main",
-  name: "name",
-  newGame: "new game",
-  options: "options",
 };
 
 export const PHASES = {
@@ -82,11 +72,17 @@ export const INITIAL_VALUES = {
     buffer: 0,
     value: 100,
   },
+  [KEYS.leaderboard]: {
+    [KEYS.protocolVersion]: PROTOCOL_VERSION,
+    [KEYS.highScore]: [],
+    [KEYS.highCombo]: [],
+  },
   log: [],
   matchedIndexes: [],
   [KEYS.moves]: "",
   [KEYS.options]: {
     [KEYS.playerName]: "",
+    [KEYS.leaderboard]: true,
     potato: false,
     seedground: true,
     transitions: true,
@@ -97,6 +93,7 @@ export const INITIAL_VALUES = {
   plusIndex: undefined,
   randomColor: COLORS.white,
   [KEYS.records]: {
+    [KEYS.protocolVersion]: PROTOCOL_VERSION,
     [KEYS.highScore]: {
       [KEYS.playerName]: "",
       [KEYS.timestamp]: 0,

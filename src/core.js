@@ -36,8 +36,8 @@ export function checkTransition(game, value, timeout = 0) {
   const type = typeof value;
   if (type === "function") {
     return transitions && game.movesInitial === null && timeout > 0
-      ? setTimeout(value, timeout)
-      : value();
+      ? setTimeout(() => value(game), timeout)
+      : value(game);
   }
   if (type === "object") {
     return transitions ? value : { duration: 0 };
@@ -62,12 +62,12 @@ export function checkSound(game, callback) {
   callback();
 }
 
-function checkLocalScore(game, key, value) {
+function checkLocalScore(game, type, value) {
   const $records = get(game.records);
-  const prevValue = $records[key][KEYS.value];
-  if (value <= prevValue) return;
+  const prevValue = $records[type][KEYS.value];
+  if (prevValue >= value) return;
   const { playerName } = get(game.options);
-  $records[key] = {
+  $records[type] = {
     [KEYS.moves]: get(game.moves),
     [KEYS.playerName]: playerName,
     [KEYS.timestamp]: get(game.timestamp),
@@ -180,8 +180,7 @@ function getDiffFromBuffer(buffer) {
   return sign(buffer) * trunc(sqrt(abs(buffer)));
 }
 
-function doEnergyLogic(game) {
-  const { buffer, value } = get(game.energy);
+function doEnergyLogic(game, { buffer, value }) {
   const $phase = get(game.phase);
   const diff =
     !game.movesInitial && get(game.options).transitions
@@ -337,9 +336,8 @@ function doComboPhase(game) {
 }
 
 function doScorePhase(game) {
-  if (get(game.log).length > 1) {
-    game.score.update(($score) => ({ ...$score }));
-  }
+  if (get(game.log).length < 2) return;
+  game.score.update(($score) => ({ ...$score }));
 }
 
 function doGameOverPhase(game) {
@@ -375,16 +373,20 @@ const PHASE_LOGICS = {
   [PHASES.gameover]: doGameOverPhase,
 };
 
-function doPhaseLogic(game) {
-  const $phase = get(game.phase);
+function doPhaseLogic(game, $phase) {
   PHASE_LOGICS[$phase](game);
 }
 
 /* PLUS INDEX LOGIC ***********************************************************/
 
-function doPlusIndexLogic(game) {
-  const $plusIndex = get(game.plusIndex);
-  if ($plusIndex === undefined) return;
+function doPlusIndexLogic(game, $plusIndex) {
+  if ($plusIndex === undefined || game.movesInitial !== null) return;
+  let $moves = get(game.moves);
+  $moves = Array.isArray($moves) ? $moves : getArrayFromBase64($moves);
+  $moves.push($plusIndex);
+  game.moves.set(getBase64FromArray($moves));
+  game.energy.update(($energy) => ({ ...$energy, buffer: -10 }));
+  checkTransition(game, () => game.phase.set(PHASES.plus), 400);
   checkSound(game, playSoundCardPlus);
 }
 
@@ -412,8 +414,7 @@ export function getTimeFromDiff(diff) {
   }
 }
 
-function doScoreLogic(game) {
-  const { buffer, value } = get(game.score);
+function doScoreLogic(game, { buffer, value }) {
   const $phase = get(game.phase);
   if ($phase !== PHASES.gameover && $phase !== PHASES.score) return;
   if (buffer === 0) {
@@ -480,7 +481,7 @@ export function getSeed({ playerName, timestamp }) {
 function getInitialRandoms($seed) {
   let count = 0;
   const result = [getRandom($seed)];
-  while (count++ < 5) result.push(getRandom(count * result[0]));
+  while (count < 5) result.push(getRandom(2 * result[count++]));
   return result;
 }
 
@@ -514,8 +515,7 @@ function getPreparedCards(game, $cards) {
   }
 }
 
-function doSeedLogic(game) {
-  const $seed = get(game.seed);
+function doSeedLogic(game, $seed) {
   if (!$seed) return;
   game.getNextCardValue = createGetNextCardValue($seed);
   game.cards.set(getPreparedCards(game, getInitialCards(game)));
@@ -545,11 +545,11 @@ export function initCore(game) {
   game.getNextCardValue = () => 0;
   game.moveCount = 0;
   game.movesInitial = null;
-  game.energy.subscribe(() => doEnergyLogic(game));
-  game.phase.subscribe(() => doPhaseLogic(game));
-  game.plusIndex.subscribe(() => doPlusIndexLogic(game));
-  game.score.subscribe(() => doScoreLogic(game));
-  game.seed.subscribe(() => doSeedLogic(game));
+  game.energy.subscribe(($energy) => doEnergyLogic(game, $energy));
+  game.phase.subscribe(($phase) => doPhaseLogic(game, $phase));
+  game.plusIndex.subscribe(($plusIndex) => doPlusIndexLogic(game, $plusIndex));
+  game.score.subscribe(($score) => doScoreLogic(game, $score));
+  game.seed.subscribe(($seed) => doSeedLogic(game, $seed));
   return game;
 }
 

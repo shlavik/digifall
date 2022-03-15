@@ -64,7 +64,6 @@
     [
       [CSS_VARS.gloss, CSS_STYLES.gloss],
       [CSS_VARS.glossInset, CSS_STYLES.glossInset],
-      [CSS_VARS.glow, CSS_STYLES.glow],
       [CSS_VARS.shadow0, CSS_STYLES.shadow0],
       [CSS_VARS.shadow1, CSS_STYLES.shadow1],
       [CSS_VARS.shadow2, CSS_STYLES.shadow2],

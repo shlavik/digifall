@@ -1,18 +1,28 @@
 <script>
   import { blur } from "svelte/transition";
 
-  import { MENU } from "./constants.js";
+  import Leaderboard from "./Leaderboard.svelte";
+
+  import { KEYS } from "./constants.js";
   import { checkTransition, options, overlay, resetGame } from "./stores.js";
 
+  const menus = {
+    leaderboard: "leaderboard",
+    main: "main",
+    name: "name",
+    newGame: "new game",
+    options: "options",
+  };
+
   const duration = 400;
-  let menu = MENU.main;
+  let menu = menus.main;
   let playerName = $options.playerName;
 
   function startNewGame() {
     if (!playerName) return;
     if (!$options.playerName) $options.playerName = playerName;
-    menu = MENU.main;
     resetGame(false);
+    setTimeout(() => (menu = menus.main), duration);
   }
 
   function resumeGame() {
@@ -20,36 +30,41 @@
   }
 
   function showNewGameDialog() {
-    menu = MENU.newGame;
+    menu = menus.newGame;
+  }
+
+  function showLeaderboard() {
+    menu = menus.leaderboard;
   }
 
   function showMainMenu() {
-    menu = MENU.main;
+    menu = menus.main;
   }
 
   function showOptions() {
-    menu = MENU.options;
+    menu = menus.options;
   }
 
   function saveOptions() {
-    menu = MENU.main;
+    menu = menus.main;
     if (playerName === $options.playerName) return;
     $options.playerName = playerName;
     resetGame(false);
   }
 
-  $: if (playerName.length === 0 && menu === MENU.main) {
-    menu = MENU.name;
+  $: if (playerName.length === 0 && menu === menus.main) {
+    menu = menus.name;
     resetGame(true);
   } else {
     playerName = playerName
       .toLowerCase()
       .replace(/[^a-z0-9\@\&\$\!\?\-\+\=\.\:\/\_]/g, "");
   }
+  $: playerNameTitle = ('PLAYER NAME: "' + playerName + '"').toUpperCase();
 </script>
 
-{#if menu === MENU.name}
-  <div class="content">
+{#if menu === menus.name}
+  <div class="content" in:blur={checkTransition({ duration })}>
     <div class="section-1"><span class="big">digifall</span></div>
     <div class="section-2" />
     <div class="section-3">
@@ -58,7 +73,8 @@
           <input
             type="text"
             placeholder="player name"
-            maxlength="24"
+            title={playerNameTitle}
+            maxlength="42"
             bind:value={playerName}
           />
           <button type="submit">start</button>
@@ -67,7 +83,7 @@
     </div>
     <div class="section-4" />
   </div>
-{:else if menu === MENU.main}
+{:else if menu === menus.main}
   <div class="content" in:blur={checkTransition({ duration })}>
     <div class="section-1"><span class="big">digifall</span></div>
     <div class="section-2" />
@@ -75,36 +91,56 @@
       <div class="col">
         <button on:click={resumeGame}>resume</button>
         <button on:click={showNewGameDialog}>new game</button>
-        <!-- <button on:click={optionsClick}>leaderboard</button> -->
+        {#if $options[KEYS.leaderboard]}
+          <button on:click={showLeaderboard}>p2p leaderboard</button>
+        {/if}
         <button on:click={showOptions}>options</button>
       </div>
     </div>
     <div class="section-4" />
   </div>
-{:else if menu === MENU.newGame}
+{:else if menu === menus.newGame}
   <div class="content" in:blur={checkTransition({ duration })}>
-    <div class="section-1"><span>start a new game?</span></div>
+    <div class="section-1" />
     <div class="section-2" />
     <div class="section-3">
-      <div class="row">
-        <button on:click={startNewGame}>yes</button>
-        <button on:click={showMainMenu}>no</button>
+      <div class="col">
+        <span>start a new game?</span>
+        <div class="row">
+          <button on:click={startNewGame}>yes</button>
+          <button on:click={showMainMenu}>no</button>
+        </div>
       </div>
     </div>
     <div class="section-4" />
   </div>
-{:else if menu === MENU.options}
-  <div class="content compact" in:blur={checkTransition({ duration })}>
-    <div class="section-1"><span class="big">options</span></div>
+{:else if menu === menus.leaderboard}
+  <div class="content" in:blur={checkTransition({ duration })}>
+    <Leaderboard>
+      <button title="RETURN TO MAIN MENU" on:click={saveOptions}>
+        main menu
+      </button>
+    </Leaderboard>
+  </div>
+{:else if menu === menus.options}
+  <div class="content" in:blur={checkTransition({ duration })}>
+    <div class="section-1"><span>options</span></div>
     <div class="section-2" />
     <div class="section-3">
       <div class="col">
         <input
           type="text"
           placeholder="player name"
-          maxlength="24"
+          title={playerNameTitle}
+          maxlength="42"
           bind:value={playerName}
         />
+        <input
+          type="checkbox"
+          id="leaderboard"
+          bind:checked={$options.leaderboard}
+        />
+        <label for="leaderboard">p2p leaderboard</label>
         <input type="checkbox" id="potato" bind:checked={$options.potato} />
         <label for="potato">potato</label>
         <input
@@ -128,10 +164,15 @@
           checked={$options.transitions && $options.sound}
           on:click={() => ($options.sound = !$options.sound)}
         />
-        <label for="sound">sound fx</label>
-        <button on:click={saveOptions}>back</button>
+        <label for="sound">sound effects</label>
       </div>
     </div>
-    <div class="section-4" />
+    <div class="section-4">
+      <div class="col">
+        <button title="RETURN TO MAIN MENU" on:click={saveOptions}>
+          main menu
+        </button>
+      </div>
+    </div>
   </div>
 {/if}

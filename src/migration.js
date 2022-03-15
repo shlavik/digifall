@@ -1,25 +1,24 @@
-import { KEYS, STRINGS } from "./constants.js";
+import { INITIAL_VALUES, KEYS, PROTOCOL_VERSION } from "./constants.js";
 
-(function migrateRecords() {
+(function removeLocalStorageLeaderboard() {
   const leaderboard = localStorage.getItem(KEYS.leaderboard);
   if (!leaderboard) return;
-  const parced = JSON.parse(leaderboard);
-  const local = parced[KEYS.local] || {};
-  const localHighCombo = local[STRINGS.highCombo] || {};
-  const localHighScore = local[STRINGS.highScore] || {};
-  const localHighComboKey = Object.keys(localHighCombo)[0];
-  const localHighScoreKey = Object.keys(localHighScore)[0];
-  if (!localHighComboKey && !localHighScoreKey) return;
-  const records = {
-    [KEYS.highCombo]: {
-      ...localHighCombo[localHighComboKey],
-      value: Number(localHighComboKey),
-    },
-    [KEYS.highScore]: {
-      ...localHighScore[localHighScoreKey],
-      value: Number(localHighScoreKey),
-    },
-  };
-  localStorage.setItem(KEYS.records, JSON.stringify(records));
   localStorage.removeItem(KEYS.leaderboard);
+})();
+
+(function clearRecordsWithoutProtocolVersion() {
+  const records = localStorage.getItem(KEYS.records);
+  if (!records) return;
+  const parced = JSON.parse(records);
+  if (parced[KEYS.protocolVersion] === PROTOCOL_VERSION) return;
+  localStorage.setItem(KEYS.records, JSON.stringify(INITIAL_VALUES.records));
+})();
+
+(function enableLeaderboard() {
+  const options = localStorage.getItem(KEYS.options);
+  if (!options) return;
+  const parced = JSON.parse(options);
+  if (parced[KEYS.leaderboard] !== undefined) return;
+  parced[KEYS.leaderboard] = true;
+  localStorage.setItem(KEYS.options, JSON.stringify(parced));
 })();

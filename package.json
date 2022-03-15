@@ -1,20 +1,26 @@
 {
   "name": "digifall",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "icon": "icon.png",
   "scripts": {
-    "start": "parcel index.html",
+    "start": "parcel src/main.html",
     "build": "parcel build src/main.js",
-    "prebuild": "shx rm -rf dist/*",
-    "sirv": "sirv --dev --host"
+    "prebuild": "shx rm -rf dist/*"
   },
   "dependencies": {
+    "@chainsafe/libp2p-noise": "5.0.3",
     "howler": "2.2.3",
     "idb-keyval": "6.1.0",
+    "it-pipe": "1.1.0",
+    "libp2p": "0.36.2",
+    "libp2p-mplex": "0.10.7",
+    "libp2p-webrtc-star": "0.25.0",
+    "libp2p-websockets": "0.16.2",
     "parcel": "2.3.2",
     "parcel-transformer-svelte": "1.2.3",
+    "peer-id": "0.16.0",
+    "process": "0.11.10",
     "shx": "0.3.4",
-    "sirv-cli": "2.0.2",
     "svelte": "3.46.4"
   }
 }

@@ -2,32 +2,15 @@
   import Card from "./Card.svelte";
 
   import { PHASES } from "./constants.js";
-  import { getArrayFromBase64, getBase64FromArray } from "./core.js";
-  import {
-    checkTransition,
-    cards,
-    energy,
-    log,
-    matchedIndexes,
-    moves,
-    phase,
-    plusIndex,
-  } from "./stores.js";
+  import { cards, log, matchedIndexes, phase, plusIndex } from "./stores.js";
 
   function boardClick(event) {
     if ($phase !== PHASES.idle || $plusIndex !== undefined) return;
-    const block = event
+    const card = event
       .composedPath()
       .find(({ dataset }) => dataset && dataset.index);
-    if (block === undefined) return;
-    $plusIndex = Number(block.dataset.index);
-    const movesArray = Array.isArray($moves)
-      ? $moves
-      : getArrayFromBase64($moves);
-    movesArray.push($plusIndex);
-    $moves = getBase64FromArray(movesArray);
-    $energy = { ...$energy, buffer: -10 };
-    checkTransition(() => ($phase = PHASES.plus), 400);
+    if (card === undefined) return;
+    $plusIndex = Number(card.dataset.index);
   }
 
   $: plusCard = $cards[$plusIndex];

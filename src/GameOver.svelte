@@ -24,25 +24,23 @@
   $: newRecordHighCombo = gameOver && highCombo > game[KEYS.prevHighCombo];
   $: newRecordHighScore = gameOver && $score.value > game[KEYS.prevHighScore];
   $: newRecord = newRecordHighCombo || newRecordHighScore;
-  $: style = newRecord ? `color: ${$randomColor}` : undefined;
+  $: style = "--color: " + (newRecord ? $randomColor : "white");
 </script>
 
-<div class="game-over content" in:blur={checkTransition({ delay: 200 })}>
+<div
+  class="game-over content"
+  {style}
+  in:blur={checkTransition({ delay: 200 })}
+>
   <div class="section-1">
     {#if gameOver}
-      <span class="big" {style} in:blur={checkTransition({ delay: 600 })}>
+      <span class="big" in:blur={checkTransition({ delay: 600 })}>
         {newRecord ? "new record!" : "game over"}
       </span>
     {/if}
   </div>
   <div class="section-2">
-    <Score
-      {style}
-      {newRecordHighCombo}
-      {newRecordHighScore}
-      {newRecord}
-      overlaid
-    />
+    <Score {newRecordHighCombo} {newRecordHighScore} {newRecord} overlaid />
   </div>
   <div class="section-3">
     {#if gameOver}
