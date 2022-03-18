@@ -2,21 +2,41 @@
   import Card from "./Card.svelte";
 
   import { PHASES } from "./constants.js";
-  import { cards, log, matchedIndexes, phase, plusIndex } from "./stores.js";
+  import {
+    cards,
+    log,
+    matchedIndexes,
+    options,
+    phase,
+    plusIndex,
+  } from "./stores.js";
 
-  function boardClick(event) {
+  function setPlusIndex(card) {
     if ($phase !== PHASES.idle || $plusIndex !== undefined) return;
-    const card = event
-      .composedPath()
-      .find(({ dataset }) => dataset && dataset.index);
-    if (card === undefined) return;
     $plusIndex = Number(card.dataset.index);
   }
 
+  function click(event) {
+    if ($options.transitions) return;
+    const card = event
+      .composedPath()
+      .find(({ dataset }) => dataset && dataset.index);
+    if (!card) return;
+    setPlusIndex(card);
+  }
+
+  function longpress(event) {
+    if (!$options.transitions) return;
+    setPlusIndex(event.target);
+  }
+
+  $: instant = $phase !== PHASES.fall;
+  $: overflow = $phase !== PHASES.idle && !blink;
+  $: progress = $phase !== PHASES.idle || $plusIndex;
+  $: transitions = $options.transitions;
   $: plusCard = $cards[$plusIndex];
   $: plusCardMemoized = plusCard || plusCardMemoized;
   $: blink = $matchedIndexes.length > 0 && $log.length === 1;
-  $: overflow = $phase !== PHASES.idle && !blink;
   $: focus = plusCard || blink;
   $: sliderStyles = {
     horizontal: `
@@ -30,11 +50,17 @@
   };
 </script>
 
-<div class="board" class:overflow on:click={boardClick}>
+<div
+  class="board"
+  class:instant
+  class:overflow
+  class:progress
+  class:transitions
+  on:click={click}
+  on:longpress={longpress}
+>
   {#each $cards as card, index}
     <Card
-      clickable={$phase === PHASES.idle && !$plusIndex}
-      fallPhase={$phase === PHASES.fall}
       matched={$matchedIndexes.includes(index)}
       plused={$plusIndex === index}
       {...card}
