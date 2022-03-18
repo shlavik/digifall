@@ -1,0 +1,32 @@
+{
+  "name": "Digifall",
+  "short_name": "Digifall",
+  "description": "Entropy fighting mathematactic game",
+  "scope": "https://digifall.app",
+  "start_url": "https://digifall.app",
+  "theme_color": "#1f1f14",
+  "background_color": "#1f1f14",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

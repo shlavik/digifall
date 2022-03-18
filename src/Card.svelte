@@ -1,15 +1,15 @@
 <script>
+  import { PHASES } from "./constants.js";
+  import { matchedIndexes, phase, plusIndex } from "./stores.js";
+
+  export let blink;
+  export let card;
   export let index;
-  export let value;
-  export let x = 0;
-  export let y = 0;
-  export let matched;
-  export let plused;
-  export let duration;
 
   function longpress(node, duration = 600) {
     let timer;
     const start = () => {
+      if ($phase !== PHASES.idle || $plusIndex !== undefined) return;
       node.classList.add("longpress");
       timer = window.setTimeout(() => {
         node.dispatchEvent(new CustomEvent("longpress", { bubbles: true }));
@@ -39,12 +39,14 @@
     };
   }
 
-  $: nextValue = value < 9 ? value + 1 : 0;
-  $: matt = y === 5;
+  $: matched = $matchedIndexes.includes(index);
+  $: matt = card.y === 5;
+  $: plused = $plusIndex === index;
+  $: nextValue = card.value < 9 ? card.value + 1 : 0;
   $: style = `
-    bottom: ${y * 21}rem;
-    left: ${x * 21}rem;
-    transition-duration: ${duration}ms;
+    bottom: ${card.y * 21}rem;
+    left: ${card.x * 21}rem;
+    transition-duration: ${card.duration}ms;
   `;
 </script>
 
@@ -58,7 +60,7 @@
   use:longpress
 >
   <div class="value">
-    <div class="current color-{value}">{value}</div>
+    <div class="current color-{card.value}">{card.value}</div>
     <div class="next color-{nextValue}">{nextValue}</div>
   </div>
 </div>

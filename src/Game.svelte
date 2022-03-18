@@ -29,7 +29,7 @@
     }
     const [a, b, c, d] = sizes;
     return `
-      background-color: var(${CSS_VARS.colorDark}));
+      background-color: var(${CSS_VARS.colorDark});
       background-image:
         linear-gradient(90deg, ${getColor()} 50%, transparent 50%),
         linear-gradient(90deg, ${getColor()} 50%, transparent 50%),
