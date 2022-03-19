@@ -8,7 +8,6 @@
   import game, {
     checkTransition,
     energy,
-    randomColor,
     records,
     resetGame,
     score,
@@ -24,12 +23,11 @@
   $: newRecordHighCombo = gameOver && highCombo > game[KEYS.prevHighCombo];
   $: newRecordHighScore = gameOver && $score.value > game[KEYS.prevHighScore];
   $: newRecord = newRecordHighCombo || newRecordHighScore;
-  $: color = newRecord ? $randomColor : "white";
 </script>
 
 <div
   class="game-over content"
-  style:--color={color}
+  class:new-record={newRecord}
   in:blur={checkTransition({ delay: 200 })}
 >
   <div class="section-1">

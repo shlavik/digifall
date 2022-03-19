@@ -1,6 +1,6 @@
 <script>
-  import { CSS_VARS, PHASES } from "./constants.js";
-  import { energy, phase, randomColor } from "./stores.js";
+  import { PHASES } from "./constants.js";
+  import { energy, phase } from "./stores.js";
 
   $: ({ value } = $energy);
   $: extra = value > 100;
@@ -15,7 +15,7 @@
   $: rightBarStyle = `
     z-index: ${extra ? 1 : 0};
     flex: ${extra ? (value - 100) / 100 : 0};
-    background-color: ${extra ? $randomColor : `var(${CSS_VARS.colorDark})`};
+    background-color: var(--color-${extra ? "random" : "dark"});
   `;
   $: rightValueStyle = `
     position: ${extra ? "relative" : "absolute"};

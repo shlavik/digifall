@@ -2,7 +2,7 @@
   import { fade, slide } from "svelte/transition";
 
   import { PHASES } from "./constants.js";
-  import { checkTransition, log, phase, randomColor, score } from "./stores.js";
+  import { checkTransition, log, phase, score } from "./stores.js";
 
   $: collapse = $log.length === 1;
 </script>
@@ -26,7 +26,7 @@
           {#if extra === undefined}
             <span class="sum">{(logIndex + 1) * sum}</span>
           {:else}
-            <span class="extra" style:color={$randomColor}>{extra}</span>
+            <span class="extra">{extra}</span>
             <span class="sum">{(logIndex + 1) * extra}</span>
           {/if}
         </li>

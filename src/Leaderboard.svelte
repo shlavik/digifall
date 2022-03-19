@@ -6,8 +6,8 @@
   import { options, randomColor } from "./stores.js";
 
   const types = {
-    [KEYS.highCombo]: "high combo",
-    [KEYS.highScore]: "high score",
+    [KEYS.highCombo]: "high combos",
+    [KEYS.highScore]: "high scores",
   };
   const pageSize = 9;
   const pageCounts = Math.ceil(maxSize / pageSize);
@@ -18,7 +18,7 @@
 
   onDestroy(() => (sortedIndex = -1));
 
-  function findStartPage(sorted) {
+  function findStartPage() {
     sortedIndex = sorted.findIndex(
       ({ playerName }) => playerName === $options[KEYS.playerName]
     );
@@ -28,6 +28,8 @@
 
   function updateRandomColor() {
     if (sortedIndex === -1) return ($randomColor = COLORS.white);
+    const selfPage = page === Math.trunc(sortedIndex / pageSize);
+    if (!selfPage) return ($randomColor = COLORS.white);
     const hue = Math.trunc(360 * Math.random());
     $randomColor = `hsl(${hue}, 100%, 50%)`;
     requestAnimationFrame(updateRandomColor);
@@ -49,6 +51,7 @@
     }
   }
 
+  $: updateRandomColor(page);
   $: sorted = $leaderboard[type].slice().sort((a, b) => compare(b, a));
   $: findStartPage(sorted);
   $: start = page * pageSize;
@@ -98,7 +101,6 @@
     <dl>
       {#each paged as { playerName, value }, index}
         {@const self = playerName === $options[KEYS.playerName]}
-        {@const color = self ? $randomColor : "white"}
         {@const nth = page * pageSize + index + 1}
         {@const marginLeft = (nth.toString().length === 1 ? 8 : 14) + "rem"}
         {@const title = (
@@ -109,10 +111,10 @@
           '"\nSCORE: ' +
           value
         ).toUpperCase()}
-        <dt style:--color={color} style:margin-left={marginLeft} data-nth={nth}>
+        <dt class:self style:margin-left={marginLeft} data-nth={nth}>
           <div class="player-name" {title}>{playerName}</div>
         </dt>
-        <dd style:--color={color} style:margin-left={marginLeft} {title}>
+        <dd class:self style:margin-left={marginLeft} {title}>
           {value}
         </dd>
       {/each}

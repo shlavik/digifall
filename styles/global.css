@@ -45,13 +45,6 @@ body {
   overflow: hidden;
   margin: 0;
   background-color: var(--color-body);
-  color: white;
-  font-family: pixel;
-  font-size: 5rem;
-  letter-spacing: 2rem;
-  line-height: 1;
-  text-indent: 2rem;
-  text-shadow: var(--shadow-1);
   -webkit-user-select: none;
   user-select: none;
 }
@@ -153,6 +146,38 @@ input[type="checkbox"]:checked + label::after {
 input[type="checkbox"]:disabled + label {
   color: var(--color-zero);
   cursor: not-allowed;
+}
+
+.app {
+  --gloss: 0 -1px 0 var(--color-gloss);
+  --gloss-inset: 0 1px 0 var(--color-gloss);
+  --glow: 0 0 1px white;
+  --glow-random: 0 0 1px var(--color-random);
+  --shadow-0: 0 0 1px black;
+  --shadow-1: 0 0.5rem 0.5rem var(--color-black-04);
+  --shadow-2: 0 1rem 1rem var(--color-black-04);
+  --shadow-3: 0 0 3rem 2rem var(--color-black-04);
+  --shadow-inset: inset 0 0.5rem 0.5rem var(--color-black-04);
+
+  color: white;
+  font-family: pixel;
+  font-size: 5rem;
+  letter-spacing: 2rem;
+  line-height: 1;
+  text-indent: 2rem;
+  text-shadow: var(--shadow-1);
+}
+
+.app.potato {
+  --gloss: none;
+  --gloss-inset: none;
+  --glow: none;
+  --glow-random: none;
+  --shadow-0: none;
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-3: 0 0 0 transparent;
+  --shadow-inset: none;
 }
 
 .color-0 {
@@ -506,14 +531,18 @@ input[type="checkbox"]:disabled + label {
   text-shadow: var(--shadow-0);
 }
 
-.game-over .big,
-.game-over .score {
-  color: var(--color);
+.game-over.new-record .big,
+.game-over.new-record .score {
+  color: var(--color-random);
 }
 
 .game-over .score:active {
   color: var(--color-invis-2);
-  text-shadow: 0 0 1px var(--color);
+  text-shadow: var(--glow);
+}
+
+.game-over.new-record .score:active {
+  text-shadow: var(--glow-random);
 }
 
 .game-over .energy {
@@ -570,6 +599,11 @@ input[type="checkbox"]:disabled + label {
   text-shadow: 0 0 1px white;
 }
 
+.potato .leaderboard .type:active {
+  color: transparent;
+  text-shadow: none;
+}
+
 .leaderboard .type::before,
 .leaderboard .type::after {
   display: block;
@@ -592,6 +626,12 @@ input[type="checkbox"]:disabled + label {
   filter: drop-shadow(0 0 0.75px white);
 }
 
+.potato .leaderboard .type:active::before,
+.potato .leaderboard .type:active::after {
+  border-color: transparent;
+  filter: none;
+}
+
 .leaderboard .page {
   width: 13rem;
   height: 13rem;
@@ -607,12 +647,19 @@ input[type="checkbox"]:disabled + label {
 
 .leaderboard .page.active:active {
   border-color: var(--color-invis-2);
-  box-shadow: inset  0 0 2px var(--color), 0 0 2px var(--color);
+  box-shadow: 0 0 1px var(--color), inset 0 0 1px var(--color);
 }
 
 .leaderboard .page:active {
   color: var(--color-invis-2);
-  text-shadow: 0 0 2px var(--color);
+  text-shadow: 0 0 1px var(--color);
+}
+
+.potato .leaderboard .page:active {
+  border-color: transparent;
+  box-shadow: none;
+  color: transparent;
+  text-shadow: none;
 }
 
 .leaderboard dl {
@@ -629,7 +676,6 @@ input[type="checkbox"]:disabled + label {
   position: relative;
   height: 4rem;
   margin: 2rem 0 1rem;
-  color: var(--color);
 }
 
 .leaderboard dt::before {
@@ -652,7 +698,6 @@ input[type="checkbox"]:disabled + label {
   display: flex;
   height: 4rem;
   margin: 1rem 0 2rem;
-  color: var(--color);
   text-align: right;
 }
 
@@ -662,10 +707,19 @@ input[type="checkbox"]:disabled + label {
   height: 4rem;
   flex: 1;
   order: -2;
-  border-top: 0.75rem solid var(--color);
-  border-right: 0.75rem solid  var(--color);
+  border-top: 0.75rem solid white;
+  border-right: 0.75rem solid white;
   margin-right: 0.5rem;
   content: "";
+}
+
+.leaderboard dt.self,
+.leaderboard dd.self {
+  color: var(--color-random);
+}
+
+.leaderboard dd.self::before {
+  border-color: var(--color-random);
 }
 
 .log {
@@ -706,6 +760,10 @@ input[type="checkbox"]:disabled + label {
 
 .log .value {
   color: var(--color);
+}
+
+.log .extra {
+  color: var(--color-random);
 }
 
 .log .sum {

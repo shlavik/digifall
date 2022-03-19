@@ -562,7 +562,6 @@ function shuffleBoard(game, count) {
   game.matchedIndexes.set(INITIAL_VALUES.matchedIndexes);
   game.moves.set(INITIAL_VALUES.moves);
   game.plusIndex.set(INITIAL_VALUES.plusIndex);
-  game.randomColor.set(INITIAL_VALUES.randomColor);
   game.score.set(INITIAL_VALUES.score);
   game.timestamp.set(Date.now());
   if (count-- > 0) setTimeout(() => shuffleBoard(game, count), 64);
@@ -572,6 +571,7 @@ export function resetGame(game, showOverlay = false, count = 8) {
   checkSound(game, playSoundGenerate);
   updatePreviousScore(game);
   game.overlay.set(showOverlay);
+  game.randomColor.set(INITIAL_VALUES.randomColor);
   const { playerName, transitions } = get(game.options);
   shuffleBoard(game, playerName && transitions ? count : 0);
 }

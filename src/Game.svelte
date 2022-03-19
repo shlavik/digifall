@@ -1,6 +1,5 @@
 <script>
   import Board from "./Board.svelte";
-  import { CSS_VARS } from "./constants";
   import Energy from "./Energy.svelte";
   import Log from "./Log.svelte";
   import Score from "./Score.svelte";
@@ -29,7 +28,7 @@
     }
     const [a, b, c, d] = sizes;
     return `
-      background-color: var(${CSS_VARS.colorDark});
+      background-color: var(--color-dark);
       background-image:
         linear-gradient(90deg, ${getColor()} 50%, transparent 50%),
         linear-gradient(90deg, ${getColor()} 50%, transparent 50%),

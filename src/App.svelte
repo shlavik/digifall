@@ -5,7 +5,7 @@
   import GameOver from "./GameOver.svelte";
   import Menu from "./Menu.svelte";
 
-  import { COLORS, PHASES, CSS_VARS, CSS_STYLES } from "./constants.js";
+  import { COLORS, PHASES } from "./constants.js";
   import {
     checkTransition,
     energy,
@@ -25,7 +25,7 @@
     const ratio = offsetHeight / offsetWidth;
     const landscape = ratio < 1.5;
     const size = landscape ? offsetHeight / 192 : offsetWidth / 128;
-    style.setProperty(CSS_VARS.pixel, size + "px");
+    style.setProperty("--pixel", size + "px");
     $options.landscape = landscape;
   }
 
@@ -44,35 +44,13 @@
     if ($randomColor !== COLORS.white) return;
     updateRandomColor();
   });
-
-  function setShadowStyle(
-    enabled,
-    cssVar,
-    cssStyle,
-    disabledStyle = CSS_STYLES.none
-  ) {
-    document.documentElement.style.setProperty(
-      cssVar,
-      enabled ? cssStyle : disabledStyle
-    );
-  }
-
-  function updateShadowStyle(enabled) {
-    [
-      [CSS_VARS.gloss, CSS_STYLES.gloss],
-      [CSS_VARS.glossInset, CSS_STYLES.glossInset],
-      [CSS_VARS.shadow0, CSS_STYLES.shadow0],
-      [CSS_VARS.shadow1, CSS_STYLES.shadow1],
-      [CSS_VARS.shadow2, CSS_STYLES.shadow2],
-      [CSS_VARS.shadow3, CSS_STYLES.shadow3, CSS_STYLES.transparent],
-      [CSS_VARS.shadowInset, CSS_STYLES.shadowInset],
-    ].forEach((args) => setShadowStyle(enabled, ...args));
-  }
-
-  $: updateShadowStyle(!$options.potato);
 </script>
 
-<div class="app">
+<div
+  class="app"
+  class:potato={$options.potato}
+  style:--color-random={$randomColor}
+>
   <Game />
   {#if $overlay}
     <div class="overlay" transition:fade={checkTransition({ duration: 200 })}>
