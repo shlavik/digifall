@@ -60,7 +60,7 @@
   on:longpress={longpress}
 >
   {#each $cards as card, index}
-    <Card {blink} {card} {index} />
+    <Card {card} {index} />
   {/each}
   <div class="slider top" class:blink style={sliderStyles.horizontal} />
   <div class="slider right" class:blink style={sliderStyles.vertical} />

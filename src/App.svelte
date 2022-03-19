@@ -33,10 +33,7 @@
   onresize = updatePixelSize;
 
   function updateRandomColor() {
-    if ($phase === PHASES.idle) {
-      $randomColor = COLORS.white;
-      return;
-    }
+    if ($phase === PHASES.idle) return ($randomColor = COLORS.white);
     const hue = Math.trunc(360 * Math.random());
     $randomColor = `hsl(${hue}, 100%, 50%)`;
     requestAnimationFrame(updateRandomColor);

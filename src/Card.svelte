@@ -2,7 +2,6 @@
   import { PHASES } from "./constants.js";
   import { matchedIndexes, phase, plusIndex } from "./stores.js";
 
-  export let blink;
   export let card;
   export let index;
 

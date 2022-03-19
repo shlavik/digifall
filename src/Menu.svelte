@@ -52,6 +52,12 @@
     resetGame(false);
   }
 
+  function checkbox(event) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const { parentNode, htmlFor } = event.target;
+    parentNode.querySelector("#" + htmlFor).click();
+  }
+
   $: if (playerName.length === 0 && menu === menus.main) {
     menu = menus.name;
     resetGame(true);
@@ -140,9 +146,11 @@
           id="leaderboard"
           bind:checked={$options.leaderboard}
         />
-        <label for="leaderboard">p2p leaderboard</label>
+        <label for="leaderboard" tabindex="0" on:keydown={checkbox}>
+          p2p leaderboard
+        </label>
         <input type="checkbox" id="potato" bind:checked={$options.potato} />
-        <label for="potato">potato</label>
+        <label for="potato" tabindex="0" on:keydown={checkbox}>potato</label>
         <input
           type="checkbox"
           id="seedground"
@@ -150,13 +158,17 @@
           checked={$options.landscape && $options.seedground}
           on:click={() => ($options.seedground = !$options.seedground)}
         />
-        <label for="seedground">seedground</label>
+        <label for="seedground" tabindex="0" on:keydown={checkbox}>
+          seedground
+        </label>
         <input
           type="checkbox"
           id="transitions"
           bind:checked={$options.transitions}
         />
-        <label for="transitions">transitions</label>
+        <label for="transitions" tabindex="0" on:keydown={checkbox}>
+          transitions
+        </label>
         <input
           type="checkbox"
           id="sound"
@@ -164,7 +176,9 @@
           checked={$options.transitions && $options.sound}
           on:click={() => ($options.sound = !$options.sound)}
         />
-        <label for="sound">sound effects</label>
+        <label for="sound" tabindex="0" on:keydown={checkbox}>
+          sound effects
+        </label>
       </div>
     </div>
     <div class="section-4">

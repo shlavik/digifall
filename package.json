@@ -1,7 +1,6 @@
 {
   "name": "digifall",
-  "version": "0.1.14",
-  "icon": "images/icon-192x192.png",
+  "version": "0.1.15",
   "scripts": {
     "start": "parcel src/main.html",
     "build": "parcel build src/main.js",

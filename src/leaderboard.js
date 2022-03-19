@@ -168,6 +168,7 @@ async function validateRecord(gameData = {}) {
             $leaderboard[type] = queue.data;
             return $leaderboard;
           });
+          console.warn("P2P LEADERBOARD UPDATED!");
         } catch (error) {
           console.error(error);
           continue;
