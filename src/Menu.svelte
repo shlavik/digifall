@@ -149,8 +149,6 @@
         <label for="leaderboard" tabindex="0" on:keydown={checkbox}>
           p2p leaderboard
         </label>
-        <input type="checkbox" id="potato" bind:checked={$options.potato} />
-        <label for="potato" tabindex="0" on:keydown={checkbox}>potato</label>
         <input
           type="checkbox"
           id="seedground"

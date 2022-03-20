@@ -168,18 +168,6 @@ input[type="checkbox"]:disabled + label {
   text-shadow: var(--shadow-1);
 }
 
-.app.potato {
-  --gloss: none;
-  --gloss-inset: none;
-  --glow: none;
-  --glow-random: none;
-  --shadow-0: none;
-  --shadow-1: none;
-  --shadow-2: none;
-  --shadow-3: 0 0 0 transparent;
-  --shadow-inset: none;
-}
-
 .color-0 {
   --color: var(--color-zero);
 }
@@ -599,11 +587,6 @@ input[type="checkbox"]:disabled + label {
   text-shadow: 0 0 1px white;
 }
 
-.potato .leaderboard .type:active {
-  color: transparent;
-  text-shadow: none;
-}
-
 .leaderboard .type::before,
 .leaderboard .type::after {
   display: block;
@@ -624,12 +607,6 @@ input[type="checkbox"]:disabled + label {
 .leaderboard .type:active::before,
 .leaderboard .type:active::after {
   filter: drop-shadow(0 0 0.75px white);
-}
-
-.potato .leaderboard .type:active::before,
-.potato .leaderboard .type:active::after {
-  border-color: transparent;
-  filter: none;
 }
 
 .leaderboard .page {
@@ -653,13 +630,6 @@ input[type="checkbox"]:disabled + label {
 .leaderboard .page:active {
   color: var(--color-invis-2);
   text-shadow: 0 0 1px var(--color);
-}
-
-.potato .leaderboard .page:active {
-  border-color: transparent;
-  box-shadow: none;
-  color: transparent;
-  text-shadow: none;
 }
 
 .leaderboard dl {

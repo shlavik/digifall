@@ -46,11 +46,7 @@
   });
 </script>
 
-<div
-  class="app"
-  class:potato={$options.potato}
-  style:--color-random={$randomColor}
->
+<div class="app" style:--color-random={$randomColor}>
   <Game />
   {#if $overlay}
     <div class="overlay" transition:fade={checkTransition({ duration: 200 })}>
