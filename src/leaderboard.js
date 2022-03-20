@@ -60,7 +60,7 @@ async function validateRecord(gameData = {}) {
       log: writable(INITIAL_VALUES.log),
       matchedIndexes: writable(INITIAL_VALUES.matchedIndexes),
       moves: readable(moves),
-      options: readable({ playerName, transitions: false }),
+      options: readable({ playerName, speedrun: true }),
       overlay: writable(INITIAL_VALUES.overlay),
       phase: writable(INITIAL_VALUES.phase),
       plusIndex: writable(INITIAL_VALUES.plusIndex),
@@ -242,7 +242,6 @@ async function validateRecord(gameData = {}) {
   });
 
   options.subscribe(({ leaderboard }) => {
-    if (leaderboard) libp2p.start();
-    else libp2p.stop();
+    setTimeout(() => (leaderboard ? libp2p.start() : libp2p.stop()), 3333);
   });
 })();

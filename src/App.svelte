@@ -44,9 +44,13 @@
     if ($randomColor !== COLORS.white) return;
     updateRandomColor();
   });
+
+  randomColor.subscribe(($randomColor) => {
+    document.documentElement.style.setProperty("--color-random", $randomColor);
+  });
 </script>
 
-<div class="app" style:--color-random={$randomColor}>
+<div class="app">
   <Game />
   {#if $overlay}
     <div class="overlay" transition:fade={checkTransition({ duration: 200 })}>

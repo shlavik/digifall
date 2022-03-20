@@ -17,7 +17,7 @@
   }
 
   function click(event) {
-    if ($options.transitions) return;
+    if (!$options.speedrun) return;
     const card = event
       .composedPath()
       .find(({ dataset }) => dataset && dataset.index);
@@ -26,14 +26,10 @@
   }
 
   function longpress(event) {
-    if (!$options.transitions) return;
+    if ($options.speedrun) return;
     setPlusIndex(event.target);
   }
 
-  $: instant = $phase !== PHASES.fall;
-  $: overflow = $phase !== PHASES.idle && !blink;
-  $: progress = $phase !== PHASES.idle || $plusIndex;
-  $: transitions = $options.transitions;
   $: plusCard = $cards[$plusIndex];
   $: plusCardMemoized = plusCard || plusCardMemoized;
   $: blink = $matchedIndexes.length > 0 && $log.length === 1;
@@ -52,10 +48,9 @@
 
 <div
   class="board"
-  class:instant
-  class:overflow
-  class:progress
-  class:transitions
+  class:overflow={$phase !== PHASES.idle && !blink}
+  class:progress={$phase !== PHASES.idle || $plusIndex}
+  class:speedrun={$options.speedrun}
   on:click={click}
   on:longpress={longpress}
 >

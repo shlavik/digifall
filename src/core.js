@@ -32,24 +32,24 @@ export function getArrayFromBase64(base64) {
 /* CHECK LOGIC ****************************************************************/
 
 export function checkTransition(game, value, timeout = 0) {
-  const { transitions } = get(game.options);
+  const { speedrun } = get(game.options);
   const type = typeof value;
   if (type === "function") {
-    return transitions && game.movesInitial === null && timeout > 0
+    return !speedrun && game.movesInitial === null && timeout > 0
       ? setTimeout(() => value(game), timeout)
       : value(game);
   }
   if (type === "object") {
-    return transitions ? value : { duration: 0 };
+    return speedrun ? { duration: 0 } : value;
   }
-  return transitions ? value : 0;
+  return speedrun ? 0 : value;
 }
 
 export function checkSound(game, callback) {
-  const { sound, transitions } = get(game.options);
+  const { sound, speedrun } = get(game.options);
   if (
     !sound ||
-    !transitions ||
+    speedrun ||
     game.movesInitial !== null ||
     get(game.phase) === PHASES.initial
   ) {
@@ -85,6 +85,8 @@ function getFieldFromCards($cards) {
 }
 
 function getFallenCards(game, $cards) {
+  const $phase = get(game.phase);
+  const { speedrun } = get(game.options);
   const field = getFieldFromCards($cards);
   const result = [];
   const set = new Set();
@@ -94,9 +96,9 @@ function getFallenCards(game, $cards) {
       if (index === undefined) return ++count;
       const { x, value } = $cards[index];
       const duration =
-        !game.movesInitial && get(game.options).transitions
-          ? 100 * sqrt(2 * count)
-          : 0;
+        game.movesInitial || $phase !== PHASES.fall || speedrun
+          ? 0
+          : 100 * sqrt(2 * count);
       result[index] = {
         x,
         y: y - count,
@@ -182,12 +184,13 @@ function getDiffFromBuffer(buffer) {
 
 function doEnergyLogic(game, { buffer, value }) {
   const $phase = get(game.phase);
+  const { speedrun } = get(game.options);
   const diff =
-    !game.movesInitial && get(game.options).transitions
-      ? $phase === PHASES.gameover
-        ? sign(buffer)
-        : getDiffFromBuffer(buffer)
-      : buffer;
+    game.movesInitial || speedrun
+      ? buffer
+      : $phase === PHASES.gameover
+      ? sign(buffer)
+      : getDiffFromBuffer(buffer);
   if ($phase === PHASES.extra) {
     if (buffer === 0) {
       checkTransition(game, () => game.phase.set(PHASES.combo), 800);
@@ -435,12 +438,13 @@ function doScoreLogic(game, { buffer, value }) {
     );
     return;
   }
+  const { speedrun } = get(game.options);
   const diff =
-    !game.movesInitial && get(game.options).transitions
-      ? $phase === PHASES.gameover
-        ? sign(buffer)
-        : getDiffFromBuffer(buffer)
-      : buffer;
+    game.movesInitial || speedrun
+      ? buffer
+      : $phase === PHASES.gameover
+      ? sign(buffer)
+      : getDiffFromBuffer(buffer);
   checkTransition(
     game,
     () => {
@@ -572,6 +576,6 @@ export function resetGame(game, showOverlay = false, count = 8) {
   updatePreviousScore(game);
   game.overlay.set(showOverlay);
   game.randomColor.set(INITIAL_VALUES.randomColor);
-  const { playerName, transitions } = get(game.options);
-  shuffleBoard(game, playerName && transitions ? count : 0);
+  const { playerName, speedrun } = get(game.options);
+  shuffleBoard(game, playerName && !speedrun ? count : 0);
 }

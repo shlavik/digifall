@@ -124,7 +124,7 @@
   <div class="content" in:blur={checkTransition({ duration })}>
     <Leaderboard>
       <button title="RETURN TO MAIN MENU" on:click={saveOptions}>
-        main menu
+        return
       </button>
     </Leaderboard>
   </div>
@@ -159,19 +159,15 @@
         <label for="seedground" tabindex="0" on:keydown={checkbox}>
           seedground
         </label>
-        <input
-          type="checkbox"
-          id="transitions"
-          bind:checked={$options.transitions}
-        />
-        <label for="transitions" tabindex="0" on:keydown={checkbox}>
-          transitions
+        <input type="checkbox" id="speedrun" bind:checked={$options.speedrun} />
+        <label for="speedrun" tabindex="0" on:keydown={checkbox}>
+          speedrun mode
         </label>
         <input
           type="checkbox"
           id="sound"
-          disabled={!$options.transitions}
-          checked={$options.transitions && $options.sound}
+          disabled={$options.speedrun}
+          checked={!$options.speedrun && $options.sound}
           on:click={() => ($options.sound = !$options.sound)}
         />
         <label for="sound" tabindex="0" on:keydown={checkbox}>
@@ -182,7 +178,7 @@
     <div class="section-4">
       <div class="col">
         <button title="RETURN TO MAIN MENU" on:click={saveOptions}>
-          main menu
+          return
         </button>
       </div>
     </div>

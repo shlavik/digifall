@@ -5,7 +5,7 @@
   export let card;
   export let index;
 
-  function longpress(node, duration = 600) {
+  function longpress(node, duration = 400) {
     let timer;
     const start = () => {
       if ($phase !== PHASES.idle || $plusIndex !== undefined) return;

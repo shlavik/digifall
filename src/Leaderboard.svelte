@@ -22,7 +22,7 @@
     sortedIndex = sorted.findIndex(
       ({ playerName }) => playerName === $options[KEYS.playerName]
     );
-    page = sortedIndex > -1 ? Math.floor(sortedIndex / 9) : 0;
+    page = sortedIndex > -1 ? Math.floor(sortedIndex / 9) : page;
     updateRandomColor();
   }
 
@@ -38,10 +38,11 @@
   function nextType(event) {
     if (event.type === "click" || event.key === "Enter" || event.key === " ") {
       type = type === KEYS.highScore ? KEYS.highCombo : KEYS.highScore;
+      page = 0;
     }
   }
 
-  function pageSelect(event) {
+  function selectPage(event) {
     if (event.type === "click" || event.key === "Enter" || event.key === " ") {
       const item = event
         .composedPath()
@@ -81,8 +82,8 @@
     <ul
       class="pages"
       title="SELECT PAGE"
-      on:click={pageSelect}
-      on:keydown={pageSelect}
+      on:click={selectPage}
+      on:keydown={selectPage}
     >
       {#each Array.from({ length: pageCounts }) as _, index}
         {@const value = index + 1}

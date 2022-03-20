@@ -55,7 +55,7 @@ export const INITIAL_VALUES = {
     [KEYS.playerName]: "",
     [KEYS.leaderboard]: true,
     seedground: true,
-    transitions: true,
+    speedrun: false,
     sound: true,
   },
   overlay: true,
