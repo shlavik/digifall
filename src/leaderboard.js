@@ -13,6 +13,8 @@ import { indexedDBStore, localStorageStore } from "./persistence.js";
 import { options, phase, records } from "./stores";
 import { UniQueue } from "./uniqueue.js";
 
+const debug = false;
+
 export const leaderboard = indexedDBStore(
   KEYS.leaderboard,
   INITIAL_VALUES.leaderboard
@@ -109,14 +111,14 @@ async function validateRecord(gameData = {}) {
   });
 
   const push = async (connection) => {
-    const message = [];
+    const messages = [];
     for (type in queues) {
       queues[type].data.forEach(({ playerName, value }) => {
-        message.push(JSON.stringify({ type, playerName, value }));
+        messages.push(JSON.stringify({ type, playerName, value }));
       });
     }
     const { stream } = await connection.newStream(protocol + "/push");
-    return pipe(message, stream);
+    return pipe(messages, stream);
   };
 
   libp2p.handle(protocol + "/pull", async ({ connection }) => {
@@ -129,8 +131,8 @@ async function validateRecord(gameData = {}) {
       [KEYS.highScore]: new Set(),
     };
     await pipe(input, async (source) => {
-      for await (const msg of source) {
-        const { type, playerName, value } = JSON.parse(msg.toString());
+      for await (const message of source) {
+        const { type, playerName, value } = JSON.parse(message.toString());
         const queue = queues[type];
         const index = queue.indexes.get(playerName);
         if (index === undefined) continue;
@@ -154,9 +156,9 @@ async function validateRecord(gameData = {}) {
 
   libp2p.handle(protocol + "/validate", async ({ stream: input }) => {
     pipe(input, async (source) => {
-      for await (const msg of source) {
+      for await (const message of source) {
         try {
-          const remoteUnique = JSON.parse(msg.toString());
+          const remoteUnique = JSON.parse(message.toString());
           const { type, playerName, value } = remoteUnique;
           const queue = queues[type];
           const index = queue.indexes.get(playerName);
@@ -168,7 +170,7 @@ async function validateRecord(gameData = {}) {
             $leaderboard[type] = queue.data;
             return $leaderboard;
           });
-          console.warn("P2P LEADERBOARD UPDATED!");
+          console.warn("P2P LEADERBOARD UPDATED!", playerName, type, value);
         } catch (error) {
           console.error(error);
           continue;
@@ -178,11 +180,15 @@ async function validateRecord(gameData = {}) {
   });
 
   libp2p.on("peer:discovery", (peerId) => {
-    const isTrusted = trustedPeerIds.includes(peerId.toB58String());
-    if (isTrusted) libp2p.dial(peerId);
+    const peerIdB58String = peerId.toB58String();
+    if (debug) console.log("peer:discovery", peerIdB58String);
+    const trusted = trustedPeerIds.includes(peerIdB58String);
+    if (trusted) libp2p.dial(peerId);
   });
 
   libp2p.connectionManager.on("peer:connect", async (connection) => {
+    const peerIdB58String = connection.remotePeer.toB58String();
+    if (debug) console.log("peer:connect", peerIdB58String);
     try {
       await push(connection);
     } catch (error) {
@@ -244,4 +250,6 @@ async function validateRecord(gameData = {}) {
   options.subscribe(({ leaderboard }) => {
     setTimeout(() => (leaderboard ? libp2p.start() : libp2p.stop()), 3333);
   });
+
+  if (debug) window.libp2p = libp2p;
 })();

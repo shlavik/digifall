@@ -1,5 +1,6 @@
 <script>
   import { onDestroy } from "svelte";
+  import { fly } from "svelte/transition";
 
   import { COLORS, KEYS } from "./constants.js";
   import { compare, leaderboard, maxSize } from "./leaderboard.js";
@@ -14,31 +15,32 @@
 
   let type = KEYS.highScore;
   let page = 0;
-  let sortedIndex = -1;
+  let pagePrev = page;
+  let selfPage = -1;
 
-  onDestroy(() => (sortedIndex = -1));
-
-  function findStartPage() {
-    sortedIndex = sorted.findIndex(
-      ({ playerName }) => playerName === $options[KEYS.playerName]
-    );
-    page = sortedIndex > -1 ? Math.floor(sortedIndex / 9) : page;
-    updateRandomColor();
-  }
+  onDestroy(() => (selfPage = -1));
 
   function updateRandomColor() {
-    if (sortedIndex === -1) return ($randomColor = COLORS.white);
-    const selfPage = page === Math.trunc(sortedIndex / pageSize);
-    if (!selfPage) return ($randomColor = COLORS.white);
+    if (page !== selfPage) return ($randomColor = COLORS.white);
     const hue = Math.trunc(360 * Math.random());
     $randomColor = `hsl(${hue}, 100%, 50%)`;
     requestAnimationFrame(updateRandomColor);
   }
 
+  function findStartPage() {
+    selfIndex = sorted.findIndex(
+      ({ playerName }) => playerName === $options[KEYS.playerName]
+    );
+    if (selfIndex === -1) return (selfPage = -1);
+    selfPage = Math.trunc(selfIndex / pageSize);
+    pagePrev = page;
+    page = selfPage;
+    updateRandomColor();
+  }
+
   function nextType(event) {
     if (event.type === "click" || event.key === "Enter" || event.key === " ") {
       type = type === KEYS.highScore ? KEYS.highCombo : KEYS.highScore;
-      page = 0;
     }
   }
 
@@ -48,8 +50,15 @@
         .composedPath()
         .find(({ dataset }) => dataset && dataset.index);
       if (item === undefined) return;
+      pagePrev = page;
       page = Number(item.dataset.index);
     }
+  }
+
+  function getFlyX(sign = 1) {
+    if (page === pagePrev) return 0;
+    const amount = 256;
+    return sign * (page > pagePrev ? amount : -amount);
   }
 
   $: updateRandomColor(page);
@@ -99,27 +108,29 @@
     </ul>
   </div>
   <div class="section-3">
-    <dl>
-      {#each paged as { playerName, value }, index}
-        {@const self = playerName === $options[KEYS.playerName]}
-        {@const nth = page * pageSize + index + 1}
-        {@const marginLeft = (nth.toString().length === 1 ? 8 : 14) + "rem"}
-        {@const title = (
-          "PLACE: " +
-          nth +
-          '\nPLAYER NAME: "' +
-          playerName +
-          '"\nSCORE: ' +
-          value
-        ).toUpperCase()}
-        <dt class:self style:margin-left={marginLeft} data-nth={nth}>
-          <div class="player-name" {title}>{playerName}</div>
-        </dt>
-        <dd class:self style:margin-left={marginLeft} {title}>
-          {value}
-        </dd>
-      {/each}
-    </dl>
+    {#key page}
+      <dl in:fly={{ x: getFlyX(1) }} out:fly|local={{ x: getFlyX(-1) }}>
+        {#each paged as { playerName, value }, index}
+          {@const self = playerName === $options[KEYS.playerName]}
+          {@const nth = page * pageSize + index + 1}
+          {@const marginLeft = (nth.toString().length === 1 ? 8 : 14) + "rem"}
+          {@const title = (
+            "PLACE: " +
+            nth +
+            '\nPLAYER NAME: "' +
+            playerName +
+            '"\nSCORE: ' +
+            value
+          ).toUpperCase()}
+          <dt class:self style:margin-left={marginLeft} data-nth={nth}>
+            <div class="player-name" {title}>{playerName}</div>
+          </dt>
+          <dd class:self style:margin-left={marginLeft} {title}>
+            {value}
+          </dd>
+        {/each}
+      </dl>
+    {/key}
   </div>
   <div class="section-4">
     <div class="col">

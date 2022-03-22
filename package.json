@@ -1,6 +1,6 @@
 {
   "name": "digifall",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "scripts": {
     "start": "parcel src/main.html",
     "build": "parcel build src/main.js",
@@ -15,7 +15,7 @@
     "libp2p-mplex": "0.10.7",
     "libp2p-webrtc-star": "0.25.0",
     "libp2p-websockets": "0.16.2",
-    "parcel": "2.3.2",
+    "parcel": "2.4.0",
     "parcel-transformer-svelte": "1.2.3",
     "peer-id": "0.16.0",
     "process": "0.11.10",

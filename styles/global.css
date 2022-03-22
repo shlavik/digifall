@@ -625,7 +625,9 @@ input[type="checkbox"]:disabled + label {
 }
 
 .leaderboard dl {
+  position: absolute;
   display: flex;
+  width: 100%;
   flex-direction: column;
   align-items: stretch;
   padding: 0 1rem;
@@ -822,6 +824,7 @@ input[type="checkbox"]:disabled + label {
 }
 
 .section-3 {
+  overflow: hidden;
   flex-basis: 128rem;
 }
 
@@ -842,11 +845,18 @@ input[type="checkbox"]:disabled + label {
 .section-3 .row {
   align-items: center;
   justify-content: space-between;
-  gap: 8rem;
 }
 
 .section-3 .row button {
   flex: 1;
+}
+
+.section-3 .row button:first-child {
+  margin-right: 4rem;
+}
+
+.section-3 .row button:last-child {
+  margin-left: 4rem;
 }
 
 .section-4 {
