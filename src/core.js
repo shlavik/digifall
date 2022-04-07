@@ -17,8 +17,8 @@ const { abs, sign, sqrt, trunc } = Math;
 
 /* UTILITIES ******************************************************************/
 
-export function getRandom(prev = 0) {
-  return (prev * 16807 + 19487171) % 2147483647;
+export function getRandom(previous = 0) {
+  return (previous * 16807 + 19487171) % 2147483647;
 }
 
 export function getBase64FromArray(array) {
@@ -31,9 +31,14 @@ export function getArrayFromBase64(base64) {
 
 /* CHECK LOGIC ****************************************************************/
 
-export function checkTransition(game, value, timeout = 0) {
+export function checkSpeedrun(game, value, timeout = 0) {
   const { speedrun } = get(game.options);
   const type = typeof value;
+  if (type === "undefined") {
+    return {
+      duration: speedrun ? 0 : 400,
+    };
+  }
   if (type === "function") {
     return !speedrun && game.movesInitial === null && timeout > 0
       ? setTimeout(() => value(game), timeout)
@@ -64,8 +69,8 @@ export function checkSound(game, callback) {
 
 function checkLocalScore(game, type, value) {
   const $records = get(game.records);
-  const prevValue = $records[type][KEYS.value];
-  if (prevValue >= value) return;
+  const previousValue = $records[type][KEYS.value];
+  if (previousValue >= value) return;
   const { playerName } = get(game.options);
   $records[type] = {
     [KEYS.moves]: get(game.moves),
@@ -193,7 +198,7 @@ function doEnergyLogic(game, { buffer, value }) {
       : getDiffFromBuffer(buffer);
   if ($phase === PHASES.extra) {
     if (buffer === 0) {
-      checkTransition(game, () => game.phase.set(PHASES.combo), 800);
+      checkSpeedrun(game, () => game.phase.set(PHASES.combo), 800);
       return;
     }
     game.log.update(($log) => {
@@ -204,7 +209,7 @@ function doEnergyLogic(game, { buffer, value }) {
     });
   }
   if (buffer === 0) return;
-  checkTransition(
+  checkSpeedrun(
     game,
     () => {
       game.energy.set({
@@ -212,7 +217,7 @@ function doEnergyLogic(game, { buffer, value }) {
         value: value + diff,
       });
     },
-    $phase === PHASES.gameover ? 200 : 20
+    $phase === PHASES.gameover ? 200 : 32
   );
 }
 
@@ -237,6 +242,9 @@ function doIdlePhase(game) {
     checkLocalScore(game, KEYS.highScore, get(game.score).value);
     return;
   }
+  game.cards.update(($cards) =>
+    $cards.map((card) => ((card.duration = 0), card))
+  );
   checkLocalScore(game, KEYS.highScore, get(game.score).value);
   checkSound(game, resetSounds);
 }
@@ -276,8 +284,8 @@ function doBlinkPhase(game) {
       (result, index) => result + $cards[index].value,
       0
     );
-    checkTransition(game, () => game.energy.set({ buffer, value }), 400);
-    checkTransition(game, () => game.phase.set(PHASES.match), 800);
+    checkSpeedrun(game, () => game.energy.set({ buffer, value }), 400);
+    checkSpeedrun(game, () => game.phase.set(PHASES.match), 800);
     checkSound(game, [playSoundWordUp, playSoundBlink]);
     return;
   }
@@ -303,12 +311,12 @@ function doMatchPhase(game) {
     );
     return [];
   });
-  checkTransition(game, () => game.phase.set(PHASES.fall), 400);
+  checkSpeedrun(game, () => game.phase.set(PHASES.fall), 400);
 }
 
 function doFallPhase(game) {
   game.cards.update(($cards) => getFallenCards(game, $cards));
-  checkTransition(game, () => game.phase.set(PHASES.blink), 400);
+  checkSpeedrun(game, () => game.phase.set(PHASES.blink), 400);
 }
 
 function doExtraPhase(game) {
@@ -330,7 +338,7 @@ function doComboPhase(game) {
     value,
   }));
   checkLocalScore(game, KEYS.highCombo, combo);
-  checkTransition(
+  checkSpeedrun(
     game,
     () => game.phase.set(PHASES.score),
     get(game.log).length > 1 ? 800 : 0
@@ -344,11 +352,9 @@ function doScorePhase(game) {
 }
 
 function doGameOverPhase(game) {
-  game.overlay.set(true);
-  checkTransition(
+  checkSpeedrun(
     game,
     () => {
-      if (!get(game.overlay)) return;
       game.energy.update(({ value }) => ({
         buffer: -value,
         value,
@@ -389,7 +395,7 @@ function doPlusIndexLogic(game, $plusIndex) {
   $moves.push($plusIndex);
   game.moves.set(getBase64FromArray($moves));
   game.energy.update(($energy) => ({ ...$energy, buffer: -10 }));
-  checkTransition(game, () => game.phase.set(PHASES.plus), 400);
+  checkSpeedrun(game, () => game.phase.set(PHASES.plus), 400);
   checkSound(game, playSoundCardPlus);
 }
 
@@ -425,7 +431,7 @@ function doScoreLogic(game, { buffer, value }) {
       checkLocalScore(game, KEYS.highScore, value);
       return;
     }
-    checkTransition(
+    checkSpeedrun(
       game,
       () => {
         game.log.set([]);
@@ -445,7 +451,7 @@ function doScoreLogic(game, { buffer, value }) {
       : $phase === PHASES.gameover
       ? sign(buffer)
       : getDiffFromBuffer(buffer);
-  checkTransition(
+  checkSpeedrun(
     game,
     () => {
       game.score.set({
@@ -540,8 +546,8 @@ function doSeedLogic(game, $seed) {
 
 function updatePreviousScore(game) {
   const $records = get(game.records);
-  game[KEYS.prevHighCombo] = $records[KEYS.highCombo][KEYS.value];
-  game[KEYS.prevHighScore] = $records[KEYS.highScore][KEYS.value];
+  game[KEYS.previousHighCombo] = $records[KEYS.highCombo][KEYS.value];
+  game[KEYS.previousHighScore] = $records[KEYS.highScore][KEYS.value];
 }
 
 export function initCore(game) {
@@ -571,10 +577,9 @@ function shuffleBoard(game, count) {
   if (count-- > 0) setTimeout(() => shuffleBoard(game, count), 64);
 }
 
-export function resetGame(game, showOverlay = false, count = 8) {
+export function resetGame(game, count = 8) {
   checkSound(game, playSoundGenerate);
   updatePreviousScore(game);
-  game.overlay.set(showOverlay);
   game.randomColor.set(INITIAL_VALUES.randomColor);
   const { playerName, speedrun } = get(game.options);
   shuffleBoard(game, playerName && !speedrun ? count : 0);

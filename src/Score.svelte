@@ -2,7 +2,7 @@
   import { blur } from "svelte/transition";
 
   import { KEYS, PHASES } from "./constants.js";
-  import { checkTransition, phase, records, score } from "./stores.js";
+  import { phase, records, score } from "./stores.js";
 
   export let newRecordHighCombo = false;
   export let newRecordHighScore = false;
@@ -57,11 +57,7 @@
 </script>
 
 {#key type}
-  <span
-    class="score"
-    in:blur={checkTransition({ duration: 400 })}
-    on:click={nextScore}
-  >
+  <span class="score" in:blur on:click={nextScore}>
     <span class="type" class:visible>{types[type]}:</span>
     {#if overlaid || $phase !== PHASES.gameover}
       <span class="value">{value}</span>

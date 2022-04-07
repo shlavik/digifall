@@ -2,7 +2,7 @@ import { derived, writable } from "svelte/store";
 
 import { INITIAL_VALUES, KEYS } from "./constants.js";
 import {
-  checkTransition as coreCheckTransition,
+  checkSpeedrun as coreCheckSpeedrun,
   getSeed,
   resetGame as coreResetGame,
 } from "./core.js";
@@ -14,7 +14,6 @@ export const log = writable(INITIAL_VALUES.log);
 export const matchedIndexes = writable(INITIAL_VALUES.matchedIndexes);
 export const moves = localStorageStore(KEYS.moves, INITIAL_VALUES.moves);
 export const options = localStorageStore(KEYS.options, INITIAL_VALUES.options);
-export const overlay = writable(INITIAL_VALUES.overlay);
 export const phase = writable(INITIAL_VALUES.phase);
 export const plusIndex = writable(INITIAL_VALUES.plusIndex);
 export const randomColor = writable(INITIAL_VALUES.randomColor);
@@ -36,7 +35,6 @@ const game = {
   matchedIndexes,
   moves,
   options,
-  overlay,
   phase,
   plusIndex,
   randomColor,
@@ -46,12 +44,14 @@ const game = {
   timestamp,
 };
 
-export function checkTransition(value, timeout = 0) {
-  return coreCheckTransition(game, value, timeout);
+export function checkSpeedrun(value, timeout = 0) {
+  return coreCheckSpeedrun(game, value, timeout);
 }
 
-export function resetGame(showOverlay = false, count = 8) {
-  return coreResetGame(game, showOverlay, count);
+export function resetGame(count = 8) {
+  return coreResetGame(game, count);
 }
+
+export const overlay = writable(INITIAL_VALUES.overlay);
 
 export default game;

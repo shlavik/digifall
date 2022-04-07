@@ -47,9 +47,6 @@ const queues = {
 };
 
 async function validateRecord(gameData = {}) {
-  if (gameData[KEYS.protocolVersion] !== PROTOCOL_VERSION) {
-    throw new Error("RECORD VALIDATION: WRONG PROTOCOL VERSION!");
-  }
   const { type, moves, playerName, timestamp, value } = gameData;
   if (!type || !moves || !playerName || !timestamp || !value) {
     throw new Error("RECORD VALIDATION: BAD GAME DATA!");
@@ -63,7 +60,6 @@ async function validateRecord(gameData = {}) {
       matchedIndexes: writable(INITIAL_VALUES.matchedIndexes),
       moves: readable(moves),
       options: readable({ playerName, speedrun: true }),
-      overlay: writable(INITIAL_VALUES.overlay),
       phase: writable(INITIAL_VALUES.phase),
       plusIndex: writable(INITIAL_VALUES.plusIndex),
       records: writable({ ...INITIAL_VALUES.records }),
@@ -83,20 +79,13 @@ async function validateRecord(gameData = {}) {
 (async function initP2PLeaderboard() {
   const protocol = `/digifall/${PROTOCOL_VERSION}`;
 
-  const trustedPeerIds = [];
-
   const peerId = await PeerId.createFromJSON(
     get(localStorageStore(KEYS.peerId, (await PeerId.create()).toJSON()))
   );
 
   const libp2p = await Libp2p.create({
     addresses: {
-      listen: [
-        "/dns4/star.thedisco.zone/tcp/9090/wss/p2p-webrtc-star",
-        // "/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star",
-        // "/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star",
-        // "/dns4/webrtc-star.discovery.libp2p.io/tcp/443/wss/p2p-webrtc-star/",
-      ],
+      listen: ["/dns4/star.digifall.app/tcp/8443/wss/p2p-webrtc-star"],
     },
     modules: {
       transport: [WebSockets, WebRTCStar],
@@ -165,8 +154,8 @@ async function validateRecord(gameData = {}) {
           if (index !== undefined && queue.data[index].value >= value) continue;
           const recordValid = await validateRecord(remoteUnique);
           if (!recordValid) continue;
-          queue.push(remoteUnique);
           leaderboard.update(($leaderboard) => {
+            queue.push(remoteUnique);
             $leaderboard[type] = queue.data;
             return $leaderboard;
           });
@@ -182,8 +171,6 @@ async function validateRecord(gameData = {}) {
   libp2p.on("peer:discovery", (peerId) => {
     const peerIdB58String = peerId.toB58String();
     if (debug) console.log("peer:discovery", peerIdB58String);
-    const trusted = trustedPeerIds.includes(peerIdB58String);
-    if (trusted) libp2p.dial(peerId);
   });
 
   libp2p.connectionManager.on("peer:connect", async (connection) => {
@@ -208,9 +195,7 @@ async function validateRecord(gameData = {}) {
     if (queuesEmpty) {
       if (leaderboardEmpty) return;
       for (let type in queues) {
-        const data = $leaderboard[type].filter(
-          ({ protocolVersion }) => protocolVersion === PROTOCOL_VERSION
-        );
+        const data = $leaderboard[type];
         queues[type] = new UniQueue({
           data,
           maxSize,

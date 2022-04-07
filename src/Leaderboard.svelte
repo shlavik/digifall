@@ -1,10 +1,10 @@
 <script>
   import { onDestroy } from "svelte";
-  import { fly } from "svelte/transition";
+  import { blur, fly } from "svelte/transition";
 
-  import { COLORS, KEYS } from "./constants.js";
+  import { COLORS, KEYS, OVERLAYS } from "./constants.js";
   import { compare, leaderboard, maxSize } from "./leaderboard.js";
-  import { options, randomColor } from "./stores.js";
+  import { options, overlay, randomColor } from "./stores.js";
 
   const types = {
     [KEYS.highCombo]: "high combos",
@@ -55,10 +55,14 @@
     }
   }
 
-  function getFlyX(sign = 1) {
+  function getFlyX(ratio = 1) {
     if (page === pagePrev) return 0;
     const amount = 256;
-    return sign * (page > pagePrev ? amount : -amount);
+    return ratio * (page > pagePrev ? amount : -amount);
+  }
+
+  function showMenu() {
+    $overlay = OVERLAYS.menu;
   }
 
   $: updateRandomColor(page);
@@ -75,7 +79,7 @@
   );
 </script>
 
-<div class="leaderboard">
+<div class="leaderboard content" in:blur>
   <div class="section-1">
     <span
       class="type"
@@ -134,7 +138,7 @@
   </div>
   <div class="section-4">
     <div class="col">
-      <slot />
+      <button title="RETURN TO MAIN MENU" on:click={showMenu}>return</button>
     </div>
   </div>
 </div>

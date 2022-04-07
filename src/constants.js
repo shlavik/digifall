@@ -24,6 +24,14 @@ export const KEYS = {
   value: "value",
 };
 
+export const OVERLAYS = {
+  gameover: "gameover",
+  leaderboard: "leaderboard",
+  menu: "menu",
+  options: "options",
+  wellcome: "wellcome",
+};
+
 export const PHASES = {
   blink: "blink",
   combo: "combo",
@@ -58,7 +66,7 @@ export const INITIAL_VALUES = {
     speedrun: false,
     sound: true,
   },
-  overlay: true,
+  overlay: OVERLAYS.menu,
   phase: PHASES.initial,
   plusIndex: undefined,
   randomColor: COLORS.white,

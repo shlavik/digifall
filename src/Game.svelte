@@ -4,14 +4,16 @@
   import Log from "./Log.svelte";
   import Score from "./Score.svelte";
 
+  import { OVERLAYS } from "./constants";
   import { getRandom } from "./core.js";
   import { log, options, overlay, seed } from "./stores.js";
 
   function showMenu() {
-    $overlay = true;
+    $overlay = OVERLAYS.menu;
   }
 
-  function getSeedgroundStyle(random) {
+  function getSeedgroundStyle(landscape, random) {
+    if (!landscape || !random) return;
     const getNextRandom = () => (random = getRandom(random));
     const getColor = (lightness = 16) => {
       return `hsl(${getNextRandom() % 360},50%,${lightness}%)`;
@@ -37,10 +39,7 @@
       background-size: ${a}rem, ${b}rem, ${c}rem, ${d}rem;`;
   }
 
-  $: style =
-    $options.landscape && $options.seedground && $seed
-      ? getSeedgroundStyle($seed)
-      : undefined;
+  $: style = getSeedgroundStyle($options.landscape, $seed);
 </script>
 
 <div class="game" class:blur={$overlay}>
@@ -53,10 +52,8 @@
           class:screen={$log.length > 0}
           on:click={showMenu}
         >
+          {#if !$overlay}<span class="big">digifall</span>{/if}
           <Log />
-          {#if !$overlay}
-            <span class="big">digifall</span>
-          {/if}
         </button>
       </div>
       <div class="section-2">
