@@ -163,6 +163,14 @@ input[type="checkbox"]:disabled + label {
   cursor: not-allowed;
 }
 
+p {
+  font-size: 4rem;
+  letter-spacing: 1.4rem;
+  line-height: 6rem;
+  text-align: center;
+  text-indent: 1.4rem;
+}
+
 .color-0 {
   --color: var(--color-zero);
 }
@@ -753,6 +761,10 @@ input[type="checkbox"]:disabled + label {
   animation: octocat-wave 560ms ease-in-out;
 }
 
+.player-name.blink {
+  animation: blink 200ms steps(2, end) 2;
+}
+
 .section-1 {
   flex-basis: 37rem;
   text-align: center;
@@ -847,8 +859,11 @@ input[type="checkbox"]:disabled + label {
   text-align: right;
 }
 
-.wellcome .player-name.blink {
-  animation: blink 200ms steps(2, end) 2;
+.symbols {
+  color: yellow;
+  font-size: 3rem;
+  line-height: 0;
+  text-align: center;
 }
 
 @keyframes blink {

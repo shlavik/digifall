@@ -9,8 +9,8 @@
   import { KEYS, OVERLAYS } from "./constants.js";
   import { options, overlay, resetGame } from "./stores.js";
 
-  let dialogOpened;
   let dialogComponent;
+  let dialogOpened = false;
 
   onMount(() => {
     if ($options.playerName !== "") return;
@@ -24,14 +24,6 @@
   function startNewGame() {
     $overlay = null;
     resetGame();
-  }
-
-  function showNewGameDialog() {
-    if (dialogComponent) dialogComponent.show();
-  }
-
-  function closeDialog() {
-    if (dialogComponent) dialogComponent.close();
   }
 
   function showLeaderboard() {
@@ -55,7 +47,7 @@
     <div class="section-3">
       <div class="col">
         <button on:click={resume}>resume</button>
-        <button on:click={showNewGameDialog}>new game</button>
+        <button on:click={dialogComponent.show}>new game</button>
         {#if $options[KEYS.leaderboard]}
           <button on:click={showLeaderboard}>p2p leaderboard</button>
         {/if}
@@ -85,11 +77,12 @@
     </svg>
   </a>
 {/if}
-<Dialog
-  text="start a new game?"
-  bind:opened={dialogOpened}
-  bind:this={dialogComponent}
->
-  <button on:click={startNewGame}>yes</button>
-  <button on:click={closeDialog}>no</button>
+<Dialog bind:opened={dialogOpened} bind:this={dialogComponent}>
+  <div class="col">
+    <p>start a new game?</p>
+    <div class="row">
+      <button on:click={startNewGame}>yes</button>
+      <button on:click={dialogComponent.close}>no</button>
+    </div>
+  </div>
 </Dialog>

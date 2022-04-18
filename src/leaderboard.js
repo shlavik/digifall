@@ -95,7 +95,7 @@ async function validateRecord(gameData = {}) {
     peerId,
     connectionManager: {
       maxConnections: 5,
-      minConnections: 3,
+      minConnections: 2,
     },
   });
 

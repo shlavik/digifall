@@ -41,14 +41,11 @@
     updateRandomColor();
   });
 
-  randomColor.subscribe(($randomColor) => {
-    document.documentElement.style.setProperty("--color-random", $randomColor);
-  });
-
-  phase.subscribe(($phase) => {
-    if ($phase !== PHASES.gameover) return;
-    $overlay = OVERLAYS.gameover;
-  });
+  $: document.documentElement.style.setProperty("--color-random", $randomColor);
+  // $: document.head
+  //   .querySelector("meta[name='theme-color']")
+  //   .setAttribute("content", $overlay ? "#fff" : "#ff0");
+  $: if ($phase === PHASES.gameover) $overlay = OVERLAYS.gameover;
 </script>
 
 <div class="app">

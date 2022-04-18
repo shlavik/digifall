@@ -52,7 +52,9 @@
           class:screen={$log.length > 0}
           on:click={showMenu}
         >
-          {#if !$overlay}<span class="big">digifall</span>{/if}
+          {#if !$overlay || $overlay === OVERLAYS.menu}
+            <span class="big">digifall</span>
+          {/if}
           <Log />
         </button>
       </div>
