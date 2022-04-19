@@ -4,7 +4,7 @@
   import Energy from "./Energy.svelte";
   import Score from "./Score.svelte";
 
-  import { KEYS, OVERLAYS } from "./constants.js";
+  import { KEYS } from "./constants.js";
   import game, {
     energy,
     overlay,

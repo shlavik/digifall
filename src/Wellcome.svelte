@@ -50,7 +50,7 @@
 >
   <div class="col">
     <p>this game doesn't contain tutorial mode!</p>
-    <p>the rules are may be not obvious at first, but quite simple.</p>
+    <p>the rules may not be obvious at first, but they're pretty simple.</p>
     <button on:click={dialogComponent.close}>continue</button>
   </div>
 </Dialog>

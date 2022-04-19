@@ -16,7 +16,6 @@ export const moves = localStorageStore(KEYS.moves, INITIAL_VALUES.moves);
 export const options = localStorageStore(KEYS.options, INITIAL_VALUES.options);
 export const phase = writable(INITIAL_VALUES.phase);
 export const plusIndex = writable(INITIAL_VALUES.plusIndex);
-export const randomColor = writable(INITIAL_VALUES.randomColor);
 export const records = localStorageStore(KEYS.records, INITIAL_VALUES.records);
 export const score = writable(INITIAL_VALUES.score);
 export const timestamp = localStorageStore(KEYS.timestamp, Date.now());
@@ -37,7 +36,6 @@ const game = {
   options,
   phase,
   plusIndex,
-  randomColor,
   records,
   score,
   seed,
@@ -53,5 +51,6 @@ export function resetGame(count = 8) {
 }
 
 export const overlay = writable(INITIAL_VALUES.overlay);
+export const randomColor = writable(INITIAL_VALUES.randomColor);
 
 export default game;

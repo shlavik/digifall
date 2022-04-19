@@ -580,7 +580,6 @@ function shuffleBoard(game, count) {
 export function resetGame(game, count = 8) {
   checkSound(game, playSoundGenerate);
   updatePreviousScore(game);
-  game.randomColor.set(INITIAL_VALUES.randomColor);
   const { playerName, speedrun } = get(game.options);
   shuffleBoard(game, playerName && !speedrun ? count : 0);
 }

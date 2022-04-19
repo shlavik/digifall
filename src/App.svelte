@@ -21,7 +21,7 @@
     const ratio = offsetHeight / offsetWidth;
     const landscape = ratio < 1.5;
     const size = landscape ? offsetHeight / 192 : offsetWidth / 128;
-    style.setProperty("--pixel", size + "px");
+    style.setProperty("--pixel", Math.trunc(size * 100) / 100 + "px");
     $options.landscape = landscape;
   }
 
@@ -35,16 +35,8 @@
     requestAnimationFrame(updateRandomColor);
   }
 
-  energy.subscribe(({ value }) => {
-    if (value > 0 && value < 101) return;
-    if ($randomColor !== COLORS.white) return;
-    updateRandomColor();
-  });
-
+  $: if ($energy.value < 1 || $energy.value > 100) updateRandomColor();
   $: document.documentElement.style.setProperty("--color-random", $randomColor);
-  // $: document.head
-  //   .querySelector("meta[name='theme-color']")
-  //   .setAttribute("content", $overlay ? "#fff" : "#ff0");
   $: if ($phase === PHASES.gameover) $overlay = OVERLAYS.gameover;
 </script>
 

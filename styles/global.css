@@ -165,10 +165,10 @@ input[type="checkbox"]:disabled + label {
 
 p {
   font-size: 4rem;
-  letter-spacing: 1.4rem;
+  letter-spacing: 1.5rem;
   line-height: 6rem;
   text-align: center;
-  text-indent: 1.4rem;
+  text-indent: 0;
 }
 
 .color-0 {

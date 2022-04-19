@@ -37,7 +37,7 @@ export function indexedDBStore(key, initialValue) {
       idbKeyval.set(key, value, database).then(() => store.set(value));
     },
     update(cb) {
-      this.set(cb(get(this)));
+      idbKeyval.get(key, database).then((value) => this.set(cb(value)));
     },
     subscribe: store.subscribe,
   };
