@@ -1,6 +1,7 @@
 import { NOISE } from "@chainsafe/libp2p-noise";
 import pipe from "it-pipe";
 import Libp2p from "libp2p";
+import KadDHT from "libp2p-kad-dht";
 import Mplex from "libp2p-mplex";
 import WebRTCStar from "libp2p-webrtc-star";
 import WebSockets from "libp2p-websockets";
@@ -71,7 +72,9 @@ async function validateRecord(gameData = {}) {
       const { movesInitial, phase } = game;
       if (movesInitial !== null && get(phase) !== PHASES.gameover) return;
       clearTimeout(timer);
-      resolve($records[type][KEYS.value] === value);
+      if ($records[type][KEYS.value] === value) resolve(true);
+      else if (debug) console.warn(gameData);
+      reject("RECORD VALIDATION: WRONG VALUE!");
     });
   });
 }
@@ -91,11 +94,18 @@ async function validateRecord(gameData = {}) {
       transport: [WebSockets, WebRTCStar],
       connEncryption: [NOISE],
       streamMuxer: [Mplex],
+      dht: KadDHT,
     },
     peerId,
     connectionManager: {
       maxConnections: 5,
-      minConnections: 2,
+      minConnections: 3,
+    },
+    config: {
+      dht: {
+        enabled: true,
+        kBucketSize: 20,
+      },
     },
   });
 
@@ -152,8 +162,7 @@ async function validateRecord(gameData = {}) {
           const queue = queues[type];
           const index = queue.indexes.get(playerName);
           if (index !== undefined && queue.data[index].value >= value) continue;
-          const recordValid = await validateRecord(remoteUnique);
-          if (!recordValid) continue;
+          await validateRecord(remoteUnique);
           leaderboard.update(($leaderboard) => {
             queue.push(remoteUnique);
             $leaderboard[type] = queue.data;
