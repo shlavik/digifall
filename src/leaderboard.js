@@ -69,11 +69,11 @@ async function validateRecord(gameData = {}) {
       timestamp: readable(timestamp),
     });
     game.records.subscribe(($records) => {
-      const { movesInitial, phase } = game;
-      if (movesInitial !== null && get(phase) !== PHASES.gameover) return;
+      if (game.movesInitial !== null) return;
       clearTimeout(timer);
-      if ($records[type][KEYS.value] === value) resolve(true);
-      else if (debug) console.warn(gameData);
+      const recordValue = $records[type][KEYS.value];
+      if (recordValue === value) resolve(recordValue);
+      else if (debug) console.warn(recordValue, gameData);
       reject("RECORD VALIDATION: WRONG VALUE!");
     });
   });

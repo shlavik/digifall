@@ -3,8 +3,6 @@
 
   import { PHASES } from "./constants.js";
   import { checkSpeedrun, log, phase, score } from "./stores.js";
-
-  $: collapse = $log.length === 1;
 </script>
 
 <ol class="log">
@@ -32,6 +30,7 @@
     {/each}
   {/if}
   {#if $phase === PHASES.combo || $phase === PHASES.score}
+    {@const collapse = $log.length === 1}
     <li
       class:collapse
       in:slide={checkSpeedrun({ duration: collapse ? 0 : 100 })}

@@ -33,21 +33,20 @@ export function getArrayFromBase64(base64) {
 
 export function checkSpeedrun(game, value, timeout = 0) {
   const { speedrun } = get(game.options);
-  const type = typeof value;
-  if (type === "undefined") {
-    return {
-      duration: speedrun ? 0 : 400,
-    };
+  switch (typeof value) {
+    case "undefined":
+      return {
+        duration: speedrun ? 0 : 400,
+      };
+    case "function":
+      return !speedrun && game.movesInitial === null && timeout > 0
+        ? setTimeout(() => value(game), timeout)
+        : value(game);
+    case "object":
+      return speedrun ? { duration: 0 } : value;
+    default:
+      return speedrun ? 0 : value;
   }
-  if (type === "function") {
-    return !speedrun && game.movesInitial === null && timeout > 0
-      ? setTimeout(() => value(game), timeout)
-      : value(game);
-  }
-  if (type === "object") {
-    return speedrun ? { duration: 0 } : value;
-  }
-  return speedrun ? 0 : value;
 }
 
 export function checkSound(game, callback) {
@@ -223,12 +222,12 @@ function doEnergyLogic(game, { buffer, value }) {
 
 /* PHASE LOGIC ****************************************************************/
 
-function doInitPhase(game) {
-  setTimeout(() => game.phase.set(PHASES.idle));
+function doInitialPhase(game) {
+  setTimeout(() => game.phase.set(PHASES.idle), 0);
 }
 
 function doIdlePhase(game) {
-  if (game.movesInitial) {
+  if (game.movesInitial !== null) {
     if (game.moveCount < game.movesInitial.length) {
       game.plusIndex.set(game.movesInitial[game.moveCount++]);
       game.energy.update(({ buffer, value }) => ({
@@ -352,6 +351,7 @@ function doScorePhase(game) {
 }
 
 function doGameOverPhase(game) {
+  game.movesInitial = null;
   checkSpeedrun(
     game,
     () => {
@@ -370,7 +370,7 @@ function doGameOverPhase(game) {
 }
 
 const PHASE_LOGICS = {
-  [PHASES.initial]: doInitPhase,
+  [PHASES.initial]: doInitialPhase,
   [PHASES.idle]: doIdlePhase,
   [PHASES.plus]: doPlusPhase,
   [PHASES.blink]: doBlinkPhase,
@@ -529,14 +529,12 @@ function doSeedLogic(game, $seed) {
   if (!$seed) return;
   game.getNextCardValue = createGetNextCardValue($seed);
   game.cards.set(getPreparedCards(game, getInitialCards(game)));
-  const $moves = get(game.moves);
+  let $moves = get(game.moves);
   if (!$moves) return;
-  const movesArray = Array.isArray($moves)
-    ? $moves
-    : getArrayFromBase64($moves);
-  if (movesArray.length > 0) {
+  $moves = Array.isArray($moves) ? $moves : getArrayFromBase64($moves);
+  if ($moves.length > 0) {
     game.moveCount = 0;
-    game.movesInitial = movesArray;
+    game.movesInitial = $moves;
     return;
   }
   game.movesInitial = null;

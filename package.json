@@ -1,6 +1,6 @@
 {
   "name": "digifall",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "scripts": {
     "start": "parcel src/main.html",
     "build": "parcel build src/main.js",
@@ -21,6 +21,6 @@
     "peer-id": "0.16.0",
     "process": "0.11.10",
     "shx": "0.3.4",
-    "svelte": "3.47.0"
+    "svelte": "3.48.0"
   }
 }
