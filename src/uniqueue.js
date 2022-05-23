@@ -48,15 +48,14 @@ export function UniQueue({
       data.push(item);
       up(data.length - 1);
       if (data.length <= maxSize) return;
-      this.pop();
-    } else {
-      if (compare(data[index], item) >= 0) return;
-      data[index] = item;
-      down(index);
+      return this.pop();
     }
+    if (compare(data[index], item) >= 0) return;
+    data[index] = item;
+    down(index);
   };
   this.pop = () => {
-    if (data.length === 0) return undefined;
+    if (data.length === 0) return;
     const top = data[0];
     const bottom = data.pop();
     if (data.length > 0) {

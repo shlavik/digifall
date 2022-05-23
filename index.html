@@ -15,8 +15,22 @@
     <meta name="theme-color" content="transparent" />
     <title>Digifall — entropy fighting mathematactic game</title>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" type="image/png" href="/images/icon-192x192.png" />
-    <link rel="stylesheet" href="/styles/global.css" />
+    <link rel="icon" type="image/png" href="/images/icon-48x48.png" />
+    <link
+      rel="preload"
+      href="/fonts/5x5.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/7x7.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-KK6TCRZ4TJ"
@@ -29,7 +43,7 @@
       gtag("js", new Date());
       gtag("config", "G-KK6TCRZ4TJ");
     </script>
-    <script defer src="/dist/main.js"></script>
+    <script type="module" src="/src/main.js"></script>
   </head>
 
   <body oncontextmenu="return false"></body>

@@ -27,8 +27,8 @@
     requestAnimationFrame(updateRandomColor);
   }
 
-  function findStartPage() {
-    selfIndex = sorted.findIndex(
+  function findStartPage(sorted) {
+    const selfIndex = sorted.findIndex(
       ({ playerName }) => playerName === $options[KEYS.playerName]
     );
     if (selfIndex === -1) return (selfPage = -1);

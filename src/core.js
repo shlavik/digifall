@@ -11,7 +11,7 @@ import {
   playSoundKick,
   playSoundWordUp,
   resetSounds,
-} from "./sound.js";
+} from "./sounds.js";
 
 const { abs, sign, sqrt, trunc } = Math;
 

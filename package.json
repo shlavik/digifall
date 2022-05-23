@@ -1,26 +1,23 @@
 {
   "name": "digifall",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "scripts": {
-    "start": "parcel src/main.html",
-    "build": "parcel build src/main.js",
-    "prebuild": "shx rm -rf dist/*"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@chainsafe/libp2p-noise": "5.0.3",
+    "@chainsafe/libp2p-noise": "6.2.0",
+    "@libp2p/mplex": "1.1.0",
+    "@libp2p/webrtc-star": "1.0.12",
+    "@libp2p/websockets": "1.0.9",
+    "@sveltejs/vite-plugin-svelte": "1.0.0-next.47",
     "howler": "2.2.3",
     "idb-keyval": "6.1.0",
-    "it-pipe": "1.1.0",
-    "libp2p": "0.36.2",
-    "libp2p-kad-dht": "0.28.6",
-    "libp2p-mplex": "0.10.7",
-    "libp2p-webrtc-star": "0.25.0",
-    "libp2p-websockets": "0.16.2",
-    "parcel": "2.5.0",
-    "parcel-transformer-svelte": "1.2.3",
-    "peer-id": "0.16.0",
-    "process": "0.11.10",
-    "shx": "0.3.4",
-    "svelte": "3.48.0"
+    "it-pipe": "2.0.3",
+    "libp2p": "0.37.2",
+    "svelte": "3.48.0",
+    "uint8arrays": "3.0.0",
+    "vite": "2.9.9"
   }
 }

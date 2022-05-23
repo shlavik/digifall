@@ -6,4 +6,4 @@
 
 https://digifall.app
 
-[![https://digifall.app](images/screenshot.png "https://digifall.app")](https://digifall.app)
+[![https://digifall.app](public/images/screenshot.png "https://digifall.app")](https://digifall.app)

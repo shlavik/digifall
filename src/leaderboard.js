@@ -1,20 +1,23 @@
-import { NOISE } from "@chainsafe/libp2p-noise";
-import pipe from "it-pipe";
-import Libp2p from "libp2p";
-import KadDHT from "libp2p-kad-dht";
-import Mplex from "libp2p-mplex";
-import WebRTCStar from "libp2p-webrtc-star";
-import WebSockets from "libp2p-websockets";
-import PeerId from "peer-id";
+import { Noise } from "@chainsafe/libp2p-noise";
+import { Mplex } from "@libp2p/mplex";
+import { WebRTCStar } from "@libp2p/webrtc-star";
+import { WebSockets } from "@libp2p/websockets";
+import { pipe } from "it-pipe";
+import { createLibp2p } from "libp2p";
 import { get, readable, writable } from "svelte/store";
+import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
+import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 
 import { INITIAL_VALUES, KEYS, PHASES, PROTOCOL_VERSION } from "./constants.js";
 import { getSeed, initCore } from "./core.js";
-import { indexedDBStore, localStorageStore } from "./persistence.js";
+import { indexedDBStore } from "./persistence.js";
 import { options, phase, records } from "./stores";
 import { UniQueue } from "./uniqueue.js";
 
 const debug = false;
+const protocol = `/digifall/${PROTOCOL_VERSION}`;
+
+let libp2p;
 
 export const leaderboard = indexedDBStore(
   KEYS.leaderboard,
@@ -79,171 +82,179 @@ async function validateRecord(gameData = {}) {
   });
 }
 
+async function push(connection) {
+  const messages = [];
+  for (const type in queues) {
+    queues[type].data.forEach(({ playerName, value }) => {
+      const json = JSON.stringify({ type, playerName, value });
+      messages.push(uint8ArrayFromString(json));
+    });
+  }
+  const { stream } = await connection.newStream(protocol + "/push");
+  return pipe(messages, stream);
+}
+
+async function handlePull({ connection }) {
+  if (debug) console.log("/pull");
+  return push(connection);
+}
+
+async function handlePush({ stream: input, connection }) {
+  if (debug) console.log("/push");
+  const remoteActualNames = {
+    [KEYS.highCombo]: new Set(),
+    [KEYS.highScore]: new Set(),
+  };
+  await pipe(input, async (source) => {
+    for await (const message of source) {
+      const json = uint8ArrayToString(message);
+      const { type, playerName, value } = JSON.parse(json);
+      const queue = queues[type];
+      const index = queue.indexes.get(playerName);
+      if (index === undefined) continue;
+      if (queue.data[index].value > value) continue;
+      remoteActualNames[type].add(playerName);
+    }
+  });
+  const localUniques = [];
+  for (const type in queues) {
+    queues[type].data
+      .filter(({ playerName }) => !remoteActualNames[type].has(playerName))
+      .forEach((gameData) => {
+        gameData[KEYS.type] = type;
+        const json = JSON.stringify(gameData);
+        localUniques.push(uint8ArrayFromString(json));
+      });
+  }
+  if (localUniques.length === 0) return;
+  const { stream } = await connection.newStream(protocol + "/validate");
+  return pipe(localUniques, stream);
+}
+
+function handleValidate({ stream: input }) {
+  if (debug) console.log("/validate");
+  return pipe(input, async (source) => {
+    const touchedTypes = new Set();
+    for await (const message of source) {
+      try {
+        const json = uint8ArrayToString(message);
+        const remoteUnique = JSON.parse(json);
+        const { type, playerName, value } = remoteUnique;
+        const queue = queues[type];
+        const index = queue.indexes.get(playerName);
+        if (index in queue.data && queue.data[index].value >= value) continue;
+        await validateRecord(remoteUnique);
+        queue.push(remoteUnique);
+        touchedTypes.add(type);
+        console.warn("P2P LEADERBOARD UPDATED!", type, playerName, value);
+      } catch (error) {
+        console.error(error);
+        continue;
+      }
+    }
+    if (touchedTypes.size === 0) return;
+    leaderboard.update(($leaderboard) => {
+      touchedTypes.forEach((type) => ($leaderboard[type] = queues[type].data));
+      return $leaderboard;
+    });
+  });
+}
+
+function handlePeerDiscovery({ detail: peer }) {
+  if (debug) console.log("peer:discovery", peer.id.toString());
+}
+
+async function handlePeerConnect({ detail: connection }) {
+  if (debug) console.log("peer:connect", connection.remotePeer.toString());
+  try {
+    await push(connection);
+  } catch (error) {
+    console.error(error);
+    if (error.message !== "protocol selection failed") return;
+    libp2p.connectionGater.denyDialPeer(connection.remotePeer);
+    connection.close();
+  }
+}
+
 (async function initP2PLeaderboard() {
-  const protocol = `/digifall/${PROTOCOL_VERSION}`;
-
-  const peerId = await PeerId.createFromJSON(
-    get(localStorageStore(KEYS.peerId, (await PeerId.create()).toJSON()))
-  );
-
-  const libp2p = await Libp2p.create({
+  const webRtcStar = new WebRTCStar();
+  libp2p = await createLibp2p({
     addresses: {
       listen: ["/dns4/star.digifall.app/tcp/8443/wss/p2p-webrtc-star"],
     },
-    modules: {
-      transport: [WebSockets, WebRTCStar],
-      connEncryption: [NOISE],
-      streamMuxer: [Mplex],
-      dht: KadDHT,
-    },
-    peerId,
+    transports: [new WebSockets(), webRtcStar],
+    connectionEncryption: [new Noise()],
+    streamMuxers: [new Mplex()],
+    peerDiscovery: [webRtcStar.discovery],
     connectionManager: {
       maxConnections: 5,
-      minConnections: 3,
-    },
-    config: {
-      dht: {
-        enabled: true,
-        kBucketSize: 20,
-      },
+      minConnections: 2,
     },
   });
+  libp2p.handle(protocol + "/pull", handlePull);
+  libp2p.handle(protocol + "/push", handlePush);
+  libp2p.handle(protocol + "/validate", handleValidate);
+  libp2p.addEventListener("peer:discovery", handlePeerDiscovery);
+  libp2p.connectionManager.addEventListener("peer:connect", handlePeerConnect);
+  if (debug) window.libp2p = libp2p;
+})();
 
-  const push = async (connection) => {
-    const messages = [];
-    for (type in queues) {
-      queues[type].data.forEach(({ playerName, value }) => {
-        messages.push(JSON.stringify({ type, playerName, value }));
-      });
-    }
-    const { stream } = await connection.newStream(protocol + "/push");
-    return pipe(messages, stream);
-  };
-
-  libp2p.handle(protocol + "/pull", async ({ connection }) => {
-    push(connection);
-  });
-
-  libp2p.handle(protocol + "/push", async ({ stream: input, connection }) => {
-    const remoteActualNames = {
-      [KEYS.highCombo]: new Set(),
-      [KEYS.highScore]: new Set(),
-    };
-    await pipe(input, async (source) => {
-      for await (const message of source) {
-        const { type, playerName, value } = JSON.parse(message.toString());
-        const queue = queues[type];
-        const index = queue.indexes.get(playerName);
-        if (index === undefined) continue;
-        if (queue.data[index].value > value) continue;
-        remoteActualNames[type].add(playerName);
-      }
-    });
-    const localUniques = [];
+leaderboard.subscribe(async ($leaderboard) => {
+  if (!$leaderboard) return;
+  const leaderboardEmpty =
+    $leaderboard[KEYS.highCombo].length === 0 &&
+    $leaderboard[KEYS.highScore].length === 0;
+  const queuesEmpty =
+    queues[KEYS.highCombo].data.length === 0 &&
+    queues[KEYS.highScore].data.length === 0;
+  if (queuesEmpty) {
+    if (leaderboardEmpty) return;
     for (const type in queues) {
-      queues[type].data
-        .filter(({ playerName }) => !remoteActualNames[type].has(playerName))
-        .forEach((gameData) => {
-          gameData[KEYS.type] = type;
-          localUniques.push(JSON.stringify(gameData));
-        });
-    }
-    if (localUniques.length === 0) return;
-    const { stream } = await connection.newStream(protocol + "/validate");
-    pipe(localUniques, stream);
-  });
-
-  libp2p.handle(protocol + "/validate", async ({ stream: input }) => {
-    pipe(input, async (source) => {
-      for await (const message of source) {
+      const data = [];
+      for (const record of $leaderboard[type]) {
         try {
-          const remoteUnique = JSON.parse(message.toString());
-          const { type, playerName, value } = remoteUnique;
-          const queue = queues[type];
-          const index = queue.indexes.get(playerName);
-          if (index !== undefined && queue.data[index].value >= value) continue;
-          await validateRecord(remoteUnique);
-          leaderboard.update(($leaderboard) => {
-            queue.push(remoteUnique);
-            $leaderboard[type] = queue.data;
-            return $leaderboard;
-          });
-          console.warn("P2P LEADERBOARD UPDATED!", playerName, type, value);
+          if (await validateRecord(record)) data.push(record);
         } catch (error) {
           console.error(error);
           continue;
         }
       }
-    });
-  });
-
-  libp2p.on("peer:discovery", (peerId) => {
-    const peerIdB58String = peerId.toB58String();
-    if (debug) console.log("peer:discovery", peerIdB58String);
-  });
-
-  libp2p.connectionManager.on("peer:connect", async (connection) => {
-    const peerIdB58String = connection.remotePeer.toB58String();
-    if (debug) console.log("peer:connect", peerIdB58String);
-    try {
-      await push(connection);
-    } catch (error) {
-      if (error.message !== "protocol selection failed") return;
-      libp2p.connectionGater.denyDialPeer(connection.remotePeer);
-      connection.close();
+      queues[type] = new UniQueue({
+        data,
+        maxSize,
+        compare,
+        extractKey,
+      });
     }
+    return;
+  }
+  if (leaderboardEmpty) return;
+  if ($leaderboard[KEYS.protocolVersion] !== PROTOCOL_VERSION) {
+    leaderboard.set(INITIAL_VALUES.leaderboard);
+    return;
+  }
+  libp2p.connectionManager.connections.forEach(([connection]) => {
+    connection.newStream(protocol + "/pull");
   });
+});
 
-  leaderboard.subscribe(($leaderboard) => {
-    const leaderboardEmpty =
-      $leaderboard[KEYS.highCombo].length === 0 &&
-      $leaderboard[KEYS.highScore].length === 0;
-    const queuesEmpty =
-      queues[KEYS.highCombo].data.length === 0 &&
-      queues[KEYS.highScore].data.length === 0;
-    if (queuesEmpty) {
-      if (leaderboardEmpty) return;
-      for (let type in queues) {
-        const data = $leaderboard[type];
-        queues[type] = new UniQueue({
-          data,
-          maxSize,
-          compare,
-          extractKey,
-        });
-      }
-      return;
+records.subscribe(($records) => {
+  const $phase = get(phase);
+  if ($phase !== PHASES.idle && $phase !== PHASES.gameover) return;
+  leaderboard.update(($leaderboard) => {
+    for (const type in queues) {
+      const record = $records[type];
+      if (record[KEYS.value] === 0) continue;
+      record[KEYS.type] = type;
+      record[KEYS.protocolVersion] = PROTOCOL_VERSION;
+      const queue = queues[type];
+      queue.push(record);
+      $leaderboard[type] = queue.data;
     }
-    if (leaderboardEmpty) return;
-    if ($leaderboard[KEYS.protocolVersion] !== PROTOCOL_VERSION) {
-      leaderboard.set(INITIAL_VALUES.leaderboard);
-      return;
-    }
-    libp2p.connections.forEach(([connection]) => {
-      connection.newStream(protocol + "/pull");
-    });
+    return $leaderboard;
   });
+});
 
-  records.subscribe(($records) => {
-    const $phase = get(phase);
-    if ($phase !== PHASES.idle && $phase !== PHASES.gameover) return;
-    leaderboard.update(($leaderboard) => {
-      for (let type in queues) {
-        const record = $records[type];
-        if (record[KEYS.value] === 0) continue;
-        record[KEYS.type] = type;
-        record[KEYS.protocolVersion] = PROTOCOL_VERSION;
-        const queue = queues[type];
-        queue.push(record);
-        $leaderboard[type] = queue.data;
-      }
-      return $leaderboard;
-    });
-  });
-
-  options.subscribe(({ leaderboard }) => {
-    setTimeout(() => (leaderboard ? libp2p.start() : libp2p.stop()), 3333);
-  });
-
-  if (debug) window.libp2p = libp2p;
-})();
+options.subscribe(({ leaderboard }) => {
+  setTimeout(() => (leaderboard ? libp2p.start() : libp2p.stop()), 1337);
+});
