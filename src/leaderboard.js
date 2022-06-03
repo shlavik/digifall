@@ -56,7 +56,7 @@ async function validateRecord(gameData = {}) {
     throw new Error("RECORD VALIDATION: BAD GAME DATA!");
   }
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject("RECORD VALIDATION: TIMEOUT!"), 9999);
+    const timer = setTimeout(() => reject("RECORD VALIDATION: TIMEOUT!"), 3333);
     const game = initCore({
       cards: writable(INITIAL_VALUES.cards),
       energy: writable(INITIAL_VALUES.energy),
@@ -109,10 +109,9 @@ async function handlePush({ stream: input, connection }) {
     for await (const message of source) {
       const json = uint8ArrayToString(message);
       const { type, playerName, value } = JSON.parse(json);
-      const queue = queues[type];
-      const index = queue.indexes.get(playerName);
+      const index = queues[type].indexes.get(playerName);
       if (index === undefined) continue;
-      if (queue.data[index].value > value) continue;
+      if (queues[type].data[index].value > value) continue;
       remoteActualNames[type].add(playerName);
     }
   });
@@ -131,32 +130,35 @@ async function handlePush({ stream: input, connection }) {
   return pipe(localUniques, stream);
 }
 
-function handleValidate({ stream: input }) {
+async function handleValidate({ stream: input }) {
   if (debug) console.log("/validate");
-  return pipe(input, async (source) => {
-    const touchedTypes = new Set();
+  let touched = false;
+  await pipe(input, async (source) => {
     for await (const message of source) {
       try {
         const json = uint8ArrayToString(message);
         const remoteUnique = JSON.parse(json);
         const { type, playerName, value } = remoteUnique;
-        const queue = queues[type];
-        const index = queue.indexes.get(playerName);
-        if (index in queue.data && queue.data[index].value >= value) continue;
+        const { data, indexes } = queues[type];
+        const index = indexes.get(playerName);
+        if (index in data && data[index].value >= value) continue;
         await validateRecord(remoteUnique);
-        queue.push(remoteUnique);
-        touchedTypes.add(type);
+        leaderboard.update(($leaderboard) => {
+          queues[type].push(remoteUnique);
+          $leaderboard[type] = queues[type].data;
+          return $leaderboard;
+        });
+        touched = true;
         console.warn("P2P LEADERBOARD UPDATED!", type, playerName, value);
       } catch (error) {
         console.error(error);
         continue;
       }
     }
-    if (touchedTypes.size === 0) return;
-    leaderboard.update(($leaderboard) => {
-      touchedTypes.forEach((type) => ($leaderboard[type] = queues[type].data));
-      return $leaderboard;
-    });
+  });
+  if (!touched) return;
+  libp2p.connectionManager.connections.forEach(([connection]) => {
+    connection.newStream(protocol + "/pull");
   });
 }
 
@@ -188,7 +190,7 @@ async function handlePeerConnect({ detail: connection }) {
     peerDiscovery: [webRtcStar.discovery],
     connectionManager: {
       maxConnections: 5,
-      minConnections: 2,
+      minConnections: 3,
     },
   });
   libp2p.handle(protocol + "/pull", handlePull);
@@ -204,38 +206,25 @@ leaderboard.subscribe(async ($leaderboard) => {
   const leaderboardEmpty =
     $leaderboard[KEYS.highCombo].length === 0 &&
     $leaderboard[KEYS.highScore].length === 0;
+  if (leaderboardEmpty) return;
   const queuesEmpty =
     queues[KEYS.highCombo].data.length === 0 &&
     queues[KEYS.highScore].data.length === 0;
   if (queuesEmpty) {
-    if (leaderboardEmpty) return;
     for (const type in queues) {
-      const data = [];
       for (const record of $leaderboard[type]) {
         try {
-          if (await validateRecord(record)) data.push(record);
+          await validateRecord(record);
+          queues[type].push(record);
         } catch (error) {
           console.error(error);
           continue;
         }
       }
-      queues[type] = new UniQueue({
-        data,
-        maxSize,
-        compare,
-        extractKey,
-      });
+      $leaderboard[type] = queues[type].data;
     }
-    return;
+    leaderboard.set({ ...$leaderboard });
   }
-  if (leaderboardEmpty) return;
-  if ($leaderboard[KEYS.protocolVersion] !== PROTOCOL_VERSION) {
-    leaderboard.set(INITIAL_VALUES.leaderboard);
-    return;
-  }
-  libp2p.connectionManager.connections.forEach(([connection]) => {
-    connection.newStream(protocol + "/pull");
-  });
 });
 
 records.subscribe(($records) => {
@@ -244,17 +233,16 @@ records.subscribe(($records) => {
   leaderboard.update(($leaderboard) => {
     for (const type in queues) {
       const record = $records[type];
-      if (record[KEYS.value] === 0) continue;
+      if (record[KEYS.value] === 0) return;
       record[KEYS.type] = type;
       record[KEYS.protocolVersion] = PROTOCOL_VERSION;
-      const queue = queues[type];
-      queue.push(record);
-      $leaderboard[type] = queue.data;
+      queues[type].push(record);
+      $leaderboard[type] = queues[type].data;
     }
     return $leaderboard;
   });
 });
 
 options.subscribe(({ leaderboard }) => {
-  setTimeout(() => (leaderboard ? libp2p.start() : libp2p.stop()), 1337);
+  setTimeout(() => (leaderboard ? libp2p.start() : libp2p.stop()), 3333);
 });
