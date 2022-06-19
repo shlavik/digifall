@@ -1,5 +1,6 @@
 import { Noise } from "@chainsafe/libp2p-noise";
 import { Mplex } from "@libp2p/mplex";
+import { createEd25519PeerId, createFromJSON } from "@libp2p/peer-id-factory";
 import { WebRTCStar } from "@libp2p/webrtc-star";
 import { WebSockets } from "@libp2p/websockets";
 import { pipe } from "it-pipe";
@@ -10,7 +11,7 @@ import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 
 import { INITIAL_VALUES, KEYS, PHASES, PROTOCOL_VERSION } from "./constants.js";
 import { getSeed, initCore } from "./core.js";
-import { indexedDBStore } from "./persistence.js";
+import { indexedDBStore, localStorageStore } from "./persistence.js";
 import { options, phase, records } from "./stores";
 import { UniQueue } from "./uniqueue.js";
 
@@ -72,7 +73,8 @@ async function validateRecord(gameData = {}) {
       timestamp: readable(timestamp),
     });
     game.records.subscribe(($records) => {
-      if (game.movesInitial !== null) return;
+      const { movesInitial, phase } = game;
+      if (movesInitial !== null && get(phase) !== PHASES.gameover) return;
       clearTimeout(timer);
       const recordValue = $records[type][KEYS.value];
       if (recordValue === value) resolve(recordValue);
@@ -83,13 +85,12 @@ async function validateRecord(gameData = {}) {
 }
 
 async function push(connection) {
-  const messages = [];
-  for (const type in queues) {
-    queues[type].data.forEach(({ playerName, value }) => {
+  const messages = [KEYS.highCombo, KEYS.highScore].flatMap((type) =>
+    queues[type].data.map(({ playerName, value }) => {
       const json = JSON.stringify({ type, playerName, value });
-      messages.push(uint8ArrayFromString(json));
-    });
-  }
+      return uint8ArrayFromString(json);
+    })
+  );
   const { stream } = await connection.newStream(protocol + "/push");
   return pipe(messages, stream);
 }
@@ -115,16 +116,15 @@ async function handlePush({ stream: input, connection }) {
       remoteActualNames[type].add(playerName);
     }
   });
-  const localUniques = [];
-  for (const type in queues) {
+  const localUniques = [KEYS.highCombo, KEYS.highScore].flatMap((type) =>
     queues[type].data
       .filter(({ playerName }) => !remoteActualNames[type].has(playerName))
-      .forEach((gameData) => {
+      .map((gameData) => {
         gameData[KEYS.type] = type;
         const json = JSON.stringify(gameData);
-        localUniques.push(uint8ArrayFromString(json));
-      });
-  }
+        return uint8ArrayFromString(json);
+      })
+  );
   if (localUniques.length === 0) return;
   const { stream } = await connection.newStream(protocol + "/validate");
   return pipe(localUniques, stream);
@@ -179,8 +179,19 @@ async function handlePeerConnect({ detail: connection }) {
 }
 
 (async function initP2PLeaderboard() {
+  const initialPeerId = await createEd25519PeerId();
+  const peerId = await createFromJSON(
+    get(
+      localStorageStore(KEYS.peerId, {
+        id: initialPeerId.toString(),
+        privKey: uint8ArrayToString(initialPeerId.privateKey, "base64pad"),
+        pubKey: uint8ArrayToString(initialPeerId.publicKey, "base64pad"),
+      })
+    )
+  );
   const webRtcStar = new WebRTCStar();
   libp2p = await createLibp2p({
+    peerId,
     addresses: {
       listen: ["/dns4/star.digifall.app/tcp/8443/wss/p2p-webrtc-star"],
     },
@@ -210,37 +221,31 @@ leaderboard.subscribe(async ($leaderboard) => {
   const queuesEmpty =
     queues[KEYS.highCombo].data.length === 0 &&
     queues[KEYS.highScore].data.length === 0;
-  if (queuesEmpty) {
-    for (const type in queues) {
-      for (const record of $leaderboard[type]) {
-        try {
-          await validateRecord(record);
-          queues[type].push(record);
-        } catch (error) {
-          console.error(error);
-          continue;
-        }
-      }
-      $leaderboard[type] = queues[type].data;
-    }
-    leaderboard.set({ ...$leaderboard });
-  }
+  if (!queuesEmpty) return;
+  Promise.allSettled(
+    [KEYS.highCombo, KEYS.highScore].map((type) =>
+      Promise.allSettled(
+        $leaderboard[type].map((record) =>
+          validateRecord(record).then(() => queues[type].push(record))
+        )
+      ).then(() => ($leaderboard[type] = queues[type].data))
+    )
+  ).then(() => leaderboard.set($leaderboard));
 });
 
 records.subscribe(($records) => {
   const $phase = get(phase);
   if ($phase !== PHASES.idle && $phase !== PHASES.gameover) return;
-  leaderboard.update(($leaderboard) => {
-    for (const type in queues) {
-      const record = $records[type];
-      if (record[KEYS.value] === 0) return;
-      record[KEYS.type] = type;
-      record[KEYS.protocolVersion] = PROTOCOL_VERSION;
-      queues[type].push(record);
-      $leaderboard[type] = queues[type].data;
-    }
-    return $leaderboard;
+  const $leaderboard = get(leaderboard);
+  [KEYS.highCombo, KEYS.highScore].forEach((type) => {
+    const record = $records[type];
+    if (record[KEYS.value] === 0) return;
+    record[KEYS.type] = type;
+    record[KEYS.protocolVersion] = PROTOCOL_VERSION;
+    queues[type].push(record);
+    $leaderboard[type] = queues[type].data;
   });
+  leaderboard.set($leaderboard);
 });
 
 options.subscribe(({ leaderboard }) => {

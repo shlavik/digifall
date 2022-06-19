@@ -52,8 +52,8 @@ export function checkSpeedrun(game, value, timeout = 0) {
 export function checkSound(game, callback) {
   const { sound, speedrun } = get(game.options);
   if (
-    !sound ||
-    speedrun ||
+    sound !== true ||
+    speedrun === true ||
     game.movesInitial !== null ||
     get(game.phase) === PHASES.initial
   ) {
@@ -351,7 +351,6 @@ function doScorePhase(game) {
 }
 
 function doGameOverPhase(game) {
-  game.movesInitial = null;
   checkSpeedrun(
     game,
     () => {
@@ -542,14 +541,14 @@ function doSeedLogic(game, $seed) {
 
 /* CORE INITIALIZATION ********************************************************/
 
-function updatePreviousScore(game) {
+function updatePreviousHighs(game) {
   const $records = get(game.records);
   game[KEYS.previousHighCombo] = $records[KEYS.highCombo][KEYS.value];
   game[KEYS.previousHighScore] = $records[KEYS.highScore][KEYS.value];
 }
 
 export function initCore(game) {
-  updatePreviousScore(game);
+  updatePreviousHighs(game);
   game.getNextCardValue = () => 0;
   game.moveCount = 0;
   game.movesInitial = null;
@@ -575,9 +574,8 @@ function shuffleBoard(game, count) {
   if (count-- > 0) setTimeout(() => shuffleBoard(game, count), 64);
 }
 
-export function resetGame(game, count = 8) {
+export function resetGame(game) {
+  updatePreviousHighs(game);
   checkSound(game, playSoundGenerate);
-  updatePreviousScore(game);
-  const { playerName, speedrun } = get(game.options);
-  shuffleBoard(game, playerName && !speedrun ? count : 0);
+  shuffleBoard(game, get(game.options).speedrun ? 0 : 8);
 }

@@ -370,7 +370,7 @@ p {
   }
 }
 
-.board:not(.speedrun):not(.progress) .card.longpress .current {
+.board:not(.speedrun, .progress) .card.longpress .current {
   top: 0;
   border-bottom: none;
   box-shadow: var(--shadow-0);
@@ -378,7 +378,7 @@ p {
   text-shadow: var(--shadow-0);
 }
 
-.board:not(.speedrun):not(.progress) .card.longpress .current::after {
+.board:not(.speedrun, .progress) .card.longpress .current::after {
   position: absolute;
   top: 0;
   display: block;

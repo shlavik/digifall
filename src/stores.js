@@ -46,8 +46,8 @@ export function checkSpeedrun(value, timeout = 0) {
   return coreCheckSpeedrun(game, value, timeout);
 }
 
-export function resetGame(count = 8) {
-  return coreResetGame(game, count);
+export function resetGame() {
+  return coreResetGame(game);
 }
 
 export const overlay = writable(INITIAL_VALUES.overlay);
