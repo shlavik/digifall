@@ -27,6 +27,7 @@
 
   updatePixelSize();
   onresize = updatePixelSize;
+  document.addEventListener("visibilitychange", updatePixelSize);
 
   function updateRandomColor() {
     if ($phase === PHASES.idle) return ($randomColor = COLORS.white);

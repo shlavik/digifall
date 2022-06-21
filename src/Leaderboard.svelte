@@ -2,6 +2,7 @@
   import { onDestroy } from "svelte";
   import { blur, fly } from "svelte/transition";
 
+  import { longpress } from "./actions.js";
   import { COLORS, KEYS, OVERLAYS } from "./constants.js";
   import { compare, leaderboard, maxSize } from "./leaderboard.js";
   import { options, overlay, randomColor } from "./stores.js";
@@ -38,21 +39,39 @@
     updateRandomColor();
   }
 
-  function nextType(event) {
-    if (event.type === "click" || event.key === "Enter" || event.key === " ") {
-      type = type === KEYS.highScore ? KEYS.highCombo : KEYS.highScore;
+  function checkEvent(event) {
+    return (
+      event.type === "click" ||
+      event.key === "Enter" ||
+      event.key === " " ||
+      event.type === "longpress"
+    );
+  }
+
+  function changeType(event) {
+    if (event.type === "longpress") {
+      changeType.longpress = true;
+      changeType.prevent = false;
     }
+    if (changeType.prevent === true) return (changeType.prevent = false);
+    if (!checkEvent(event)) return;
+    type = type === KEYS.highScore ? KEYS.highCombo : KEYS.highScore;
+  }
+
+  function onStop() {
+    if (changeType.longpress !== true) return (changeType.prevent = false);
+    changeType.longpress = false;
+    changeType.prevent = true;
   }
 
   function selectPage(event) {
-    if (event.type === "click" || event.key === "Enter" || event.key === " ") {
-      const item = event
-        .composedPath()
-        .find(({ dataset }) => dataset && dataset.index);
-      if (item === undefined) return;
-      pagePrev = page;
-      page = Number(item.dataset.index);
-    }
+    if (!checkEvent(event)) return;
+    const item = event
+      .composedPath()
+      .find(({ dataset }) => dataset && dataset.index);
+    if (item === undefined) return;
+    pagePrev = page;
+    page = Number(item.dataset.index);
   }
 
   function getFlyX(ratio = 1) {
@@ -85,8 +104,10 @@
       class="type"
       title="CHANGE LEADERBOARD TYPE"
       tabindex="0"
-      on:click={nextType}
-      on:keydown={nextType}
+      on:click={changeType}
+      on:keydown={changeType}
+      on:longpress={changeType}
+      use:longpress={{ onStop }}
     >
       {types[type]}
     </span>
@@ -97,6 +118,7 @@
       title="SELECT PAGE"
       on:click={selectPage}
       on:keydown={selectPage}
+      on:longpress={selectPage}
     >
       {#each Array.from({ length: pageCounts }) as _, index}
         {@const value = index + 1}
@@ -105,6 +127,7 @@
           class:active={index === page}
           data-index={index}
           tabindex="0"
+          use:longpress
         >
           {value}
         </li>

@@ -82,7 +82,7 @@
   bind:opened={dialogOpened}
   bind:this={dialogComponent}
 >
-  <div class="col">
+  <div class="col exclam-fix">
     <p>new name detected!</p>
     <p>progress will be lost!</p>
     <div class="row">

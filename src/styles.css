@@ -434,6 +434,12 @@ p {
   animation: flick 2s infinite;
 }
 
+.exclam-fix p,
+p.exclam-fix {
+  position: relative;
+  left: 1.6rem;
+}
+
 .game .seedground {
   position: absolute;
   top: 50%;

@@ -1,41 +1,13 @@
 <script>
+  import { longpress } from "./actions.js";
   import { PHASES } from "./constants.js";
   import { matchedIndexes, phase, plusIndex } from "./stores.js";
 
   export let card;
   export let index;
 
-  function longpress(node, duration = 400) {
-    let timer;
-    const start = () => {
-      if ($phase !== PHASES.idle || $plusIndex !== undefined) return;
-      node.classList.add("longpress");
-      timer = window.setTimeout(() => {
-        node.dispatchEvent(new CustomEvent("longpress", { bubbles: true }));
-        node.classList.remove("longpress");
-      }, duration);
-    };
-    const stop = () => {
-      node.classList.remove("longpress");
-      clearTimeout(timer);
-    };
-    node.addEventListener("mousedown", start);
-    node.addEventListener("touchstart", start);
-    node.addEventListener("touchend", stop);
-    window.addEventListener("mouseup", stop);
-    return {
-      update(newDuration) {
-        stop();
-        duration = newDuration;
-      },
-      destroy() {
-        stop();
-        node.removeEventListener("mousedown", start);
-        node.removeEventListener("touchstart", start);
-        node.removeEventListener("touchend", stop);
-        window.removeEventListener("mouseup", stop);
-      },
-    };
+  function checkStart() {
+    return $phase === PHASES.idle && $plusIndex === undefined;
   }
 
   $: matched = $matchedIndexes.includes(index);
@@ -56,7 +28,7 @@
   class:plused
   {style}
   data-index={index}
-  use:longpress
+  use:longpress={{ checkStart }}
 >
   <div class="value">
     <div class="current color-{card.value}">{card.value}</div>

@@ -15,7 +15,7 @@ import { indexedDBStore, localStorageStore } from "./persistence.js";
 import { options, phase, records } from "./stores";
 import { UniQueue } from "./uniqueue.js";
 
-const debug = false;
+const debug = true;
 const protocol = `/digifall/${PROTOCOL_VERSION}`;
 
 let libp2p;
@@ -173,7 +173,7 @@ async function handlePeerConnect({ detail: connection }) {
   } catch (error) {
     console.error(error);
     if (error.message !== "protocol selection failed") return;
-    libp2p.connectionGater.denyDialPeer(connection.remotePeer);
+    libp2p.components.connectionGater.denyDialPeer(connection.remotePeer);
     connection.close();
   }
 }
@@ -201,7 +201,7 @@ async function handlePeerConnect({ detail: connection }) {
     peerDiscovery: [webRtcStar.discovery],
     connectionManager: {
       maxConnections: 5,
-      minConnections: 3,
+      minConnections: 2,
     },
   });
   libp2p.handle(protocol + "/pull", handlePull);
