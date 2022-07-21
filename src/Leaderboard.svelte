@@ -123,8 +123,9 @@
       {#each Array.from({ length: pageCounts }) as _, index}
         {@const value = index + 1}
         <li
-          class="page color-{value}"
+          class="page"
           class:active={index === page}
+          style:--color="var(--color-{value})"
           data-index={index}
           tabindex="0"
           use:longpress

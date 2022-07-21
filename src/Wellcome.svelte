@@ -43,6 +43,7 @@
     <div class="section-4" />
   </form>
 {/if}
+
 <Dialog
   title="disclaimer"
   bind:opened={dialogOpened}

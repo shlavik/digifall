@@ -6,7 +6,9 @@ import {
   getSeed,
   resetGame as coreResetGame,
 } from "./core.js";
-import { localStorageStore } from "./persistence.js";
+import { createIndexedDBStore, localStorageStore } from "./persistence.js";
+
+export const indexedDBStore = createIndexedDBStore(KEYS.digifall);
 
 export const cards = writable(INITIAL_VALUES.cards);
 export const energy = writable(INITIAL_VALUES.energy);
@@ -46,8 +48,9 @@ export function checkSpeedrun(value, timeout = 0) {
   return coreCheckSpeedrun(game, value, timeout);
 }
 
-export function resetGame() {
-  return coreResetGame(game);
+export function resetGame(playerName) {
+  overlay.set(null);
+  coreResetGame(game, playerName);
 }
 
 export const overlay = writable(INITIAL_VALUES.overlay);

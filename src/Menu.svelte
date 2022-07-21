@@ -5,7 +5,6 @@
   import Dialog from "./Dialog.svelte";
 
   import { version } from "../package.json";
-
   import { KEYS, OVERLAYS } from "./constants.js";
   import { options, overlay, resetGame } from "./stores.js";
 
@@ -22,7 +21,6 @@
   }
 
   function startNewGame() {
-    $overlay = null;
     resetGame();
   }
 
@@ -77,6 +75,7 @@
     </svg>
   </a>
 {/if}
+
 <Dialog bind:opened={dialogOpened} bind:this={dialogComponent}>
   <div class="col">
     <p>start a new game?</p>

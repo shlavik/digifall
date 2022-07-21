@@ -8,14 +8,12 @@
   import game, {
     checkSpeedrun,
     energy,
-    overlay,
     records,
     resetGame,
     score,
   } from "./stores.js";
 
   function startNewGame() {
-    $overlay = null;
     resetGame();
   }
 

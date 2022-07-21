@@ -4,7 +4,7 @@
   import Log from "./Log.svelte";
   import Score from "./Score.svelte";
 
-  import { OVERLAYS } from "./constants";
+  import { OVERLAYS } from "./constants.js";
   import { getRandom } from "./core.js";
   import { log, options, overlay, seed } from "./stores.js";
 

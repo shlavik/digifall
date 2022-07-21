@@ -17,7 +17,7 @@
   }
 
   function click(event) {
-    if (!$options.speedrun) return;
+    if ($options.speedrun !== true) return;
     const card = event
       .composedPath()
       .find(({ dataset }) => dataset && dataset.index);
@@ -26,13 +26,13 @@
   }
 
   function longpress(event) {
-    if ($options.speedrun) return;
+    if ($options.speedrun === true) return;
     setPlusIndex(event.target);
   }
 
   $: plusCard = $cards[$plusIndex];
   $: plusCardMemoized = plusCard || plusCardMemoized;
-  $: blink = $matchedIndexes.length > 0 && $log.length === 1;
+  $: blink = $matchedIndexes.size > 0 && $log.length === 1;
   $: focus = plusCard || blink;
   $: sliderStyles = {
     horizontal: `
@@ -55,7 +55,7 @@
   on:longpress={longpress}
 >
   {#each $cards as card, index}
-    <Card {card} {index} />
+    <Card {card} {index} matched={$matchedIndexes.has(index)} />
   {/each}
   <div class="slider top" class:blink style={sliderStyles.horizontal} />
   <div class="slider right" class:blink style={sliderStyles.vertical} />

@@ -57,7 +57,7 @@ export const INITIAL_VALUES = {
     [KEYS.highCombo]: [],
   },
   log: [],
-  matchedIndexes: [],
+  matchedIndexes: new Set(),
   [KEYS.moves]: "",
   [KEYS.options]: {
     [KEYS.playerName]: "",

@@ -4,7 +4,20 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 export default defineConfig({
   build: {
     target: "es2020",
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 1337,
   },
-  plugins: [svelte()],
+  optimizeDeps: {
+    esbuildOptions: {
+      supported: {
+        bigint: true,
+      },
+    },
+  },
+  plugins: [
+    svelte({
+      compilerOptions: {
+        immutable: false,
+      },
+    }),
+  ],
 });

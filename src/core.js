@@ -33,30 +33,22 @@ export function getArrayFromBase64(base64) {
 
 export function checkSpeedrun(game, value, timeout = 0) {
   const { speedrun } = get(game.options);
+  const insta = speedrun !== true && game.movesInitial === null && timeout > 0;
   switch (typeof value) {
     case "undefined":
-      return {
-        duration: speedrun ? 0 : 400,
-      };
+      return { duration: insta ? 0 : 400 };
     case "function":
-      return !speedrun && game.movesInitial === null && timeout > 0
-        ? setTimeout(() => value(game), timeout)
-        : value(game);
+      return insta ? setTimeout(() => value(game), timeout) : value(game);
     case "object":
-      return speedrun ? { duration: 0 } : value;
+      return insta ? { duration: 0 } : value;
     default:
-      return speedrun ? 0 : value;
+      return insta ? 0 : value;
   }
 }
 
 export function checkSound(game, callback) {
   const { sound, speedrun } = get(game.options);
-  if (
-    sound !== true ||
-    speedrun === true ||
-    game.movesInitial !== null ||
-    get(game.phase) === PHASES.initial
-  ) {
+  if (sound !== true || speedrun === true || game.movesInitial !== null) {
     return;
   }
   if (Array.isArray(callback)) {
@@ -100,7 +92,7 @@ function getFallenCards(game, $cards) {
       if (index === undefined) return ++count;
       const { x, value } = $cards[index];
       const duration =
-        game.movesInitial || $phase !== PHASES.fall || speedrun
+        game.movesInitial || $phase !== PHASES.fall || speedrun // MB: check speedrun?
           ? 0
           : 100 * sqrt(2 * count);
       result[index] = {
@@ -118,45 +110,38 @@ function getFallenCards(game, $cards) {
   return result;
 }
 
-function getMatchedIndexes($cards) {
+function getMatchedFromCards($cards) {
   const field = getFieldFromCards($cards);
-  let groupedArray = [];
-  let count = 0;
-  const group = (index) => {
+  const escape = new Set();
+  const groups = [];
+  const assort = (group, index, currentValue) => {
+    if (escape.has(index)) return;
     const { x, y, value } = $cards[index];
-    if (groupedArray[index]) return;
-    groupedArray[index] = { value, group: count };
-    let topIndex, rightIndex, bottomIndex, leftIndex;
-    if (y < 5) topIndex = field[x][y + 1];
-    if (x < 5) rightIndex = field[x + 1][y];
-    if (y > 0) bottomIndex = field[x][y - 1];
-    if (x > 0) leftIndex = field[x - 1][y];
-    const isSameValue = (index) =>
-      index !== undefined && $cards[index].value === value;
-    if (isSameValue(topIndex)) group(topIndex);
-    if (isSameValue(rightIndex)) group(rightIndex);
-    if (isSameValue(bottomIndex)) group(bottomIndex);
-    if (isSameValue(leftIndex)) group(leftIndex);
+    if (currentValue !== undefined && currentValue !== value) return;
+    if (!groups[group]) groups[group] = { value, indexes: new Set() };
+    groups[group].indexes.add(index);
+    escape.add(index);
+    if (y < 5) assort(group, field[x][y + 1], value);
+    if (x < 5) assort(group, field[x + 1][y], value);
+    if (y > 0) assort(group, field[x][y - 1], value);
+    if (x > 0) assort(group, field[x - 1][y], value);
   };
-  $cards.forEach(() => group(count++));
-  const groupedObject = groupedArray.reduce(
-    (result, { value, group }, index) => {
-      const indexes = result[group] ? result[group].indexes : [];
-      indexes.push(index);
-      result[group] = {
-        value,
-        indexes,
-      };
+  $cards.forEach((_, index) => assort(index, index));
+  return groups.reduce(
+    (result, group) => {
+      if (group.value === group.indexes.size) {
+        result.counts++;
+        result.digits.add(group.value);
+        group.indexes.forEach(result.indexes.add, result.indexes);
+      }
       return result;
     },
-    {}
+    {
+      counts: 0,
+      digits: new Set(),
+      indexes: new Set(),
+    }
   );
-  const matchedIndexes = Object.keys(groupedObject).reduce((result, group) => {
-    const { value, indexes } = groupedObject[group];
-    if (value === indexes.length) result.push(...indexes);
-    return result;
-  }, []);
-  return matchedIndexes;
 }
 
 function getMatchedCards(game, $cards, $matchedIndexes) {
@@ -167,7 +152,7 @@ function getMatchedCards(game, $cards, $matchedIndexes) {
       .filter(({ x }) => x === nextX)
       .sort(({ y: y1 }, { y: y2 }) => y2 - y1)[0].y;
   return $cards.map((card, index) => {
-    if (card.y < 6 && $matchedIndexes.includes(index)) {
+    if (card.y < 6 && $matchedIndexes.has(index)) {
       ++counts[card.x];
       return {
         x: card.x,
@@ -251,12 +236,15 @@ function doIdlePhase(game) {
 function doPlusPhase(game) {
   game.plusIndex.update(($plusIndex) => {
     game.cards.update(($cards) => {
-      const card = $cards[$plusIndex];
-      if (card) {
-        card.value = card.value < 9 ? card.value + 1 : 0;
-        card.duration = 0;
-      }
-      return $cards;
+      return $cards.map((card, index) => {
+        return index === $plusIndex
+          ? {
+              ...card,
+              value: card.value < 9 ? card.value + 1 : 0,
+              duration: 0,
+            }
+          : card;
+      });
     });
     return undefined;
   });
@@ -265,21 +253,24 @@ function doPlusPhase(game) {
 
 function doBlinkPhase(game) {
   const $cards = get(game.cards);
-  let nextMatchedIndexes = getMatchedIndexes($cards);
-  game.matchedIndexes.set(nextMatchedIndexes);
+  let { counts, digits, indexes } = getMatchedFromCards($cards);
+  game.matchedIndexes.set(indexes);
   const { value } = get(game.energy);
-  if (nextMatchedIndexes.length > 0) {
+  if (indexes.size > 0) {
+    const indexesArray = Array.from(indexes);
     game.log.update(($log) =>
       $log.concat(
-        nextMatchedIndexes.reduce((result, index) => {
-          const { value } = $cards[index];
-          result[value] = (result[value] || 0) + value;
-          result.sum = (result.sum || 0) + value;
+        indexesArray.reduce((result, index) => {
+          const card = $cards[index];
+          result[card.value] = (result[card.value] || 0) + card.value;
+          result.sum = (result.sum || 0) + card.value;
+          result.counts = counts;
+          result.digits = Array.from(digits);
           return result;
         }, {})
       )
     );
-    const buffer = nextMatchedIndexes.reduce(
+    const buffer = indexesArray.reduce(
       (result, index) => result + $cards[index].value,
       0
     );
@@ -308,7 +299,7 @@ function doMatchPhase(game) {
     game.cards.update(($cards) =>
       getMatchedCards(game, $cards, $matchedIndexes)
     );
-    return [];
+    return new Set();
   });
   checkSpeedrun(game, () => game.phase.set(PHASES.fall), 400);
 }
@@ -320,16 +311,15 @@ function doFallPhase(game) {
 
 function doExtraPhase(game) {
   game.energy.update(({ value }) => ({ buffer: 100 - value, value }));
-  game.log.update(($log) => {
-    $log.push({ extra: 0 });
-    return $log;
-  });
+  game.log.update(($log) => $log.concat({ extra: 0 }));
   checkSound(game, playSoundWordUp);
 }
 
 function doComboPhase(game) {
-  const combo = get(game.log).reduce(
-    (result, { extra, sum }, index) => result + (index + 1) * (sum || extra),
+  const $log = get(game.log);
+  const combo = $log.reduce(
+    (result, { counts, extra, sum }, index) =>
+      result + (index + 1) * (sum || extra) * (counts || 1),
     0
   );
   game.score.update(({ value }) => ({
@@ -340,7 +330,7 @@ function doComboPhase(game) {
   checkSpeedrun(
     game,
     () => game.phase.set(PHASES.score),
-    get(game.log).length > 1 ? 800 : 0
+    $log.length > 1 ? 800 : 0
   );
   checkSound(game, playSoundWordUp);
 }
@@ -515,12 +505,10 @@ function getInitialCards(game) {
 
 function getPreparedCards(game, $cards) {
   while (true) {
-    const $matchedIndexes = getMatchedIndexes($cards);
-    if ($matchedIndexes.length === 0) return $cards;
-    $cards = getFallenCards(
-      game,
-      getMatchedCards(game, $cards, $matchedIndexes)
-    );
+    const $matchedIndexes = getMatchedFromCards($cards).indexes;
+    if ($matchedIndexes.size === 0) return $cards;
+    const matchedCards = getMatchedCards(game, $cards, $matchedIndexes);
+    $cards = getFallenCards(game, matchedCards);
   }
 }
 
@@ -562,20 +550,27 @@ export function initCore(game) {
 
 /* GAME RESET *****************************************************************/
 
-function shuffleBoard(game, count) {
-  game.phase.set(INITIAL_VALUES.phase);
-  game.energy.set(INITIAL_VALUES.energy);
-  game.log.set(INITIAL_VALUES.log);
-  game.matchedIndexes.set(INITIAL_VALUES.matchedIndexes);
-  game.moves.set(INITIAL_VALUES.moves);
-  game.plusIndex.set(INITIAL_VALUES.plusIndex);
-  game.score.set(INITIAL_VALUES.score);
-  game.timestamp.set(Date.now());
-  if (count-- > 0) setTimeout(() => shuffleBoard(game, count), 64);
+function shuffleBoard(game, count, playerName) {
+  if (count < 0) return;
+  setTimeout(() => {
+    game.log.set(INITIAL_VALUES.log);
+    game.plusIndex.set(INITIAL_VALUES.plusIndex);
+    game.matchedIndexes.set(INITIAL_VALUES.matchedIndexes);
+    game.moves.set(INITIAL_VALUES.moves);
+    game.score.set(INITIAL_VALUES.score);
+    game.energy.set(INITIAL_VALUES.energy);
+    game.phase.set(INITIAL_VALUES.phase);
+    game.timestamp.set(Date.now());
+    if (playerName) {
+      game.options.update(($options) => ({ ...$options, playerName }));
+    }
+    shuffleBoard(game, --count);
+  }, 64);
 }
 
-export function resetGame(game) {
+export function resetGame(game, playerName) {
   updatePreviousHighs(game);
   checkSound(game, playSoundGenerate);
-  shuffleBoard(game, get(game.options).speedrun ? 0 : 8);
+  const { speedrun } = get(game.options);
+  shuffleBoard(game, speedrun ? 0 : 8, playerName);
 }

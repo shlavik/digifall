@@ -1,16 +1,20 @@
 <script>
   import { longpress } from "./actions.js";
   import { PHASES } from "./constants.js";
-  import { matchedIndexes, phase, plusIndex } from "./stores.js";
+  import { options, phase, plusIndex } from "./stores.js";
 
   export let card;
   export let index;
+  export let matched;
 
   function checkStart() {
-    return $phase === PHASES.idle && $plusIndex === undefined;
+    return (
+      $options.speedrun !== true &&
+      $phase === PHASES.idle &&
+      $plusIndex === undefined
+    );
   }
 
-  $: matched = $matchedIndexes.includes(index);
   $: matt = card.y === 5;
   $: plused = $plusIndex === index;
   $: nextValue = card.value < 9 ? card.value + 1 : 0;
@@ -31,7 +35,11 @@
   use:longpress={{ checkStart }}
 >
   <div class="value">
-    <div class="current color-{card.value}">{card.value}</div>
-    <div class="next color-{nextValue}">{nextValue}</div>
+    <div class="current" style:--color="var(--color-{card.value})">
+      {card.value}
+    </div>
+    <div class="next" style:--color="var(--color-{nextValue})">
+      {nextValue}
+    </div>
   </div>
 </div>

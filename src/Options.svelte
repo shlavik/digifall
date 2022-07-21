@@ -20,14 +20,13 @@
   }
 
   function accept() {
-    $overlay = null;
-    $options.playerName = playerName;
-    resetGame();
+    dialogComponent.close();
+    resetGame(playerName);
   }
 
   function reject() {
-    playerName = $options.playerName;
     dialogComponent.close();
+    playerName = $options.playerName;
   }
 
   function submit() {
@@ -77,6 +76,7 @@
     </div>
   </form>
 {/if}
+
 <Dialog
   title={playerName}
   bind:opened={dialogOpened}

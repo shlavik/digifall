@@ -1,7 +1,5 @@
-import * as idbKeyval from "idb-keyval";
+import { createStore, get as idbGet, set as idbSet } from "idb-keyval";
 import { get, writable } from "svelte/store";
-
-import { KEYS } from "./constants.js";
 
 export function localStorageStore(key, initialValue) {
   const store = writable(initialValue);
@@ -20,25 +18,26 @@ export function localStorageStore(key, initialValue) {
   };
 }
 
-const database = idbKeyval.createStore(KEYS.digifall, KEYS.digifall);
-
-export function indexedDBStore(key, initialValue) {
-  const store = writable(initialValue);
-  idbKeyval.get(key, database).then((value) => {
-    if (value === undefined && initialValue !== undefined) {
-      idbKeyval.set(key, initialValue, database);
-      return;
-    }
-    if (value === initialValue) return;
-    store.set(value);
-  });
-  return {
-    set(value) {
-      idbKeyval.set(key, value, database).then(() => store.set(value));
-    },
-    update(cb) {
-      idbKeyval.get(key, database).then((value) => this.set(cb(value)));
-    },
-    subscribe: store.subscribe,
+export function createIndexedDBStore(dbName, storeName) {
+  const db = createStore(dbName, storeName || dbName);
+  return function indexedDBStore(key, initialValue) {
+    const store = writable(initialValue);
+    idbGet(key, db).then((value) => {
+      if (value === undefined && initialValue !== undefined) {
+        idbSet(key, initialValue, db);
+        return;
+      }
+      if (value === initialValue) return;
+      store.set(value);
+    });
+    return {
+      set(value) {
+        idbSet(key, value, db).then(() => store.set(value));
+      },
+      update(cb) {
+        idbGet(key, db).then((value) => this.set(cb(value)));
+      },
+      subscribe: store.subscribe,
+    };
   };
 }

@@ -1,7 +1,7 @@
 import App from "./App.svelte";
 import { initCore } from "./core.js";
 import game from "./stores.js";
-import "./leaderboard";
+import "./leaderboard.js";
 
 initCore(game);
 

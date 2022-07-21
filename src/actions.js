@@ -30,11 +30,11 @@ export function longpress(
   window.addEventListener("mouseup", stop);
   return {
     update(newProps) {
-      duration = newProps.duration;
-      checkStart = newProps.checkStart;
-      checkStop = newProps.checkStop;
-      onStart = newProps.onStart;
-      onStop = newProps.onStop;
+      duration = newProps.duration || duration;
+      checkStart = newProps.checkStart || checkStart;
+      checkStop = newProps.checkStop || checkStop;
+      onStart = newProps.onStart || onStart;
+      onStop = newProps.onStop || onStop;
       stop();
     },
     destroy() {
