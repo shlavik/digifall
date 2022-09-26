@@ -19,7 +19,7 @@ export function localStorageStore(key, initialValue) {
 }
 
 export function createIndexedDBStore(dbName, storeName) {
-  const db = createStore(dbName, storeName || dbName);
+  const db = createStore(dbName, storeName);
   return function indexedDBStore(key, initialValue) {
     const store = writable(initialValue);
     idbGet(key, db).then((value) => {

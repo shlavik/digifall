@@ -4,7 +4,7 @@
 
   import { longpress } from "./actions.js";
   import { COLORS, KEYS, OVERLAYS } from "./constants.js";
-  import { compare, leaderboard, maxSize } from "./leaderboard.js";
+  import { compare, leaderboards, maxSize } from "./leaderboard.js";
   import { options, overlay, randomColor } from "./stores.js";
 
   const types = {
@@ -85,7 +85,8 @@
   }
 
   $: updateRandomColor(page);
-  $: sorted = $leaderboard[type].slice().sort((a, b) => compare(b, a));
+  $: leaderboard = leaderboards[type];
+  $: sorted = $leaderboard.slice().sort((a, b) => compare(b, a));
   $: findStartPage(sorted);
   $: start = page * pageSize;
   $: end = start + pageSize;

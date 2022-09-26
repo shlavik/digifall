@@ -6,9 +6,7 @@ import {
   getSeed,
   resetGame as coreResetGame,
 } from "./core.js";
-import { createIndexedDBStore, localStorageStore } from "./persistence.js";
-
-export const indexedDBStore = createIndexedDBStore(KEYS.digifall);
+import { localStorageStore } from "./persistence.js";
 
 export const cards = writable(INITIAL_VALUES.cards);
 export const energy = writable(INITIAL_VALUES.energy);

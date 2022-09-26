@@ -1,5 +1,3 @@
-export const PROTOCOL_VERSION = 1;
-
 export const COLORS = {
   white: "white",
 };
@@ -16,7 +14,6 @@ export const KEYS = {
   playerName: "playerName",
   prevHighCombo: "prevHighCombo",
   prevHighScore: "prevHighScore",
-  protocolVersion: "protocolVersion",
   records: "records",
   score: "score",
   timestamp: "timestamp",
@@ -52,7 +49,6 @@ export const INITIAL_VALUES = {
     value: 100,
   },
   [KEYS.leaderboard]: {
-    [KEYS.protocolVersion]: PROTOCOL_VERSION,
     [KEYS.highScore]: [],
     [KEYS.highCombo]: [],
   },
@@ -71,7 +67,6 @@ export const INITIAL_VALUES = {
   plusIndex: undefined,
   randomColor: COLORS.white,
   [KEYS.records]: {
-    [KEYS.protocolVersion]: PROTOCOL_VERSION,
     [KEYS.highScore]: {
       [KEYS.playerName]: "",
       [KEYS.timestamp]: 0,
