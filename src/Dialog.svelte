@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { blur } from "svelte/transition";
+  import { blur, fly } from "svelte/transition";
 
   const dispatch = createEventDispatcher();
 
@@ -22,13 +22,13 @@
   <div class="dialog content" in:blur>
     <div class="section-1">
       {#if title}
-        <span class="title">
+        <span class="title" in:fly={{ y: -48 }}>
           {title}
         </span>
       {/if}
     </div>
     <div class="section-2" />
-    <div class="section-3">
+    <div class="section-3" in:fly={{ y: 24 }}>
       <slot />
     </div>
     <div class="section-4" />

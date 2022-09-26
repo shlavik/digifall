@@ -1,5 +1,5 @@
 <script>
-  import { blur } from "svelte/transition";
+  import { blur, fly } from "svelte/transition";
 
   import Dialog from "./Dialog.svelte";
   import PlayerName from "./PlayerName.svelte";
@@ -39,10 +39,10 @@
 {#if !dialogOpened}
   <form class="options content" in:blur on:submit|preventDefault={submit}>
     <div class="section-1">
-      <span>options</span>
+      <span in:fly={{ y: -48 }}>options</span>
     </div>
     <div class="section-2" />
-    <div class="section-3">
+    <div class="section-3" in:fly={{ y: 24 }}>
       <div class="col">
         <PlayerName bind:playerName bind:this={playerNameComponent} />
         <input
@@ -71,7 +71,9 @@
     </div>
     <div class="section-4">
       <div class="col">
-        <button type="submit" title="RETURN TO MAIN MENU">return</button>
+        <button type="submit" title="RETURN TO MAIN MENU" in:fly={{ y: 48 }}>
+          return
+        </button>
       </div>
     </div>
   </form>

@@ -33,7 +33,7 @@
 >
   <div class="section-1">
     {#if gameOver}
-      <span class="big" in:blur={checkSpeedrun({ delay: 600 })}>
+      <span class="big" in:fly={checkSpeedrun({ delay: 600, y: -48 })}>
         {newRecord ? "new record!" : "game over"}
       </span>
     {/if}
@@ -43,7 +43,7 @@
   </div>
   <div class="section-3">
     {#if gameOver}
-      <div class="col" in:blur={checkSpeedrun({ delay: 600 })}>
+      <div class="col" in:fly={checkSpeedrun({ delay: 600, y: 24 })}>
         <button on:click={startNewGame}>new game</button>
       </div>
     {/if}
@@ -56,9 +56,9 @@
           <span
             class="letter"
             in:fly={checkSpeedrun({
-              delay: index * 50,
+              delay: index * 48,
               duration: 200,
-              y: 50,
+              y: 48,
             })}
           >
             {letter}

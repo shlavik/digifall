@@ -8,8 +8,8 @@
   import { options, overlay, randomColor } from "./stores.js";
 
   const types = {
-    [KEYS.highCombo]: "high combos",
-    [KEYS.highScore]: "high scores",
+    [KEYS.highCombo]: "combos",
+    [KEYS.highScore]: "scores",
   };
   const pageSize = 9;
   const pageCounts = Math.ceil(maxSize / pageSize);
@@ -101,17 +101,23 @@
 
 <div class="leaderboard content" in:blur>
   <div class="section-1">
-    <span
+    <div
       class="type"
       title="CHANGE LEADERBOARD TYPE"
       tabindex="0"
+      in:fly={{ y: -48 }}
       on:click={changeType}
       on:keydown={changeType}
       on:longpress={changeType}
       use:longpress={{ onStop }}
     >
-      {types[type]}
-    </span>
+      <span>
+        <span>high</span>
+        {#key types[type]}
+          <span in:blur={{ duration: 200 }}>{types[type]}</span>
+        {/key}
+      </span>
+    </div>
   </div>
   <div class="section-2">
     <ul
@@ -163,7 +169,13 @@
   </div>
   <div class="section-4">
     <div class="col">
-      <button title="RETURN TO MAIN MENU" on:click={showMenu}>return</button>
+      <button
+        title="RETURN TO MAIN MENU"
+        on:click={showMenu}
+        in:fly={{ y: 48 }}
+      >
+        return
+      </button>
     </div>
   </div>
 </div>
