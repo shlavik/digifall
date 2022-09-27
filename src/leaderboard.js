@@ -19,7 +19,6 @@ import { UniQueue } from "./uniqueue.js";
 
 const PROTOCOL_PREFIX = "/digifall";
 const PROTOCOLS = {
-  pull: PROTOCOL_PREFIX + "/pull",
   push: PROTOCOL_PREFIX + "/push",
   validate: PROTOCOL_PREFIX + "/validate",
 };
@@ -124,11 +123,6 @@ async function push(connection) {
   }
 }
 
-async function handlePull({ connection }) {
-  if (debug) console.log("handlePull");
-  return await push(connection);
-}
-
 async function handlePush({ stream: input, connection }) {
   if (debug) console.log("handlePush");
   const remoteActualNames = {
@@ -145,14 +139,14 @@ async function handlePush({ stream: input, connection }) {
       remoteActualNames[type].add(playerName);
     }
   });
-  const localUniques = [KEYS.highCombo, KEYS.highScore].flatMap((type) =>
-    queues[type].data
-      .filter(({ playerName }) => !remoteActualNames[type].has(playerName))
-      .map((gameData) => {
-        gameData[KEYS.type] = type;
-        const json = JSON.stringify(gameData);
-        return uint8ArrayFromString(json);
-      })
+  const localUniques = [];
+  [KEYS.highCombo, KEYS.highScore].forEach((type) =>
+    queues[type].data.forEach((gameData) => {
+      if (remoteActualNames[type].has(gameData.playerName)) return;
+      gameData[KEYS.type] = type;
+      const json = JSON.stringify(gameData);
+      localUniques.push(uint8ArrayFromString(json));
+    })
   );
   if (localUniques.length === 0) return;
   try {
@@ -166,7 +160,6 @@ async function handlePush({ stream: input, connection }) {
 
 async function handleValidate({ stream: input }) {
   if (debug) console.log("handleValidate");
-  let touched = false;
   await pipe(input, async (source) => {
     for await (const message of source) {
       try {
@@ -179,23 +172,11 @@ async function handleValidate({ stream: input }) {
         const gameData = await validateRecord(remoteUnique);
         queues[type].push(gameData);
         leaderboards[type].set(queues[type].data);
-        touched = true;
         console.warn("P2P LEADERBOARD UPDATED!", type, playerName, value);
       } catch (error) {
         if (debug) console.error(error);
         continue;
       }
-    }
-  });
-  if (!touched) return;
-  libp2p.connectionManager.connections.forEach(([connection]) => {
-    const remotePeerId = connection.remotePeer.toString();
-    if (remotePeerId === RELAY_PEER_ID) return;
-    try {
-      if (debug) console.log(PROTOCOLS.pull);
-      connection.newStream(PROTOCOLS.pull);
-    } catch (error) {
-      if (debug) console.error(error);
     }
   });
 }
@@ -256,7 +237,6 @@ async function handlePeerConnect({ detail: connection }) {
       },
     },
   });
-  libp2p.handle(PROTOCOLS.pull, handlePull);
   libp2p.handle(PROTOCOLS.push, handlePush);
   libp2p.handle(PROTOCOLS.validate, handleValidate);
   libp2p.addEventListener("peer:discovery", handlePeerDiscovery);

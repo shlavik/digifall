@@ -126,6 +126,7 @@ input[type="text"] {
   font-style: italic;
   line-height: 6rem;
   outline: 1px solid white;
+  text-decoration: none !important;
   text-indent: 0;
   text-shadow: var(--shadow-1);
 }
@@ -259,6 +260,45 @@ p {
   width: 1rem;
 }
 
+.board.progress .card {
+  cursor: progress;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .board:not(.progress) .card:hover {
+    z-index: 2;
+    box-shadow: none;
+  }
+
+  .board:not(.progress) .card:hover .current,
+  .board:not(.progress) .card:hover .next {
+    top: -1px;
+    border-bottom: 1px solid var(--color);
+    box-shadow: var(--shadow-1), inset var(--gloss-inset);
+  }
+}
+
+.board:not(.progress) .card.longpress .current {
+  top: 0;
+  border-bottom: none;
+  box-shadow: var(--shadow-0);
+  color: var(--color);
+  text-shadow: var(--shadow-0);
+}
+
+.board:not(.progress) .card.longpress .current::after {
+  position: absolute;
+  top: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: longpress 400ms ease-out forwards;
+  background-color: white;
+  content: "";
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+
 .card {
   position: absolute;
   width: 21rem;
@@ -295,69 +335,30 @@ p {
   transform: rotateY(-180deg);
 }
 
-.card.plused {
+.card.plus {
   z-index: 2;
   box-shadow: none;
   perspective: 128rem;
 }
 
-.card.plused .value {
+.card.plus .value {
   transform: rotateY(-180deg);
   transform-style: preserve-3d;
   transition: transform 400ms ease;
 }
 
-.card.plused .current,
-.card.plused .next {
+.card.plus .current,
+.card.plus .next {
   box-shadow: var(--gloss), var(--shadow-1);
 }
 
-.card.matched {
+.card.blink {
   box-shadow: none;
 }
 
-.card.matched .current {
+.card.blink .current {
   animation: blink 200ms steps(2, end) 2, fade-out 400ms ease 400ms forwards;
   box-shadow: none;
-}
-
-.progress .card {
-  cursor: progress;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .board:not(.progress) .card:hover {
-    z-index: 2;
-    box-shadow: none;
-  }
-
-  .board:not(.progress) .card:hover .current,
-  .board:not(.progress) .card:hover .next {
-    top: -1px;
-    border-bottom: 1px solid var(--color);
-    box-shadow: var(--shadow-1), inset var(--gloss-inset);
-  }
-}
-
-.board:not(.speedrun, .progress) .card.longpress .current {
-  top: 0;
-  border-bottom: none;
-  box-shadow: var(--shadow-0);
-  color: var(--color);
-  text-shadow: var(--shadow-0);
-}
-
-.board:not(.speedrun, .progress) .card.longpress .current::after {
-  position: absolute;
-  top: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  animation: longpress 400ms ease-out forwards;
-  background-color: white;
-  content: "";
-  mix-blend-mode: overlay;
-  opacity: 0.5;
 }
 
 .dialog {

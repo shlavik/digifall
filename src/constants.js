@@ -12,8 +12,6 @@ export const KEYS = {
   options: "options",
   peerId: "peerId",
   playerName: "playerName",
-  prevHighCombo: "prevHighCombo",
-  prevHighScore: "prevHighScore",
   records: "records",
   score: "score",
   timestamp: "timestamp",

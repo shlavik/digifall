@@ -92,7 +92,7 @@ function getFallenCards(game, $cards) {
       if (index === undefined) return ++count;
       const { x, value } = $cards[index];
       const duration =
-        game.movesInitial || $phase !== PHASES.fall || speedrun // MB: check speedrun?
+        game.movesInitial || $phase !== PHASES.fall || speedrun
           ? 0
           : 100 * sqrt(2 * count);
       result[index] = {

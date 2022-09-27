@@ -1,36 +1,23 @@
 <script>
   import { longpress } from "./actions.js";
-  import { PHASES } from "./constants.js";
-  import { options, phase, plusIndex } from "./stores.js";
 
   export let card;
   export let index;
-  export let matched;
+  export let blink;
+  export let plus;
+  export let checkStart;
 
-  function checkStart() {
-    return (
-      $options.speedrun !== true &&
-      $phase === PHASES.idle &&
-      $plusIndex === undefined
-    );
-  }
-
-  $: matt = card.y === 5;
-  $: plused = $plusIndex === index;
   $: nextValue = card.value < 9 ? card.value + 1 : 0;
-  $: style = `
-    bottom: ${card.y * 21}rem;
-    left: ${card.x * 21}rem;
-    transition-duration: ${card.duration}ms;
-  `;
 </script>
 
 <div
   class="card"
-  class:matched
-  class:matt
-  class:plused
-  {style}
+  class:blink
+  class:plus
+  class:matt={card.y === 5}
+  style:bottom={21 * card.y + "rem"}
+  style:left={21 * card.x + "rem"}
+  style:transition-duration={card.duration + "ms"}
   data-index={index}
   use:longpress={{ checkStart }}
 >

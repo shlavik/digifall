@@ -12,12 +12,12 @@
   } from "./stores.js";
 
   function setPlusIndex(card) {
-    if ($phase !== PHASES.idle || $plusIndex !== undefined) return;
+    if (progress) return;
     $plusIndex = Number(card.dataset.index);
   }
 
   function click(event) {
-    if ($options.speedrun !== true) return;
+    if (!speedrun) return;
     const card = event
       .composedPath()
       .find(({ dataset }) => dataset && dataset.index);
@@ -26,13 +26,24 @@
   }
 
   function longpress(event) {
-    if ($options.speedrun === true) return;
+    if (speedrun) return;
     setPlusIndex(event.target);
   }
 
+  /**
+   * Prevent longpress action on Card
+   */
+  function checkStart() {
+    return !speedrun && !progress;
+  }
+
+  $: ({ speedrun } = $options);
+  $: idle = $phase === PHASES.idle;
+  $: blink = $matchedIndexes.size > 0 && $log.length === 1;
+  $: overflow = !idle && !blink;
+  $: progress = !idle || $plusIndex !== undefined;
   $: plusCard = $cards[$plusIndex];
   $: plusCardMemoized = plusCard || plusCardMemoized;
-  $: blink = $matchedIndexes.size > 0 && $log.length === 1;
   $: focus = plusCard || blink;
   $: sliderStyles = {
     horizontal: `
@@ -48,14 +59,19 @@
 
 <div
   class="board"
-  class:overflow={$phase !== PHASES.idle && !blink}
-  class:progress={$phase !== PHASES.idle || $plusIndex}
-  class:speedrun={$options.speedrun}
+  class:overflow
+  class:progress
   on:click={click}
   on:longpress={longpress}
 >
   {#each $cards as card, index}
-    <Card {card} {index} matched={$matchedIndexes.has(index)} />
+    <Card
+      {card}
+      {index}
+      blink={$matchedIndexes.has(index)}
+      plus={$plusIndex === index}
+      {checkStart}
+    />
   {/each}
   <div class="slider top" class:blink style={sliderStyles.horizontal} />
   <div class="slider right" class:blink style={sliderStyles.vertical} />
