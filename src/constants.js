@@ -1,11 +1,13 @@
-export const COLORS = {
+export const COLORS = Object.freeze({
   white: "white",
-};
+});
 
-export const KEYS = {
+export const KEYS = Object.freeze({
   digifall: "digifall",
   highCombo: "highCombo",
+  highComboPrev: "highComboPrev",
   highScore: "highScore",
+  highScorePrev: "highScorePrev",
   leaderboard: "leaderboard",
   local: "local",
   moves: "moves",
@@ -13,21 +15,22 @@ export const KEYS = {
   peerId: "peerId",
   playerName: "playerName",
   records: "records",
+  rootHash: "rootHash",
   score: "score",
   timestamp: "timestamp",
   type: "type",
   value: "value",
-};
+});
 
-export const OVERLAYS = {
+export const OVERLAYS = Object.freeze({
   gameover: "gameover",
   leaderboard: "leaderboard",
   menu: "menu",
   options: "options",
   wellcome: "wellcome",
-};
+});
 
-export const PHASES = {
+export const PHASES = Object.freeze({
   blink: "blink",
   combo: "combo",
   extra: "extra",
@@ -38,9 +41,9 @@ export const PHASES = {
   match: "match",
   plus: "plus",
   score: "score",
-};
+});
 
-export const INITIAL_VALUES = {
+export const INITIAL_VALUES = Object.freeze({
   cards: [],
   energy: {
     buffer: 0,
@@ -49,6 +52,10 @@ export const INITIAL_VALUES = {
   [KEYS.leaderboard]: {
     [KEYS.highScore]: [],
     [KEYS.highCombo]: [],
+    [KEYS.rootHash]: {
+      [KEYS.highScore]: 0,
+      [KEYS.highCombo]: 0,
+    },
   },
   log: [],
   matchedIndexes: new Set(),
@@ -82,4 +89,4 @@ export const INITIAL_VALUES = {
     buffer: 0,
     value: 0,
   },
-};
+});

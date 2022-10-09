@@ -126,7 +126,7 @@ input[type="text"] {
   font-style: italic;
   line-height: 6rem;
   outline: 1px solid white;
-  text-decoration: none !important;
+  text-decoration: none;
   text-indent: 0;
   text-shadow: var(--shadow-1);
 }
@@ -453,6 +453,7 @@ p.exclam-fix {
 }
 
 .game .digifall:active,
+.game .digifall:focus,
 .game .digifall.screen,
 .game .digifall.screen:focus,
 .game .digifall.screen:hover {
@@ -515,6 +516,7 @@ p.exclam-fix {
   --color: white;
 
   justify-content: space-evenly;
+  padding: 5rem 0;
   color: var(--color);
   cursor: pointer;
 }

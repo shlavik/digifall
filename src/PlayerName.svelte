@@ -14,23 +14,25 @@
   }
 
   $: {
-    let previousPlayerName = playerName;
+    let playerNamePrev = playerName;
     playerName = playerName
       .toLowerCase()
       .replace(/[^a-z0-9\@\&\$\!\?\-\+\=\.\:\/\_]/g, "");
-    visibility = previousPlayerName !== playerName ? "visible" : "hidden";
+    visibility = playerNamePrev !== playerName ? "visible" : "hidden";
+    if (playerName === "") inputElement && inputElement.focus();
   }
-  $: playerNameTitle = ('PLAYER NAME: "' + playerName + '"').toUpperCase();
+  $: title = ('PLAYER NAME: "' + playerName + '"').toUpperCase();
 </script>
 
 <span class="symbols" style:visibility>a-z 0-9 @&$!?-+=.:/_</span>
 <input
   class="player-name"
   type="text"
-  name="playerName"
+  inputmode="url"
   placeholder="player name"
-  title={playerNameTitle}
+  spellcheck="false"
   maxlength="42"
+  {title}
   bind:value={playerName}
   bind:this={inputElement}
 />

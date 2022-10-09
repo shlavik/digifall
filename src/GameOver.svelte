@@ -20,9 +20,8 @@
   $: energyOut = $energy.value === 0;
   $: gameOver = energyOut && $energy.buffer === 0;
   $: highCombo = $records[KEYS.highCombo][KEYS.value];
-  $: newRecordHighCombo = gameOver && highCombo > game[KEYS.previousHighCombo];
-  $: newRecordHighScore =
-    gameOver && $score.value > game[KEYS.previousHighScore];
+  $: newRecordHighCombo = gameOver && highCombo > game[KEYS.highComboPrev];
+  $: newRecordHighScore = gameOver && $score.value > game[KEYS.highScorePrev];
   $: newRecord = newRecordHighCombo || newRecordHighScore;
 </script>
 

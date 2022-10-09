@@ -7,20 +7,21 @@ import { PubSubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { WebSockets } from "@libp2p/websockets";
 import { pipe } from "it-pipe";
 import { createLibp2p } from "libp2p";
-import { get, readable, writable } from "svelte/store";
+import { get } from "svelte/store";
 import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 
 import { INITIAL_VALUES, KEYS, PHASES } from "./constants.js";
-import { getSeed, initCore } from "./core.js";
+import { getSeed, squashIntegers } from "./core.js";
 import { createIndexedDBStore, localStorageStore } from "./persistence.js";
 import { options, phase, records } from "./stores.js";
 import { UniQueue } from "./uniqueue.js";
+import { validateRecord } from "./validation.js";
 
 const PROTOCOL_PREFIX = "/digifall";
 const PROTOCOLS = {
-  push: PROTOCOL_PREFIX + "/push",
-  validate: PROTOCOL_PREFIX + "/validate",
+  root: PROTOCOL_PREFIX + "/root",
+  preview: PROTOCOL_PREFIX + "/preview",
 };
 const RELAY_PEER_ID = "12D3KooWRjPoVe5DnnMJzy8PYUwmgrkvgaXSpuR3MuNmbgoSRvio";
 const RELAY_MULTIADDR =
@@ -34,14 +35,18 @@ export const indexedDBStore = createIndexedDBStore(
   KEYS.leaderboard
 );
 
-export const leaderboards = {
+export const leaderboardStores = {
   [KEYS.highCombo]: indexedDBStore(
     KEYS.highCombo,
-    INITIAL_VALUES[KEYS.leaderboard][KEYS.highCombo]
+    INITIAL_VALUES.leaderboard.highCombo
   ),
   [KEYS.highScore]: indexedDBStore(
     KEYS.highScore,
-    INITIAL_VALUES[KEYS.leaderboard][KEYS.highScore]
+    INITIAL_VALUES.leaderboard.highScore
+  ),
+  [KEYS.rootHash]: indexedDBStore(
+    KEYS.rootHash,
+    INITIAL_VALUES.leaderboard.rootHash
   ),
 };
 
@@ -71,114 +76,92 @@ const queues = {
   }),
 };
 
-async function validateRecord(gameData = {}) {
-  const { type, moves, playerName, timestamp, value } = gameData;
-  if (!type || !moves || !playerName || !timestamp || !value) {
-    throw new Error("RECORD VALIDATION: BAD GAME DATA!");
-  }
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject("RECORD VALIDATION: TIMEOUT!"), 3333);
-    const game = initCore({
-      cards: writable(INITIAL_VALUES.cards),
-      energy: writable(INITIAL_VALUES.energy),
-      log: writable(INITIAL_VALUES.log),
-      matchedIndexes: writable(INITIAL_VALUES.matchedIndexes),
-      moves: readable(moves),
-      options: readable({ playerName, speedrun: true }),
-      phase: writable(INITIAL_VALUES.phase),
-      plusIndex: writable(INITIAL_VALUES.plusIndex),
-      records: writable({ ...INITIAL_VALUES.records }),
-      score: writable(INITIAL_VALUES.score),
-      seed: readable(getSeed(gameData)),
-      timestamp: readable(timestamp),
-    });
-    game.records.subscribe(($records) => {
-      const { movesInitial, phase } = game;
-      if (movesInitial !== null && get(phase) !== PHASES.gameover) return;
-      clearTimeout(timer);
-      const recordValue = $records[type][KEYS.value];
-      gameData = { type, moves, playerName, timestamp, value };
-      if (recordValue >= value) {
-        gameData.value = recordValue;
-        resolve(gameData);
-      } else if (debug) console.warn(recordValue, gameData);
-      reject("RECORD VALIDATION: WRONG VALUE!");
-    });
-  });
+function parseMessage(message) {
+  return JSON.parse(uint8ArrayToString(message.subarray()));
 }
 
-async function push(connection) {
-  const messages = [KEYS.highCombo, KEYS.highScore].flatMap((type) =>
-    queues[type].data.map(({ playerName, value }) => {
-      const json = JSON.stringify({ type, playerName, value });
-      return uint8ArrayFromString(json);
-    })
-  );
-  try {
-    if (debug) console.log(PROTOCOLS.push);
-    const stream = await connection.newStream(PROTOCOLS.push);
-    return await pipe(messages, stream);
-  } catch (error) {
-    if (debug) console.error(error);
-  }
+function toMessage(object) {
+  return uint8ArrayFromString(JSON.stringify(object));
 }
 
-async function handlePush({ stream: input, connection }) {
-  if (debug) console.log("handlePush");
-  const remoteActualNames = {
-    [KEYS.highCombo]: new Set(),
-    [KEYS.highScore]: new Set(),
-  };
-  await pipe(input, async (source) => {
-    for await (const message of source) {
-      const json = uint8ArrayToString(message.subarray());
-      const { type, playerName, value } = JSON.parse(json);
-      const index = queues[type].indexes.get(playerName);
-      if (index === undefined) continue;
-      if (queues[type].data[index].value > value) continue;
-      remoteActualNames[type].add(playerName);
-    }
-  });
-  const localUniques = [];
-  [KEYS.highCombo, KEYS.highScore].forEach((type) =>
-    queues[type].data.forEach((gameData) => {
-      if (remoteActualNames[type].has(gameData.playerName)) return;
-      gameData[KEYS.type] = type;
-      const json = JSON.stringify(gameData);
-      localUniques.push(uint8ArrayFromString(json));
-    })
-  );
-  if (localUniques.length === 0) return;
-  try {
-    if (debug) console.log(PROTOCOLS.validate);
-    const stream = await connection.newStream(PROTOCOLS.validate);
-    return await pipe(localUniques, stream);
-  } catch (error) {
-    if (debug) console.error(error);
-  }
-}
-
-async function handleValidate({ stream: input }) {
-  if (debug) console.log("handleValidate");
-  await pipe(input, async (source) => {
-    for await (const message of source) {
-      try {
-        const json = uint8ArrayToString(message.subarray());
-        const remoteUnique = JSON.parse(json);
-        const { type, playerName, value } = remoteUnique;
-        const { data, indexes } = queues[type];
-        const index = indexes.get(playerName);
-        if (index in data && data[index].value >= value) continue;
-        const gameData = await validateRecord(remoteUnique);
+async function validateSource(source) {
+  for await (const message of source) {
+    const remoteUnique = parseMessage(message);
+    const { type, playerName, value } = remoteUnique;
+    const { data, indexes } = queues[type];
+    const index = indexes.get(playerName);
+    if (index in data && data[index].value >= value) continue;
+    validateRecord(remoteUnique)
+      .then((gameData) => {
         queues[type].push(gameData);
-        leaderboards[type].set(queues[type].data);
+        leaderboardStores[type].set(queues[type].data);
         console.warn("P2P LEADERBOARD UPDATED!", type, playerName, value);
-      } catch (error) {
-        if (debug) console.error(error);
-        continue;
+      })
+      .catch((error) => debug && console.error(...error));
+  }
+}
+
+async function handleRoot({ connection, stream }) {
+  if (debug) console.log("handleRoot");
+  pipe(
+    stream.source,
+    async (source) => {
+      const remoteRootHash = parseMessage((await source.next()).value);
+      const localRootHash = get(leaderboardStores[KEYS.rootHash]);
+      const rootTypes = [KEYS.highCombo, KEYS.highScore].filter(
+        (type) => remoteRootHash[type] !== localRootHash[type]
+      );
+      const previewTypes = rootTypes.filter((type) => remoteRootHash[type] > 0);
+      if (previewTypes.length > 0 && connection.stat.status === "OPEN") {
+        if (debug) console.log(PROTOCOLS.preview);
+        pipe(
+          previewTypes.flatMap((type) =>
+            queues[type].data.map(({ playerName, value }) =>
+              toMessage({ type, playerName, value })
+            )
+          ),
+          await connection.newStream(PROTOCOLS.preview),
+          validateSource
+        ).catch((error) => debug && console.error(error));
       }
-    }
-  });
+      return rootTypes
+        .filter((type) => remoteRootHash[type] === 0)
+        .flatMap((type) =>
+          queues[type].data.map((gameData) => toMessage(gameData))
+        );
+    },
+    stream.sink
+  ).catch((error) => debug && console.error(error));
+}
+
+async function handlePreview({ stream }) {
+  if (debug) console.log("handlePreview");
+  pipe(
+    stream.source,
+    async (source) => {
+      const touchedTypes = new Set();
+      const remoteActualNames = {
+        [KEYS.highCombo]: new Set(),
+        [KEYS.highScore]: new Set(),
+      };
+      for await (const message of source) {
+        const { type, playerName, value } = parseMessage(message);
+        touchedTypes.add(type);
+        const index = queues[type].indexes.get(playerName);
+        if (index === undefined) continue;
+        if (queues[type].data[index].value > value) continue;
+        remoteActualNames[type].add(playerName);
+      }
+      return Array.from(touchedTypes).flatMap((type) =>
+        queues[type].data
+          .filter(
+            (gameData) => !remoteActualNames[type].has(gameData.playerName)
+          )
+          .map((gameData) => toMessage(gameData))
+      );
+    },
+    stream.sink
+  ).catch((error) => debug && console.error(error));
 }
 
 function handlePeerDiscovery({ detail: peer }) {
@@ -189,14 +172,17 @@ async function handlePeerConnect({ detail: connection }) {
   const remotePeerId = connection.remotePeer.toString();
   if (debug) console.log("peer:connect", remotePeerId);
   if (remotePeerId === RELAY_PEER_ID) return;
-  try {
-    await push(connection);
-  } catch (error) {
+  if (connection.stat.status !== "OPEN") return;
+  if (debug) console.log(PROTOCOLS.root);
+  pipe(
+    [toMessage(get(leaderboardStores[KEYS.rootHash]))],
+    await connection.newStream(PROTOCOLS.root),
+    validateSource
+  ).catch((error) => {
     if (debug) console.error(error);
     if (error.message !== "protocol selection failed") return;
     libp2p.components.connectionGater.denyDialPeer(connection.remotePeer);
-    connection.close();
-  }
+  });
 }
 
 (async function initP2PLeaderboard() {
@@ -227,34 +213,44 @@ async function handlePeerConnect({ detail: connection }) {
     ],
     connectionManager: {
       minConnections: 2,
-      maxConnections: 3,
+      maxConnections: debug ? 7 : 3,
     },
     relay: {
       enabled: true,
       autoRelay: {
         enabled: true,
-        maxListeners: 2,
+        maxListeners: debug ? 5 : 2,
       },
     },
   });
-  libp2p.handle(PROTOCOLS.push, handlePush);
-  libp2p.handle(PROTOCOLS.validate, handleValidate);
+  libp2p.handle(PROTOCOLS.root, handleRoot);
+  libp2p.handle(PROTOCOLS.preview, handlePreview);
   libp2p.addEventListener("peer:discovery", handlePeerDiscovery);
   libp2p.connectionManager.addEventListener("peer:connect", handlePeerConnect);
   if (debug) window.libp2p = libp2p;
 })();
 
 [KEYS.highCombo, KEYS.highScore].forEach((type) => {
-  const leaderboard = leaderboards[type];
-  leaderboard.subscribe(async ($leaderboard) => {
+  const leaderboardStore = leaderboardStores[type];
+  const rootHashStore = leaderboardStores[KEYS.rootHash];
+  leaderboardStore.subscribe(async ($leaderboard) => {
     if (!$leaderboard || $leaderboard.length === 0) return;
-    if (queues[type].data.length > 0) return;
+    if (queues[type].data.length > 0) {
+      const $rootHash = get(rootHashStore);
+      $rootHash[type] = squashIntegers(
+        $leaderboard.map((gameData) =>
+          squashIntegers([getSeed(gameData), gameData.value])
+        )
+      );
+      rootHashStore.set($rootHash);
+      return;
+    }
     await Promise.allSettled(
       $leaderboard.map((record) =>
         validateRecord(record).then((gameData) => queues[type].push(gameData))
       )
     );
-    leaderboard.set(queues[type].data);
+    leaderboardStore.set(queues[type].data);
   });
 });
 
@@ -266,7 +262,7 @@ records.subscribe(($records) => {
     if (record[KEYS.value] === 0) return;
     record[KEYS.type] = type;
     queues[type].push(record);
-    leaderboards[type].set(queues[type].data);
+    leaderboardStores[type].set(queues[type].data);
   });
 });
 

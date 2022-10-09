@@ -4,7 +4,7 @@
 
   import { longpress } from "./actions.js";
   import { COLORS, KEYS, OVERLAYS } from "./constants.js";
-  import { compare, leaderboards, maxSize } from "./leaderboard.js";
+  import { compare, leaderboardStores, maxSize } from "./leaderboard.js";
   import { options, overlay, randomColor } from "./stores.js";
 
   const types = {
@@ -53,13 +53,13 @@
       changeType.longpress = true;
       changeType.prevent = false;
     }
-    if (changeType.prevent === true) return (changeType.prevent = false);
+    if (changeType.prevent) return (changeType.prevent = false);
     if (!checkEvent(event)) return;
     type = type === KEYS.highScore ? KEYS.highCombo : KEYS.highScore;
   }
 
   function onStop() {
-    if (changeType.longpress !== true) return (changeType.prevent = false);
+    if (!changeType.longpress) return (changeType.prevent = false);
     changeType.longpress = false;
     changeType.prevent = true;
   }
@@ -85,8 +85,8 @@
   }
 
   $: updateRandomColor(page);
-  $: leaderboard = leaderboards[type];
-  $: sorted = $leaderboard.slice().sort((a, b) => compare(b, a));
+  $: leaderboardStore = leaderboardStores[type];
+  $: sorted = $leaderboardStore.slice().sort((a, b) => compare(b, a));
   $: findStartPage(sorted);
   $: start = page * pageSize;
   $: end = start + pageSize;
@@ -105,6 +105,7 @@
       class="type"
       title="CHANGE LEADERBOARD TYPE"
       tabindex="0"
+      role="button"
       in:fly={{ y: -48 }}
       on:click={changeType}
       on:keydown={changeType}
@@ -135,6 +136,7 @@
           style:--color="var(--color-{value})"
           data-index={index}
           tabindex="0"
+          role="button"
           use:longpress
         >
           {value}

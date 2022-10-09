@@ -51,11 +51,11 @@ const SOUNDS = {
   }),
 };
 
-export function playSoundBleep() {
+export function playBleep() {
   SOUNDS.bleep.play();
 }
 
-export function playSoundBlink() {
+export function playBlink() {
   const play = (rateDiff = 0.02) => {
     SOUNDS.blink.play();
     SOUNDS.blink.rate(SOUNDS.blink.rate() + rateDiff);
@@ -65,33 +65,33 @@ export function playSoundBlink() {
   setTimeout(() => play(0.04), 400);
 }
 
-export function playSoundCardPlus() {
+export function playCardPlus() {
   SOUNDS.zoom.play();
 }
 
-export function playSoundFadeIn() {
+export function playFadeIn() {
   SOUNDS.fadeIn.rate(1 - (random() - 0.5) / 10);
   SOUNDS.fadeIn.play();
 }
 
-export function playSoundGameOver() {
+export function playGameOver() {
   SOUNDS.gameOver.play();
 }
 
-export function playSoundGenerate() {
+export function playGenerate() {
   SOUNDS.generate.play();
 }
 
-export function playSoundKick() {
+export function playKick() {
   const kick = SOUNDS.kicks[round(random())];
   kick.rate(1 - (random() - 0.5) / 2);
   kick.play();
 }
 
-export function playSoundWordUp() {
+export function playWordUp() {
   SOUNDS.wordUp.play();
 }
 
-export function resetSounds() {
+export function reset() {
   SOUNDS.blink.rate(blinkRateInitial);
 }

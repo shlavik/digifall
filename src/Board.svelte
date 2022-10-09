@@ -57,6 +57,7 @@
   };
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
   class="board"
   class:overflow

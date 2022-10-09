@@ -4,7 +4,7 @@
   import Dialog from "./Dialog.svelte";
   import PlayerName from "./PlayerName.svelte";
 
-  import { OVERLAYS } from "./constants.js";
+  import { INITIAL_VALUES, KEYS, OVERLAYS } from "./constants.js";
   import { options, overlay, resetGame } from "./stores.js";
 
   let dialogComponent;
@@ -21,6 +21,7 @@
 
   function accept() {
     dialogComponent.close();
+    localStorage.setItem(KEYS.records, JSON.stringify(INITIAL_VALUES.records));
     resetGame(playerName);
   }
 
@@ -50,11 +51,16 @@
           id="leaderboard"
           bind:checked={$options.leaderboard}
         />
-        <label for="leaderboard" tabindex="0" on:keydown={checkbox}>
+        <label
+          for="leaderboard"
+          tabindex="0"
+          role="button"
+          on:keydown={checkbox}
+        >
           p2p leaderboard
         </label>
         <input type="checkbox" id="speedrun" bind:checked={$options.speedrun} />
-        <label for="speedrun" tabindex="0" on:keydown={checkbox}>
+        <label for="speedrun" tabindex="0" role="button" on:keydown={checkbox}>
           speedrun mode
         </label>
         <input
@@ -64,7 +70,7 @@
           checked={!$options.speedrun && $options.sound}
           on:click={() => ($options.sound = !$options.sound)}
         />
-        <label for="sound" tabindex="0" on:keydown={checkbox}>
+        <label for="sound" tabindex="0" role="button" on:keydown={checkbox}>
           sound effects
         </label>
       </div>

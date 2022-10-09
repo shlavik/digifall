@@ -57,6 +57,7 @@
 </script>
 
 {#key type}
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
   <span class="score" in:blur on:click={nextScore}>
     <span class="type" class:visible>{types[type]}:</span>
     {#if overlaid || $phase !== PHASES.gameover}
