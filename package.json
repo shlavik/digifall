@@ -1,6 +1,6 @@
 {
   "name": "digifall",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -19,8 +19,8 @@
     "idb-keyval": "6.2.0",
     "it-pipe": "2.0.4",
     "libp2p": "0.39.5",
-    "svelte": "3.51.0",
-    "uint8arrays": "3.1.1",
-    "vite": "3.1.7"
+    "svelte": "3.52.0",
+    "uint8arrays": "4.0.2",
+    "vite": "3.1.8"
   }
 }

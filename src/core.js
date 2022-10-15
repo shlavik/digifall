@@ -2,7 +2,7 @@ import { get } from "svelte/store";
 
 import { INITIAL_VALUES, KEYS, PHASES } from "./constants.js";
 
-const { abs, sign, sqrt, trunc } = Math;
+const { abs, sign, trunc } = Math;
 
 // UTILITIES ///////////////////////////////////////////////////////////////////
 
@@ -69,10 +69,9 @@ function checkLocalScore(game, type, value) {
   const $records = get(game.records);
   const valuePrev = $records[type][KEYS.value];
   if (valuePrev >= value) return;
-  const { playerName } = get(game.options);
   $records[type] = {
     [KEYS.moves]: get(game.moves),
-    [KEYS.playerName]: playerName,
+    [KEYS.playerName]: get(game.options).playerName,
     [KEYS.timestamp]: get(game.timestamp),
     [KEYS.value]: value,
   };
@@ -101,7 +100,7 @@ function getFallenCards(game, $cards) {
       const duration =
         game.movesInitial || $phase !== PHASES.fall || speedrun
           ? 0
-          : 100 * sqrt(2 * count);
+          : 100 * (2 * count) ** 0.5;
       result[index] = {
         x,
         y: y - count,
@@ -177,7 +176,7 @@ function getMatchedCards(game, $cards, $matchedIndexes) {
 // ENERGY LOGIC ////////////////////////////////////////////////////////////////
 
 function getDiffFromBuffer(buffer) {
-  return sign(buffer) * trunc(sqrt(abs(buffer)));
+  return sign(buffer) * trunc(abs(buffer) ** 0.5);
 }
 
 function doEnergyLogic(game, { buffer, value }) {
@@ -221,6 +220,7 @@ function doInitialPhase(game) {
 }
 
 function doIdlePhase(game) {
+  const $score = get(game.score);
   if (game.movesInitial !== null) {
     if (game.moveCount < game.movesInitial.length) {
       game.plusIndex.set(game.movesInitial[game.moveCount++]);
@@ -232,13 +232,13 @@ function doIdlePhase(game) {
       return;
     }
     game.movesInitial = null;
-    checkLocalScore(game, KEYS.highScore, get(game.score).value);
+    checkLocalScore(game, KEYS.highScore, $score.value);
     return;
   }
   game.cards.update(($cards) =>
     $cards.map((card) => ((card.duration = 0), card))
   );
-  checkLocalScore(game, KEYS.highScore, get(game.score).value);
+  checkLocalScore(game, KEYS.highScore, $score.value);
   if (game.sounds) checkSound(game, game.sounds.reset);
 }
 
@@ -322,7 +322,7 @@ function doFallPhase(game) {
 
 function doExtraPhase(game) {
   game.energy.update(({ value }) => ({ buffer: 100 - value, value }));
-  game.log.update(($log) => $log.concat({ extra: 0 }));
+  game.log.update(($log) => $log.concat({ extra: 100 }));
   if (game.sounds) checkSound(game, game.sounds.playWordUp);
 }
 
