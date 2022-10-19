@@ -15,7 +15,6 @@ export const KEYS = Object.freeze({
   peerId: "peerId",
   playerName: "playerName",
   records: "records",
-  rootHash: "rootHash",
   score: "score",
   timestamp: "timestamp",
   type: "type",
@@ -52,10 +51,6 @@ export const INITIAL_VALUES = Object.freeze({
   [KEYS.leaderboard]: {
     [KEYS.highScore]: [],
     [KEYS.highCombo]: [],
-    [KEYS.rootHash]: {
-      [KEYS.highScore]: 0,
-      [KEYS.highCombo]: 0,
-    },
   },
   log: [],
   matchedIndexes: new Set(),

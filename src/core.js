@@ -220,7 +220,6 @@ function doInitialPhase(game) {
 }
 
 function doIdlePhase(game) {
-  const $score = get(game.score);
   if (game.movesInitial !== null) {
     if (game.moveCount < game.movesInitial.length) {
       game.plusIndex.set(game.movesInitial[game.moveCount++]);
@@ -232,13 +231,13 @@ function doIdlePhase(game) {
       return;
     }
     game.movesInitial = null;
-    checkLocalScore(game, KEYS.highScore, $score.value);
+    checkLocalScore(game, KEYS.highScore, get(game.score).value);
     return;
   }
   game.cards.update(($cards) =>
     $cards.map((card) => ((card.duration = 0), card))
   );
-  checkLocalScore(game, KEYS.highScore, $score.value);
+  checkLocalScore(game, KEYS.highScore, get(game.score).value);
   if (game.sounds) checkSound(game, game.sounds.reset);
 }
 

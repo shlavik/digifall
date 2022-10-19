@@ -44,10 +44,6 @@ export const leaderboardStores = {
     KEYS.highScore,
     INITIAL_VALUES.leaderboard.highScore
   ),
-  [KEYS.rootHash]: indexedDBStore(
-    KEYS.rootHash,
-    INITIAL_VALUES.leaderboard.rootHash
-  ),
 };
 
 export const maxSize = 81;
@@ -74,6 +70,11 @@ const queues = {
     compare,
     extractKey,
   }),
+};
+
+const rootHashes = {
+  [KEYS.highCombo]: 0,
+  [KEYS.highScore]: 0,
 };
 
 function parseMessage(message) {
@@ -106,12 +107,13 @@ async function handleRoot({ connection, stream }) {
   pipe(
     stream.source,
     async (source) => {
-      const remoteRootHash = parseMessage((await source.next()).value);
-      const localRootHash = get(leaderboardStores[KEYS.rootHash]);
+      const remoteRootHashes = parseMessage((await source.next()).value);
       const rootTypes = [KEYS.highCombo, KEYS.highScore].filter(
-        (type) => remoteRootHash[type] !== localRootHash[type]
+        (type) => remoteRootHashes[type] !== rootHashes[type]
       );
-      const previewTypes = rootTypes.filter((type) => remoteRootHash[type] > 0);
+      const previewTypes = rootTypes.filter(
+        (type) => remoteRootHashes[type] > 0
+      );
       if (previewTypes.length > 0 && connection.stat.status === "OPEN") {
         if (debug) console.log(PROTOCOLS.preview);
         pipe(
@@ -125,7 +127,7 @@ async function handleRoot({ connection, stream }) {
         ).catch((error) => debug && console.error(error));
       }
       return rootTypes
-        .filter((type) => remoteRootHash[type] === 0)
+        .filter((type) => remoteRootHashes[type] === 0)
         .flatMap((type) =>
           queues[type].data.map((gameData) => toMessage(gameData))
         );
@@ -175,7 +177,7 @@ async function handlePeerConnect({ detail: connection }) {
   if (connection.stat.status !== "OPEN") return;
   if (debug) console.log(PROTOCOLS.root);
   pipe(
-    [toMessage(get(leaderboardStores[KEYS.rootHash]))],
+    [toMessage(rootHashes)],
     await connection.newStream(PROTOCOLS.root),
     validateSource
   ).catch((error) => {
@@ -232,25 +234,24 @@ async function handlePeerConnect({ detail: connection }) {
 
 [KEYS.highCombo, KEYS.highScore].forEach((type) => {
   const leaderboardStore = leaderboardStores[type];
-  const rootHashStore = leaderboardStores[KEYS.rootHash];
-  leaderboardStore.subscribe(async ($leaderboard) => {
+  leaderboardStore.subscribe(($leaderboard) => {
     if (!$leaderboard || $leaderboard.length === 0) return;
     if (queues[type].data.length > 0) {
-      const $rootHash = get(rootHashStore);
-      $rootHash[type] = squashIntegers(
-        $leaderboard.map((gameData) =>
-          squashIntegers([getSeed(gameData), gameData.value])
-        )
+      rootHashes[type] = squashIntegers(
+        $leaderboard
+          .slice()
+          .sort(compare)
+          .map((gameData) =>
+            squashIntegers([getSeed(gameData), gameData.value])
+          )
       );
-      rootHashStore.set($rootHash);
       return;
     }
-    await Promise.allSettled(
+    Promise.allSettled(
       $leaderboard.map((record) =>
         validateRecord(record).then((gameData) => queues[type].push(gameData))
       )
-    );
-    leaderboardStore.set(queues[type].data);
+    ).then(() => leaderboardStore.set(queues[type].data));
   });
 });
 
