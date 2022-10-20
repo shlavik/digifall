@@ -1,5 +1,4 @@
 import { GossipSub } from "@chainsafe/libp2p-gossipsub";
-import { Noise } from "@chainsafe/libp2p-noise";
 import { Bootstrap } from "@libp2p/bootstrap";
 import { Mplex } from "@libp2p/mplex";
 import { createEd25519PeerId, createFromJSON } from "@libp2p/peer-id-factory";
@@ -7,6 +6,7 @@ import { PubSubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { WebSockets } from "@libp2p/websockets";
 import { pipe } from "it-pipe";
 import { createLibp2p } from "libp2p";
+import { Plaintext } from "libp2p/insecure";
 import { get } from "svelte/store";
 import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 import { toString as uint8ArrayToString } from "uint8arrays/to-string";
@@ -202,7 +202,7 @@ async function handlePeerConnect({ detail: connection }) {
     peerId,
     transports: [new WebSockets()],
     streamMuxers: [new Mplex()],
-    connectionEncryption: [new Noise()],
+    connectionEncryption: [new Plaintext()],
     pubsub: new GossipSub({ allowPublishToZeroPeers: true }),
     peerDiscovery: [
       new Bootstrap({

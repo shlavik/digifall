@@ -1,6 +1,6 @@
 {
   "name": "digifall",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "4.1.1",
-    "@chainsafe/libp2p-noise": "9.0.0",
     "@libp2p/bootstrap": "4.0.0",
     "@libp2p/mplex": "6.0.2",
     "@libp2p/peer-id-factory": "1.0.18",
@@ -19,6 +18,7 @@
     "idb-keyval": "6.2.0",
     "it-pipe": "2.0.4",
     "libp2p": "0.39.5",
+    "@libp2p/floodsub": "5.0.0",
     "svelte": "3.52.0",
     "uint8arrays": "4.0.2",
     "vite": "3.1.8"
