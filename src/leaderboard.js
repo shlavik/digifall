@@ -1,17 +1,17 @@
-import { GossipSub } from "@chainsafe/libp2p-gossipsub";
-import { Bootstrap } from "@libp2p/bootstrap";
-import { Mplex } from "@libp2p/mplex";
+import { gossipsub } from "@chainsafe/libp2p-gossipsub";
+import { bootstrap } from "@libp2p/bootstrap";
+import { mplex } from "@libp2p/mplex";
 import { createEd25519PeerId, createFromJSON } from "@libp2p/peer-id-factory";
-import { PubSubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
-import { WebSockets } from "@libp2p/websockets";
+import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
+import { webSockets } from "@libp2p/websockets";
 import { pipe } from "it-pipe";
 import { createLibp2p } from "libp2p";
-import { Plaintext } from "libp2p/insecure";
+import { plaintext } from "libp2p/insecure";
 import { get } from "svelte/store";
 import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 
-import { INITIAL_VALUES, KEYS, PHASES } from "./constants.js";
+import { INITIAL_VALUES, KEYS, PHASES, RECORD_TYPES } from "./constants.js";
 import { getSeed, squashIntegers } from "./core.js";
 import { createIndexedDBStore, localStorageStore } from "./persistence.js";
 import { options, phase, records } from "./stores.js";
@@ -35,16 +35,10 @@ export const indexedDBStore = createIndexedDBStore(
   KEYS.leaderboard
 );
 
-export const leaderboardStores = {
-  [KEYS.highCombo]: indexedDBStore(
-    KEYS.highCombo,
-    INITIAL_VALUES.leaderboard.highCombo
-  ),
-  [KEYS.highScore]: indexedDBStore(
-    KEYS.highScore,
-    INITIAL_VALUES.leaderboard.highScore
-  ),
-};
+export const leaderboardStores = RECORD_TYPES.reduce((result, type) => {
+  result[type] = indexedDBStore(type, INITIAL_VALUES[KEYS.leaderboard][type]);
+  return result;
+}, {});
 
 export const maxSize = 81;
 
@@ -59,23 +53,15 @@ function extractKey({ playerName }) {
   return playerName;
 }
 
-const queues = {
-  [KEYS.highCombo]: new UniQueue({
-    maxSize,
-    compare,
-    extractKey,
-  }),
-  [KEYS.highScore]: new UniQueue({
-    maxSize,
-    compare,
-    extractKey,
-  }),
-};
+const queues = RECORD_TYPES.reduce((result, type) => {
+  result[type] = new UniQueue({ maxSize, compare, extractKey });
+  return result;
+}, {});
 
-const rootHashes = {
-  [KEYS.highCombo]: 0,
-  [KEYS.highScore]: 0,
-};
+const rootHashes = RECORD_TYPES.reduce((result, type) => {
+  result[type] = 0;
+  return result;
+}, {});
 
 function parseMessage(message) {
   return JSON.parse(uint8ArrayToString(message.subarray()));
@@ -108,7 +94,7 @@ async function handleRoot({ connection, stream }) {
     stream.source,
     async (source) => {
       const remoteRootHashes = parseMessage((await source.next()).value);
-      const rootTypes = [KEYS.highCombo, KEYS.highScore].filter(
+      const rootTypes = RECORD_TYPES.filter(
         (type) => remoteRootHashes[type] !== rootHashes[type]
       );
       const previewTypes = rootTypes.filter(
@@ -142,10 +128,10 @@ async function handlePreview({ stream }) {
     stream.source,
     async (source) => {
       const touchedTypes = new Set();
-      const remoteActualNames = {
-        [KEYS.highCombo]: new Set(),
-        [KEYS.highScore]: new Set(),
-      };
+      const remoteActualNames = RECORD_TYPES.reduce((result, type) => {
+        result[type] = new Set();
+        return result;
+      }, {});
       for await (const message of source) {
         const { type, playerName, value } = parseMessage(message);
         touchedTypes.add(type);
@@ -200,15 +186,15 @@ async function handlePeerConnect({ detail: connection }) {
   );
   libp2p = await createLibp2p({
     peerId,
-    transports: [new WebSockets()],
-    streamMuxers: [new Mplex()],
-    connectionEncryption: [new Plaintext()],
-    pubsub: new GossipSub({ allowPublishToZeroPeers: true }),
+    transports: [webSockets()],
+    streamMuxers: [mplex()],
+    connectionEncryption: [plaintext()],
+    pubsub: gossipsub({ allowPublishToZeroPeers: true }),
     peerDiscovery: [
-      new Bootstrap({
+      bootstrap({
         list: [RELAY_MULTIADDR],
       }),
-      new PubSubPeerDiscovery({
+      pubsubPeerDiscovery({
         topics: [`digifall._peer-discovery._p2p._pubsub`],
         interval: 10e3,
       }),
@@ -232,7 +218,7 @@ async function handlePeerConnect({ detail: connection }) {
   if (debug) window.libp2p = libp2p;
 })();
 
-[KEYS.highCombo, KEYS.highScore].forEach((type) => {
+RECORD_TYPES.forEach((type) => {
   const leaderboardStore = leaderboardStores[type];
   leaderboardStore.subscribe(($leaderboard) => {
     if (!$leaderboard || $leaderboard.length === 0) return;
@@ -258,7 +244,7 @@ async function handlePeerConnect({ detail: connection }) {
 records.subscribe(($records) => {
   const $phase = get(phase);
   if ($phase !== PHASES.idle && $phase !== PHASES.gameover) return;
-  [KEYS.highCombo, KEYS.highScore].forEach((type) => {
+  RECORD_TYPES.forEach((type) => {
     const record = $records[type];
     if (record[KEYS.value] === 0) return;
     record[KEYS.type] = type;

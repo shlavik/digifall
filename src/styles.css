@@ -175,6 +175,15 @@ input[type="checkbox"]:disabled + label {
   cursor: not-allowed;
 }
 
+noscript {
+  max-width: 0;
+  padding-right: 160rem;
+  margin: auto;
+  font-size: 12rem;
+  letter-spacing: 4rem;
+  line-height: 1.75;
+}
+
 p {
   font-size: 4rem;
   letter-spacing: 1.5rem;

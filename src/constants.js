@@ -42,16 +42,18 @@ export const PHASES = Object.freeze({
   score: "score",
 });
 
+export const RECORD_TYPES = Object.freeze([KEYS.highCombo, KEYS.highScore]);
+
 export const INITIAL_VALUES = Object.freeze({
   cards: [],
   energy: {
     buffer: 0,
     value: 100,
   },
-  [KEYS.leaderboard]: {
-    [KEYS.highScore]: [],
-    [KEYS.highCombo]: [],
-  },
+  [KEYS.leaderboard]: RECORD_TYPES.reduce((result, type) => {
+    result[type] = [];
+    return result;
+  }, {}),
   log: [],
   matchedIndexes: new Set(),
   [KEYS.moves]: "",
@@ -66,20 +68,15 @@ export const INITIAL_VALUES = Object.freeze({
   phase: PHASES.initial,
   plusIndex: undefined,
   randomColor: COLORS.white,
-  [KEYS.records]: {
-    [KEYS.highScore]: {
+  [KEYS.records]: RECORD_TYPES.reduce((result, type) => {
+    result[type] = {
       [KEYS.playerName]: "",
       [KEYS.timestamp]: 0,
       [KEYS.moves]: "",
       [KEYS.value]: 0,
-    },
-    [KEYS.highCombo]: {
-      [KEYS.playerName]: "",
-      [KEYS.timestamp]: 0,
-      [KEYS.moves]: "",
-      [KEYS.value]: 0,
-    },
-  },
+    };
+    return result;
+  }, {}),
   [KEYS.score]: {
     buffer: 0,
     value: 0,
