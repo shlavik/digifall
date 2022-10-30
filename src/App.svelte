@@ -1,15 +1,17 @@
 <script>
-  import { fade } from "svelte/transition";
-
   import Game from "./Game.svelte";
-  import GameOver from "./GameOver.svelte";
-  import Leaderboard from "./Leaderboard.svelte";
-  import Menu from "./Menu.svelte";
-  import Options from "./Options.svelte";
-  import Wellcome from "./Wellcome.svelte";
+  import Overlay from "./Overlay.svelte";
 
   import { COLORS, OVERLAYS, PHASES } from "./constants.js";
-  import { energy, options, overlay, phase, randomColor } from "./stores.js";
+  import { energy, overlay, phase, randomColor, seed } from "./stores.js";
+
+  let gameComponent = null;
+  let overlayComponent = null;
+
+  /**
+   * Reloading page 1 time in day just in case
+   */
+  setTimeout(() => (location = location), 86400000);
 
   onstorage = function syncTabs() {
     if (document.hasFocus()) return;
@@ -21,8 +23,8 @@
     const ratio = offsetHeight / offsetWidth;
     const landscape = ratio < 1.5;
     const size = landscape ? offsetHeight / 192 : offsetWidth / 128;
-    style.setProperty("--pixel", Math.trunc(size * 100) / 100 + "px");
-    $options.landscape = landscape;
+    const diff = size % 0.25;
+    style.setProperty("--pixel", size - diff + "px");
   }
 
   updatePixelSize();
@@ -39,23 +41,39 @@
   $: if ($energy.value < 1 || $energy.value > 100) updateRandomColor();
   $: document.documentElement.style.setProperty("--color-random", $randomColor);
   $: if ($phase === PHASES.gameover) $overlay = OVERLAYS.gameover;
+
+  function keydown(event) {
+    const component = $overlay === null ? gameComponent : overlayComponent;
+    switch (event.code) {
+      case "Escape":
+        event.preventDefault();
+        return component.blur();
+      case "Tab":
+        event.preventDefault();
+        if (!$seed) return;
+        if ($overlay === OVERLAYS.wellcome) return;
+        if ($overlay === OVERLAYS.gameover) return;
+        return overlayComponent.switchOverlay();
+      case "ArrowUp":
+        return component.moveUp();
+      case "ArrowDown":
+        return component.moveDown();
+      case "ArrowLeft":
+        return component.moveLeft();
+      case "ArrowRight":
+        return component.moveRight();
+      case "Enter":
+      case "Space":
+      case "KeyF":
+      case "KeyJ":
+        return component.perfomAction();
+    }
+  }
 </script>
 
+<svelte:window on:keydown={keydown} />
+
 <div class="app">
-  <Game />
-  {#if $overlay}
-    <div class="overlay" transition:fade={{ duration: 200 }}>
-      {#if $overlay === OVERLAYS.gameover}
-        <GameOver />
-      {:else if $overlay === OVERLAYS.leaderboard}
-        <Leaderboard />
-      {:else if $overlay === OVERLAYS.menu}
-        <Menu />
-      {:else if $overlay === OVERLAYS.options}
-        <Options />
-      {:else if $overlay === OVERLAYS.wellcome}
-        <Wellcome />
-      {/if}
-    </div>
-  {/if}
+  <Game bind:this={gameComponent} />
+  <Overlay bind:this={overlayComponent} />
 </div>

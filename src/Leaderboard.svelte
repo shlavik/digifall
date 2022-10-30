@@ -7,19 +7,30 @@
   import { compare, leaderboardStores, maxSize } from "./leaderboard.js";
   import { options, overlay, randomColor } from "./stores.js";
 
+  const pageSize = 9;
+  let page = 0;
+
+  const pageCounts = Math.ceil(maxSize / pageSize);
+  let type = KEYS.highScore;
+  let pagePrev = page;
+  let selfPage = -1;
+
   const types = {
     [KEYS.highCombo]: "combos",
     [KEYS.highScore]: "scores",
   };
-  const pageSize = 9;
-  const pageCounts = Math.ceil(maxSize / pageSize);
-
-  let type = KEYS.highScore;
-  let page = 0;
-  let pagePrev = page;
-  let selfPage = -1;
 
   onDestroy(() => (selfPage = -1));
+
+  export function prevPage() {
+    pagePrev = page;
+    return (page = page < 1 ? pageSize - 1 : page - 1);
+  }
+
+  export function nextPage() {
+    pagePrev = page;
+    return (page = page < pageSize - 1 ? page + 1 : 0);
+  }
 
   function updateRandomColor() {
     if (page !== selfPage) return ($randomColor = COLORS.white);
@@ -49,6 +60,7 @@
   }
 
   function changeType(event) {
+    if (event.type === "keydown") return;
     if (event.type === "longpress") {
       changeType.longpress = true;
       changeType.prevent = false;
@@ -101,6 +113,7 @@
 
 <div class="leaderboard content" in:blur>
   <div class="section-1">
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div
       class="type"
       title="CHANGE LEADERBOARD TYPE"
@@ -108,7 +121,6 @@
       role="button"
       in:fly={{ y: -48 }}
       on:click={changeType}
-      on:keydown={changeType}
       on:longpress={changeType}
       use:longpress={{ onStop }}
     >
@@ -121,11 +133,14 @@
     </div>
   </div>
   <div class="section-2">
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
     <ul
       class="pages"
       title="SELECT PAGE"
+      tabindex="0"
+      role="button"
       on:click={selectPage}
-      on:keydown={selectPage}
       on:longpress={selectPage}
     >
       {#each Array.from({ length: pageCounts }) as _, index}
@@ -135,8 +150,6 @@
           class:active={index === page}
           style:--color="var(--color-{value})"
           data-index={index}
-          tabindex="0"
-          role="button"
           use:longpress
         >
           {value}

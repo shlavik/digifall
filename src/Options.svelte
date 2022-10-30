@@ -5,23 +5,21 @@
   import PlayerName from "./PlayerName.svelte";
 
   import { INITIAL_VALUES, KEYS, OVERLAYS } from "./constants.js";
-  import { options, overlay, resetGame } from "./stores.js";
+  import { options, overlay, records, resetGame } from "./stores.js";
 
-  let dialogComponent;
+  let dialogComponent = null;
   let dialogOpened = false;
 
-  let playerNameComponent;
-  let playerName;
+  let playerNameComponent = null;
+  let playerName = $options.playerName;
 
-  function checkbox(event) {
-    if (event.key !== "Enter" && event.key !== " ") return;
-    const { parentNode, htmlFor } = event.target;
-    parentNode.querySelector("#" + htmlFor).click();
+  export function isDialogOpened() {
+    return dialogOpened;
   }
 
   function accept() {
     dialogComponent.close();
-    localStorage.setItem(KEYS.records, JSON.stringify(INITIAL_VALUES.records));
+    $records = INITIAL_VALUES.records;
     resetGame(playerName);
   }
 
@@ -45,24 +43,19 @@
     <div class="section-2" />
     <div class="section-3" in:fly={{ y: 24 }}>
       <div class="col">
-        <PlayerName bind:playerName bind:this={playerNameComponent} />
+        <PlayerName bind:this={playerNameComponent} bind:playerName />
         <input
           type="checkbox"
           id="leaderboard"
           bind:checked={$options.leaderboard}
         />
-        <label
-          for="leaderboard"
-          tabindex="0"
-          role="button"
-          on:keydown={checkbox}
-        >
+        <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
+        <label for="leaderboard" tabindex="0" role="button">
           p2p leaderboard
         </label>
         <input type="checkbox" id="speedrun" bind:checked={$options.speedrun} />
-        <label for="speedrun" tabindex="0" role="button" on:keydown={checkbox}>
-          speedrun mode
-        </label>
+        <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
+        <label for="speedrun" tabindex="0" role="button"> speedrun mode </label>
         <input
           type="checkbox"
           id="sound"
@@ -70,9 +63,8 @@
           checked={!$options.speedrun && $options.sound}
           on:click={() => ($options.sound = !$options.sound)}
         />
-        <label for="sound" tabindex="0" role="button" on:keydown={checkbox}>
-          sound effects
-        </label>
+        <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
+        <label for="sound" tabindex="0" role="button"> sound effects </label>
       </div>
     </div>
     <div class="section-4">
@@ -87,8 +79,8 @@
 
 <Dialog
   title={playerName}
-  bind:opened={dialogOpened}
   bind:this={dialogComponent}
+  bind:opened={dialogOpened}
 >
   <div class="col exclam-fix">
     <p>new name detected!</p>

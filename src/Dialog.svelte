@@ -7,6 +7,10 @@
   export let title = "";
   export let opened = false;
 
+  export function isOpened() {
+    return opened;
+  }
+
   export function close() {
     opened = false;
     dispatch("close");

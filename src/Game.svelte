@@ -6,16 +6,75 @@
 
   import { OVERLAYS } from "./constants.js";
   import { getRandom } from "./core.js";
-  import { log, options, overlay, seed } from "./stores.js";
+  import { log, overlay, seed } from "./stores.js";
 
-  function showMenu() {
-    $overlay = OVERLAYS.menu;
+  let digifallElement = null;
+  let scoreComponent = null;
+  let boardComponent = null;
+
+  $: if (digifallElement) {
+    digifallElement.isFocused = () =>
+      digifallElement.classList.contains("focus");
+    digifallElement.focus = () => digifallElement.classList.add("focus");
+    digifallElement.blur = () => digifallElement.classList.remove("focus");
   }
 
-  function getSeedgroundStyle(landscape, random) {
-    if (!landscape || !random) return;
+  export function moveUp() {
+    digifallElement.isFocused()
+      ? (digifallElement.blur(), boardComponent.shiftFocus({ y: 1 }))
+      : scoreComponent.isFocused()
+      ? (scoreComponent.blur(), digifallElement.focus())
+      : boardComponent.shiftFocus({ y: 1 }).topEdge
+      ? (boardComponent.blur(), scoreComponent.focus())
+      : null;
+  }
+
+  export function moveDown() {
+    digifallElement.isFocused()
+      ? (digifallElement.blur(), scoreComponent.focus())
+      : scoreComponent.isFocused()
+      ? (scoreComponent.blur(), boardComponent.shiftFocus({ y: -1 }))
+      : boardComponent.shiftFocus({ y: -1 }).bottomEdge
+      ? (boardComponent.blur(), digifallElement.focus())
+      : null;
+  }
+
+  export function moveLeft() {
+    digifallElement.isFocused()
+      ? null
+      : scoreComponent.isFocused()
+      ? scoreComponent.prevType()
+      : boardComponent.shiftFocus({ x: -1 });
+  }
+
+  export function moveRight() {
+    digifallElement.isFocused()
+      ? null
+      : scoreComponent.isFocused()
+      ? scoreComponent.nextType()
+      : boardComponent.shiftFocus({ x: 1 });
+  }
+
+  export function perfomAction() {
+    digifallElement.isFocused()
+      ? (digifallElement.click(), digifallElement.blur(), boardComponent.blur())
+      : scoreComponent.isFocused()
+      ? scoreComponent.nextType()
+      : boardComponent.isFocused()
+      ? boardComponent.plusFocus()
+      : null;
+  }
+
+  export function blur() {
+    digifallElement.blur();
+    scoreComponent.blur();
+    boardComponent.blur(true);
+  }
+
+  function getSeedgroundStyle(random) {
+    if (!random) return;
     const getNextRandom = () => (random = getRandom(random));
-    const getColor = (lightness = 16) => {
+    const getColor = (lightness = 13) => {
       return `hsl(${getNextRandom() % 360},50%,${lightness}%)`;
     };
     const arr = [
@@ -38,19 +97,18 @@
         linear-gradient(90deg, transparent 50%, ${getColor()} 50%);
       background-size: ${a}rem, ${b}rem, ${c}rem, ${d}rem;`;
   }
-
-  $: style = getSeedgroundStyle($options.landscape, $seed);
 </script>
 
 <div class="game" class:blur={$overlay}>
-  <div class="seedground" {style} />
+  <div class="seedground" style={getSeedgroundStyle($seed)} />
   <div class="content">
     {#if $seed}
       <div class="section-1">
         <button
           class="digifall"
           class:screen={$log.length > 0}
-          on:click={showMenu}
+          on:click={() => ($overlay = OVERLAYS.menu)}
+          bind:this={digifallElement}
         >
           {#if !$overlay || $overlay === OVERLAYS.menu}
             <span class="big">digifall</span>
@@ -59,10 +117,10 @@
         </button>
       </div>
       <div class="section-2">
-        <Score />
+        <Score bind:this={scoreComponent} />
       </div>
       <div class="section-3">
-        <Board />
+        <Board bind:this={boardComponent} />
       </div>
       <div class="section-4">
         <Energy />

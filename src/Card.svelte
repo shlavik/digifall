@@ -1,9 +1,11 @@
 <script>
   import { longpress } from "./actions.js";
+  import { CORE } from "./constants.js";
 
   export let card;
   export let index;
   export let blink;
+  export let focus;
   export let plus;
   export let checkStart;
 
@@ -13,11 +15,12 @@
 <div
   class="card"
   class:blink
+  class:focus
   class:plus
-  class:matt={card.y === 5}
-  style:bottom={21 * card.y + "rem"}
-  style:left={21 * card.x + "rem"}
-  style:transition-duration={card.duration + "ms"}
+  class:matt={card.y === CORE.rows - 1}
+  style:--card-x={card.x}
+  style:--card-y={card.y}
+  style:--card-duration={card.duration}
   data-index={index}
   use:longpress={{ checkStart }}
 >

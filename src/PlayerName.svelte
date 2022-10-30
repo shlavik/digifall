@@ -1,10 +1,10 @@
 <script>
   import { options } from "./stores.js";
 
-  let inputElement;
-  let visibility = "hidden";
-
   export let playerName = $options.playerName;
+
+  let inputElement = null;
+  let visibility = "hidden";
 
   export function blink(duration = 400) {
     visibility = "hidden";
@@ -33,6 +33,6 @@
   spellcheck="false"
   maxlength="42"
   {title}
-  bind:value={playerName}
   bind:this={inputElement}
+  bind:value={playerName}
 />

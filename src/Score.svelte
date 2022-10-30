@@ -1,5 +1,5 @@
 <script>
-  import { blur } from "svelte/transition";
+  import { blur as blurTransition } from "svelte/transition";
 
   import { KEYS, PHASES } from "./constants.js";
   import { phase, records, score } from "./stores.js";
@@ -18,35 +18,57 @@
   let type = KEYS.score;
   let timeoutId;
   let visible = false;
+  let focused = false;
 
-  function resetScoreMode() {
-    type = KEYS.score;
-    visible = newRecord;
+  export function isFocused() {
+    return focused;
   }
 
-  function getKeyRoute() {
-    return newRecord
-      ? {
-          [KEYS.highScore]: newRecordHighCombo
-            ? KEYS.highCombo
-            : KEYS.highScore,
-          [KEYS.highCombo]: newRecordHighScore
-            ? KEYS.highScore
-            : KEYS.highCombo,
-        }
-      : {
-          [KEYS.score]: KEYS.highScore,
-          [KEYS.highScore]: KEYS.highCombo,
-          [KEYS.highCombo]: KEYS.score,
-        };
+  export function focus() {
+    focused = true;
   }
 
-  function nextScore() {
-    type = getKeyRoute()[type];
+  export function blur() {
+    focused = false;
+  }
+
+  export function nextType() {
+    type = getNextType(type);
+    animateNewType();
+  }
+
+  export function prevType() {
+    type = getNextType(type, true);
+    animateNewType();
+  }
+
+  function getNextType(type, reverse = false) {
+    if (newRecord)
+      return {
+        [KEYS.highScore]: newRecordHighCombo ? KEYS.highCombo : KEYS.highScore,
+        [KEYS.highCombo]: newRecordHighScore ? KEYS.highScore : KEYS.highCombo,
+      }[type];
+    if (reverse)
+      return {
+        [KEYS.score]: KEYS.highCombo,
+        [KEYS.highScore]: KEYS.score,
+        [KEYS.highCombo]: KEYS.highScore,
+      }[type];
+    return {
+      [KEYS.score]: KEYS.highScore,
+      [KEYS.highScore]: KEYS.highCombo,
+      [KEYS.highCombo]: KEYS.score,
+    }[type];
+  }
+
+  function animateNewType() {
     visible = true;
     clearTimeout(timeoutId);
     if (newRecord) return;
-    timeoutId = setTimeout(resetScoreMode, 3200);
+    timeoutId = setTimeout(() => {
+      type = KEYS.score;
+      visible = newRecord;
+    }, 3200);
   }
 
   $: if (newRecord) {
@@ -58,7 +80,14 @@
 
 {#key type}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <span class="score" in:blur on:click={nextScore}>
+  <span
+    class="score"
+    class:focus={focused}
+    tabindex="0"
+    role="button"
+    in:blurTransition
+    on:click|preventDefault={nextType}
+  >
     <span class="type" class:visible>{types[type]}:</span>
     {#if overlaid || $phase !== PHASES.gameover}
       <span class="value">{value}</span>

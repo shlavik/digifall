@@ -1,11 +1,15 @@
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
+import { yamux } from "@chainsafe/libp2p-yamux";
 import { bootstrap } from "@libp2p/bootstrap";
 import { mplex } from "@libp2p/mplex";
 import { createEd25519PeerId, createFromJSON } from "@libp2p/peer-id-factory";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { webSockets } from "@libp2p/websockets";
+import * as filters from "@libp2p/websockets/filters";
 import { pipe } from "it-pipe";
 import { createLibp2p } from "libp2p";
+import { circuitRelayTransport } from "libp2p/circuit-relay";
+import { identifyService } from "libp2p/identify";
 import { plaintext } from "libp2p/insecure";
 import { get } from "svelte/store";
 import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
@@ -102,15 +106,20 @@ async function handleRoot({ connection, stream }) {
       );
       if (previewTypes.length > 0 && connection.stat.status === "OPEN") {
         if (debug) console.log(PROTOCOLS.preview);
-        pipe(
-          previewTypes.flatMap((type) =>
-            queues[type].data.map(({ playerName, value }) =>
-              toMessage({ type, playerName, value })
-            )
-          ),
-          await connection.newStream(PROTOCOLS.preview),
-          validateSource
-        ).catch((error) => debug && console.error(error));
+        const previewStream = await connection
+          .newStream(PROTOCOLS.preview)
+          .catch(() => null);
+        if (previewStream) {
+          pipe(
+            previewTypes.flatMap((type) =>
+              queues[type].data.map(({ playerName, value }) =>
+                toMessage({ type, playerName, value })
+              )
+            ),
+            previewStream,
+            validateSource
+          ).catch((error) => debug && console.error(error));
+        }
       }
       return rootTypes
         .filter((type) => remoteRootHashes[type] === 0)
@@ -152,21 +161,21 @@ async function handlePreview({ stream }) {
   ).catch((error) => debug && console.error(error));
 }
 
-function handlePeerDiscovery({ detail: peer }) {
-  if (debug) console.log("peer:discovery", peer.id.toString());
+function handlePeerDiscovery({ detail: remotePeer }) {
+  if (debug) console.log("peer:discovery", remotePeer.id.toString());
 }
 
-async function handlePeerConnect({ detail: connection }) {
+async function handleConnectionOpen({ detail: connection }) {
   const remotePeerId = connection.remotePeer.toString();
-  if (debug) console.log("peer:connect", remotePeerId);
+  if (debug) console.log("connection:open", remotePeerId);
   if (remotePeerId === RELAY_PEER_ID) return;
   if (connection.stat.status !== "OPEN") return;
   if (debug) console.log(PROTOCOLS.root);
-  pipe(
-    [toMessage(rootHashes)],
-    await connection.newStream(PROTOCOLS.root),
-    validateSource
-  ).catch((error) => {
+  const rootStream = await connection
+    .newStream(PROTOCOLS.root)
+    .catch(() => null);
+  if (!rootStream) return;
+  pipe([toMessage(rootHashes)], rootStream, validateSource).catch((error) => {
     if (debug) console.error(error);
     if (error.message !== "protocol selection failed") return;
     libp2p.components.connectionGater.denyDialPeer(connection.remotePeer);
@@ -186,43 +195,43 @@ async function handlePeerConnect({ detail: connection }) {
   );
   libp2p = await createLibp2p({
     peerId,
-    transports: [webSockets()],
-    streamMuxers: [mplex()],
+    transports: [
+      webSockets({ filter: filters.all }),
+      circuitRelayTransport({ discoverRelays: 1 }),
+    ],
     connectionEncryption: [plaintext()],
-    pubsub: gossipsub({ allowPublishToZeroPeers: true }),
+    streamMuxers: [yamux(), mplex()],
     peerDiscovery: [
       bootstrap({
         list: [RELAY_MULTIADDR],
       }),
       pubsubPeerDiscovery({
-        topics: [`digifall._peer-discovery._p2p._pubsub`],
         interval: 10e3,
+        topics: [`digifall._peer-discovery._p2p._pubsub`],
       }),
     ],
+    services: {
+      identify: identifyService(),
+      pubsub: gossipsub({ emitSelf: true }),
+    },
     connectionManager: {
       minConnections: 2,
-      maxConnections: debug ? 7 : 3,
-    },
-    relay: {
-      enabled: true,
-      autoRelay: {
-        enabled: true,
-        maxListeners: debug ? 5 : 2,
-      },
+      maxConnections: debug ? 5 : 3,
     },
   });
   libp2p.handle(PROTOCOLS.root, handleRoot);
   libp2p.handle(PROTOCOLS.preview, handlePreview);
   libp2p.addEventListener("peer:discovery", handlePeerDiscovery);
-  libp2p.connectionManager.addEventListener("peer:connect", handlePeerConnect);
+  libp2p.addEventListener("connection:open", handleConnectionOpen);
   if (debug) window.libp2p = libp2p;
 })();
 
 RECORD_TYPES.forEach((type) => {
   const leaderboardStore = leaderboardStores[type];
-  leaderboardStore.subscribe(($leaderboard) => {
+  leaderboardStore.subscribe(async ($leaderboard) => {
     if (!$leaderboard || $leaderboard.length === 0) return;
     if (queues[type].data.length > 0) {
+      const rootHashPrev = rootHashes[type];
       rootHashes[type] = squashIntegers(
         $leaderboard
           .slice()
@@ -231,7 +240,22 @@ RECORD_TYPES.forEach((type) => {
             squashIntegers([getSeed(gameData), gameData.value])
           )
       );
-      return;
+      if (rootHashPrev === rootHashes[type]) return;
+      return libp2p
+        .getConnections()
+        .filter(
+          ({ remotePeer, stat }) =>
+            remotePeer.toString() !== RELAY_PEER_ID && stat.status === "OPEN"
+        )
+        .forEach(async (connection) => {
+          const rootStream = await connection
+            .newStream(PROTOCOLS.root)
+            .catch(() => null);
+          if (!rootStream) return;
+          pipe([toMessage(rootHashes)], rootStream, validateSource).catch(
+            (error) => debug && console.error(error)
+          );
+        });
     }
     Promise.allSettled(
       $leaderboard.map((record) =>

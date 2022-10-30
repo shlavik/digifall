@@ -1,6 +1,6 @@
 import { get } from "svelte/store";
 
-import { INITIAL_VALUES, KEYS, PHASES } from "./constants.js";
+import { CORE, INITIAL_VALUES, KEYS, PHASES } from "./constants.js";
 
 const { abs, sign, trunc } = Math;
 
@@ -81,7 +81,9 @@ function checkLocalScore(game, type, value) {
 // CARDS LOGIC /////////////////////////////////////////////////////////////////
 
 function getFieldFromCards($cards) {
-  const field = Array.from({ length: 6 }).map(() => Array.from({ length: 12 }));
+  const field = Array.from({ length: CORE.columns }, () =>
+    Array.from({ length: 2 * CORE.rows })
+  );
   $cards.forEach(({ x, y }, index) => (field[x][y] = index));
   return field;
 }
@@ -98,7 +100,7 @@ function getFallenCards(game, $cards) {
       if (index === undefined) return ++count;
       const { x, value } = $cards[index];
       const duration =
-        game.movesInitial || $phase !== PHASES.fall || speedrun
+        speedrun || game.movesInitial || $phase !== PHASES.fall
           ? 0
           : 100 * (2 * count) ** 0.5;
       result[index] = {
@@ -129,8 +131,8 @@ function getMatchedFromCards($cards) {
     if (!groups[group]) groups[group] = { value, indexes: new Set() };
     groups[group].indexes.add(index);
     escape.add(index);
-    if (y < 5) assort(group, field[x][y + 1], value);
-    if (x < 5) assort(group, field[x + 1][y], value);
+    if (y < CORE.columns - 1) assort(group, field[x][y + 1], value);
+    if (x < CORE.columns - 1) assort(group, field[x + 1][y], value);
     if (y > 0) assort(group, field[x][y - 1], value);
     if (x > 0) assort(group, field[x - 1][y], value);
   };
@@ -160,7 +162,7 @@ function getMatchedCards(game, $cards, $matchedIndexes) {
       .filter(({ x }) => x === nextX)
       .sort(({ y: y1 }, { y: y2 }) => y2 - y1)[0].y;
   return $cards.map((card, index) => {
-    if (card.y < 6 && $matchedIndexes.has(index)) {
+    if (card.y < CORE.rows && $matchedIndexes.has(index)) {
       ++counts[card.x];
       return {
         x: card.x,
@@ -183,7 +185,7 @@ function doEnergyLogic(game, { buffer, value }) {
   const $phase = get(game.phase);
   const { speedrun } = get(game.options);
   const diff =
-    game.movesInitial || speedrun
+    speedrun || game.movesInitial
       ? buffer
       : $phase === PHASES.gameover
       ? sign(buffer)
@@ -445,7 +447,7 @@ function doScoreLogic(game, { buffer, value }) {
   }
   const { speedrun } = get(game.options);
   const diff =
-    game.movesInitial || speedrun
+    speedrun || game.movesInitial
       ? buffer
       : $phase === PHASES.gameover
       ? sign(buffer)
@@ -482,14 +484,14 @@ export function getSeed({ playerName, timestamp }) {
 function getInitialRandoms($seed) {
   let count = 0;
   const result = [getRandom($seed)];
-  while (count < 5) result.push(getRandom(2 * result[count++]));
+  while (count < CORE.columns - 1) result.push(getRandom(2 * result[count++]));
   return result;
 }
 
 function createGetNextCardValue($seed) {
   let randoms = getInitialRandoms($seed);
   return (column) => {
-    if (column < 0 || 5 < column) return;
+    if (column < 0 || CORE.columns - 1 < column) return;
     let result = randoms[column];
     randoms[column] = getRandom(result);
     return result % 10;
@@ -497,12 +499,18 @@ function createGetNextCardValue($seed) {
 }
 
 function getInitialCards(game) {
-  return Array.from({ length: 36 }).map((_, index) => ({
-    x: trunc(index / 6),
-    y: index % 6,
-    value: game.getNextCardValue(trunc(index / 6)),
-    duration: 0,
-  }));
+  return Array.from(
+    { length: CORE.columns * CORE.rows },
+    (_, index, x) => (
+      (x = trunc(index / CORE.columns)),
+      {
+        x,
+        y: index % CORE.rows,
+        value: game.getNextCardValue(x),
+        duration: 0,
+      }
+    )
+  );
 }
 
 function getPreparedCards(game, $cards) {

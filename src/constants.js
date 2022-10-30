@@ -2,6 +2,11 @@ export const COLORS = Object.freeze({
   white: "white",
 });
 
+export const CORE = Object.freeze({
+  columns: 6,
+  rows: 6,
+});
+
 export const KEYS = Object.freeze({
   digifall: "digifall",
   highCombo: "highCombo",

@@ -25,7 +25,7 @@ export function longpress(
     onStop(event);
   };
   node.addEventListener("mousedown", start);
-  node.addEventListener("touchstart", start);
+  node.addEventListener("touchstart", start, { passive: true });
   node.addEventListener("touchend", stop);
   window.addEventListener("mouseup", stop);
   return {

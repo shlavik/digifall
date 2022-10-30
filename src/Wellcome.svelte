@@ -6,11 +6,11 @@
 
   import { options, overlay, timestamp } from "./stores.js";
 
-  let dialogComponent;
+  let dialogComponent = null;
   let dialogOpened = true;
 
-  let playerNameComponent;
-  let playerName;
+  let playerNameComponent = null;
+  let playerName = $options.playerName;
 
   function input() {
     $timestamp = Date.now();
@@ -36,7 +36,7 @@
     <div class="section-2" />
     <div class="section-3">
       <div class="col">
-        <PlayerName bind:playerName bind:this={playerNameComponent} />
+        <PlayerName bind:this={playerNameComponent} bind:playerName />
         <button type="submit">start</button>
       </div>
     </div>
@@ -46,12 +46,12 @@
 
 <Dialog
   title="disclaimer"
-  bind:opened={dialogOpened}
   bind:this={dialogComponent}
+  bind:opened={dialogOpened}
 >
   <div class="col">
     <p>this game doesn't contain tutorial mode!</p>
-    <p>the rules may not be obvious at first, but they're pretty simple.</p>
+    <p>the rules may not be obvious at first, but they're pretty simple!</p>
     <button on:click={dialogComponent.close}>continue</button>
   </div>
 </Dialog>

@@ -8,19 +8,28 @@
   import { KEYS, OVERLAYS } from "./constants.js";
   import { options, overlay, resetGame } from "./stores.js";
 
-  let dialogComponent;
-  let dialogOpened = false;
+  let dialogComponent = null;
+  let newGameDialogOpened = false;
 
   onMount(() => {
     if ($options.playerName !== "") return;
     $overlay = OVERLAYS.wellcome;
   });
 
+  export function isNewGameDialog() {
+    return dialogComponent.isOpened();
+  }
+
+  export function closeNewGameDialog() {
+    dialogComponent.close();
+  }
+
   function resume() {
     $overlay = null;
   }
 
   function startNewGame() {
+    dialogComponent.close();
     resetGame();
   }
 
@@ -33,7 +42,7 @@
   }
 </script>
 
-{#if !dialogOpened}
+{#if !newGameDialogOpened}
   <div class="menu content" in:blur>
     <div class="section-1">
       <span class="big">
@@ -76,7 +85,7 @@
   </a>
 {/if}
 
-<Dialog bind:opened={dialogOpened} bind:this={dialogComponent}>
+<Dialog bind:this={dialogComponent} bind:opened={newGameDialogOpened}>
   <div class="col">
     <p>start a new game?</p>
     <div class="row">
