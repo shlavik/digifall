@@ -80,6 +80,10 @@ function checkLocalScore(game, type, value) {
 
 // CARDS LOGIC /////////////////////////////////////////////////////////////////
 
+function getNextCardValue(value) {
+  return value < CORE.maxValue ? value + 1 : 0;
+}
+
 function getFieldFromCards($cards) {
   const field = Array.from({ length: CORE.columns }, () =>
     Array.from({ length: 2 * CORE.rows })
@@ -107,6 +111,7 @@ function getFallenCards(game, $cards) {
         x,
         y: y - count,
         value,
+        nextValue: getNextCardValue(value),
         duration,
       };
       if (count > 0 && duration > 0 && !set.has(duration)) set.add(duration);
@@ -124,10 +129,10 @@ function getMatchedFromCards($cards) {
   const field = getFieldFromCards($cards);
   const escape = new Set();
   const groups = [];
-  const assort = (group, index, currentValue) => {
+  const assort = (group, index, askedValue) => {
     if (escape.has(index)) return;
     const { x, y, value } = $cards[index];
-    if (currentValue !== undefined && currentValue !== value) return;
+    if (askedValue !== undefined && askedValue !== value) return;
     if (!groups[group]) groups[group] = { value, indexes: new Set() };
     groups[group].indexes.add(index);
     escape.add(index);
@@ -173,6 +178,32 @@ function getMatchedCards(game, $cards, $matchedIndexes) {
     }
     return card;
   });
+}
+
+function getClusteredCards(game, $cards) {
+  if (!get(game.options).cluster) return $cards;
+  const field = getFieldFromCards($cards);
+  return $cards.map((card) => ({
+    ...card,
+    cluster: getCluster($cards, field, card),
+  }));
+}
+
+function getCluster($cards, field, { x, y, value }) {
+  const topIndex = y === CORE.rows - 1 ? -1 : field[x][y + 1];
+  const rightIndex = x === CORE.columns - 1 ? -1 : field[x + 1][y];
+  const bottomIndex = y === 0 ? -1 : field[x][y - 1];
+  const leftIndex = x === 0 ? -1 : field[x - 1][y];
+  const topValue = topIndex > -1 ? $cards[topIndex].value : NaN;
+  const rightValue = rightIndex > -1 ? $cards[rightIndex].value : NaN;
+  const bottomValue = bottomIndex > -1 ? $cards[bottomIndex].value : NaN;
+  const leftValue = leftIndex > -1 ? $cards[leftIndex].value : NaN;
+  return {
+    top: topValue === value,
+    right: rightValue === value,
+    bottom: bottomValue === value,
+    left: leftValue === value,
+  };
 }
 
 // ENERGY LOGIC ////////////////////////////////////////////////////////////////
@@ -245,17 +276,21 @@ function doIdlePhase(game) {
 
 function doPlusPhase(game) {
   game.plusIndex.update(($plusIndex) => {
-    game.cards.update(($cards) => {
-      return $cards.map((card, index) => {
-        return index === $plusIndex
-          ? {
-              ...card,
-              value: card.value < 9 ? card.value + 1 : 0,
-              duration: 0,
-            }
-          : card;
-      });
-    });
+    game.cards.update(($cards) =>
+      getClusteredCards(
+        game,
+        $cards.map((card, index) => {
+          if (index !== $plusIndex) return card;
+          const value = getNextCardValue(card.value);
+          return {
+            ...card,
+            value,
+            nextValue: getNextCardValue(value),
+            duration: 0,
+          };
+        })
+      )
+    );
     return undefined;
   });
   game.phase.set(PHASES.blink);
@@ -309,7 +344,7 @@ function doBlinkPhase(game) {
 function doMatchPhase(game) {
   game.matchedIndexes.update(($matchedIndexes) => {
     game.cards.update(($cards) =>
-      getMatchedCards(game, $cards, $matchedIndexes)
+      getClusteredCards(game, getMatchedCards(game, $cards, $matchedIndexes))
     );
     return new Set();
   });
@@ -317,7 +352,9 @@ function doMatchPhase(game) {
 }
 
 function doFallPhase(game) {
-  game.cards.update(($cards) => getFallenCards(game, $cards));
+  game.cards.update(($cards) =>
+    getClusteredCards(game, getFallenCards(game, $cards))
+  );
   checkSpeedrun(game, () => game.phase.set(PHASES.blink), 400);
 }
 
@@ -501,12 +538,14 @@ function createGetNextCardValue($seed) {
 function getInitialCards(game) {
   return Array.from(
     { length: CORE.columns * CORE.rows },
-    (_, index, x) => (
+    (_, index, x, value) => (
       (x = trunc(index / CORE.columns)),
+      (value = game.getNextCardValue(x)),
       {
         x,
         y: index % CORE.rows,
-        value: game.getNextCardValue(x),
+        value,
+        nextValue: getNextCardValue(value),
         duration: 0,
       }
     )
@@ -525,7 +564,9 @@ function getPreparedCards(game, $cards) {
 function doSeedLogic(game, $seed) {
   if (!$seed) return;
   game.getNextCardValue = createGetNextCardValue($seed);
-  game.cards.set(getPreparedCards(game, getInitialCards(game)));
+  game.cards.set(
+    getClusteredCards(game, getPreparedCards(game, getInitialCards(game)))
+  );
   let $moves = get(game.moves);
   if (!$moves) return;
   $moves = Array.isArray($moves) ? $moves : getArrayFromBase64($moves);

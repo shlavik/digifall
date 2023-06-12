@@ -53,9 +53,12 @@
         <label for="leaderboard" tabindex="0" role="button">
           p2p leaderboard
         </label>
+        <input type="checkbox" id="cluster" bind:checked={$options.cluster} />
+        <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
+        <label for="cluster" tabindex="0" role="button">cluster corners</label>
         <input type="checkbox" id="speedrun" bind:checked={$options.speedrun} />
         <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
-        <label for="speedrun" tabindex="0" role="button"> speedrun mode </label>
+        <label for="speedrun" tabindex="0" role="button">speedrun mode</label>
         <input
           type="checkbox"
           id="sound"
@@ -64,7 +67,7 @@
           on:click={() => ($options.sound = !$options.sound)}
         />
         <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
-        <label for="sound" tabindex="0" role="button"> sound effects </label>
+        <label for="sound" tabindex="0" role="button">sound effects</label>
       </div>
     </div>
     <div class="section-4">

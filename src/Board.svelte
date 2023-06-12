@@ -135,6 +135,7 @@
       {card}
       {index}
       blink={$matchedIndexes.has(index)}
+      cluster={$options.cluster}
       focus={card.x === focusCard?.x && card.y === focusCard?.y}
       plus={$plusIndex === index}
       {checkStart}

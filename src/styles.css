@@ -424,7 +424,7 @@ p {
   left: calc(var(--card-x) * 21rem);
   width: 21rem;
   height: 21rem;
-  box-shadow: var(--gloss), var(--shadow-2);
+  box-shadow: var(--shadow-2);
   cursor: pointer;
   transition-duration: calc(var(--card-duration) * 1ms);
   transition-property: bottom;
@@ -432,12 +432,13 @@ p {
   will-change: bottom;
 }
 
-.card.matt {
-  box-shadow: var(--shadow-2);
-}
-
 .card .current,
 .card .next {
+  --top-left: -10% 17%, 17% -10%;
+  --top-right: 83% -10%, 110% 17%;
+  --bottom-right: 110% 83%, 83% 110%;
+  --bottom-left: 17% 110%, -10% 83%;
+
   position: absolute;
   z-index: 1;
   width: 21rem;
@@ -451,6 +452,32 @@ p {
   font-size: 13rem;
   line-height: 21rem;
   text-align: center;
+}
+
+.card.cluster .current,
+.card.cluster .next {
+  clip-path: polygon(var(--top-left), var(--top-right), var(--bottom-right), var(--bottom-left));
+  transition: clip-path 200ms ease;
+}
+
+.card.cluster:not(.plus) .current.cluster-top {
+  --top-left: -10% -10%, -10% -10%;
+  --top-right: 110% -10%, 110% -10%;
+}
+
+.card.cluster:not(.plus) .current.cluster-right {
+  --top-right: 110% -10%, 110% -10%;
+  --bottom-right: 110% 110%, 110% 110%;
+}
+
+.card.cluster:not(.plus) .current.cluster-bottom {
+  --bottom-right: 110% 110%, 110% 110%;
+  --bottom-left: -10% 110%, -10% 110%;
+}
+
+.card.cluster:not(.plus) .current.cluster-left {
+  --top-left: -10% -10%, -10% -10%;
+  --bottom-left: -10% 110%, -10% 110%;
 }
 
 .card .next {
@@ -471,11 +498,12 @@ p {
 }
 
 .card.blink {
+  animation: fade-out 400ms ease 400ms forwards;
   box-shadow: none;
 }
 
 .card.blink .current {
-  animation: blink 200ms steps(2, end) 2, fade-out 400ms ease 400ms forwards;
+  animation: blink 200ms steps(2, end) 2;
   box-shadow: none;
 }
 

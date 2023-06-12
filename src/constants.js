@@ -5,6 +5,7 @@ export const COLORS = Object.freeze({
 export const CORE = Object.freeze({
   columns: 6,
   rows: 6,
+  maxValue: 9,
 });
 
 export const KEYS = Object.freeze({
@@ -65,7 +66,7 @@ export const INITIAL_VALUES = Object.freeze({
   [KEYS.options]: {
     [KEYS.playerName]: "",
     [KEYS.leaderboard]: true,
-    seedground: true,
+    cluster: true,
     speedrun: false,
     sound: true,
   },
