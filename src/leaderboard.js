@@ -1,16 +1,15 @@
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
-import { yamux } from "@chainsafe/libp2p-yamux";
 import { bootstrap } from "@libp2p/bootstrap";
+import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
+import { dcutr } from "@libp2p/dcutr";
+import { identify } from "@libp2p/identify";
 import { mplex } from "@libp2p/mplex";
 import { createEd25519PeerId, createFromJSON } from "@libp2p/peer-id-factory";
+import { plaintext } from "@libp2p/plaintext";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { webSockets } from "@libp2p/websockets";
-import * as filters from "@libp2p/websockets/filters";
 import { pipe } from "it-pipe";
 import { createLibp2p } from "libp2p";
-import { circuitRelayTransport } from "libp2p/circuit-relay";
-import { identifyService } from "libp2p/identify";
-import { plaintext } from "libp2p/insecure";
 import { get } from "svelte/store";
 import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 import { toString as uint8ArrayToString } from "uint8arrays/to-string";
@@ -22,16 +21,15 @@ import { options, phase, records } from "./stores.js";
 import { UniQueue } from "./uniqueue.js";
 import { validateRecord } from "./validation.js";
 
-const PROTOCOL_PREFIX = "/digifall";
 const PROTOCOLS = {
-  root: PROTOCOL_PREFIX + "/root",
-  preview: PROTOCOL_PREFIX + "/preview",
+  root: "/digifall/root/1.0",
+  preview: "/digifall/preview/1.0",
 };
 const RELAY_PEER_ID = "12D3KooWRjPoVe5DnnMJzy8PYUwmgrkvgaXSpuR3MuNmbgoSRvio";
 const RELAY_MULTIADDR =
-  "/dns4/relay.digifall.app/tcp/8443/wss/p2p/" + RELAY_PEER_ID;
+  "/dns4/relay.digifall.app/tcp/443/wss/p2p/" + RELAY_PEER_ID;
+const DEBUG = Boolean(localStorage.getItem("debug"));
 
-const debug = Boolean(localStorage.getItem("debug"));
 let libp2p;
 
 export const indexedDBStore = createIndexedDBStore(
@@ -62,7 +60,7 @@ const queues = RECORD_TYPES.reduce((result, type) => {
   return result;
 }, {});
 
-const rootHashes = RECORD_TYPES.reduce((result, type) => {
+const roots = RECORD_TYPES.reduce((result, type) => {
   result[type] = 0;
   return result;
 }, {});
@@ -77,109 +75,113 @@ function toMessage(object) {
 
 async function validateSource(source) {
   for await (const message of source) {
-    const remoteUnique = parseMessage(message);
-    const { type, playerName, value } = remoteUnique;
+    const game = parseMessage(message);
+    const { type, playerName, value } = game;
     const { data, indexes } = queues[type];
     const index = indexes.get(playerName);
     if (index in data && data[index].value >= value) continue;
-    validateRecord(remoteUnique)
-      .then((gameData) => {
-        queues[type].push(gameData);
+    validateRecord(game)
+      .then((game) => {
+        queues[type].push(game);
         leaderboardStores[type].set(queues[type].data);
         console.warn("P2P LEADERBOARD UPDATED!", type, playerName, value);
       })
-      .catch((error) => debug && console.error(...error));
+      .catch((error) => DEBUG && console.error(...error));
   }
 }
 
+async function pushPreview(connection, types) {
+  if (DEBUG) console.log(PROTOCOLS.preview);
+  const messages = types.flatMap((type) =>
+    queues[type].data.map(({ playerName, value }) =>
+      toMessage({ type, playerName, value })
+    )
+  );
+  return connection
+    .newStream(PROTOCOLS.preview, { runOnTransientConnection: true })
+    .then((previewStream) => pipe(messages, previewStream, validateSource))
+    .catch((error) => DEBUG && console.error(error));
+}
+
 async function handleRoot({ connection, stream }) {
-  if (debug) console.log("handleRoot");
+  if (DEBUG) console.log("handleRoot");
   pipe(
     stream.source,
-    async (source) => {
-      const remoteRootHashes = parseMessage((await source.next()).value);
-      const rootTypes = RECORD_TYPES.filter(
-        (type) => remoteRootHashes[type] !== rootHashes[type]
-      );
-      const previewTypes = rootTypes.filter(
-        (type) => remoteRootHashes[type] > 0
-      );
-      if (previewTypes.length > 0 && connection.stat.status === "OPEN") {
-        if (debug) console.log(PROTOCOLS.preview);
-        const previewStream = await connection
-          .newStream(PROTOCOLS.preview)
-          .catch(() => null);
-        if (previewStream) {
-          pipe(
-            previewTypes.flatMap((type) =>
-              queues[type].data.map(({ playerName, value }) =>
-                toMessage({ type, playerName, value })
-              )
-            ),
-            previewStream,
-            validateSource
-          ).catch((error) => debug && console.error(error));
+    async function* (source) {
+      const previewTypes = new Set();
+      for await (const message of source) {
+        const [type, remoteRoot] = parseMessage(message);
+        if (remoteRoot === 0) {
+          for (const game of queues[type].data) {
+            yield toMessage(game);
+          }
+          continue;
+        }
+        if (type in roots && remoteRoot !== roots[type]) {
+          previewTypes.add(type);
         }
       }
-      return rootTypes
-        .filter((type) => remoteRootHashes[type] === 0)
-        .flatMap((type) =>
-          queues[type].data.map((gameData) => toMessage(gameData))
-        );
+      if (previewTypes.size === 0 || connection.status !== "open") return;
+      pushPreview(connection, Array.from(previewTypes));
     },
     stream.sink
-  ).catch((error) => debug && console.error(error));
+  ).catch((error) => DEBUG && console.error(error));
 }
 
 async function handlePreview({ stream }) {
-  if (debug) console.log("handlePreview");
+  if (DEBUG) console.log("handlePreview");
   pipe(
     stream.source,
-    async (source) => {
+    async function* (source) {
       const touchedTypes = new Set();
-      const remoteActualNames = RECORD_TYPES.reduce((result, type) => {
+      const skippedNames = RECORD_TYPES.reduce((result, type) => {
         result[type] = new Set();
         return result;
       }, {});
       for await (const message of source) {
         const { type, playerName, value } = parseMessage(message);
-        touchedTypes.add(type);
+        if (type in roots) touchedTypes.add(type);
         const index = queues[type].indexes.get(playerName);
         if (index === undefined) continue;
         if (queues[type].data[index].value > value) continue;
-        remoteActualNames[type].add(playerName);
+        skippedNames[type].add(playerName);
       }
-      return Array.from(touchedTypes).flatMap((type) =>
+      const messages = Array.from(touchedTypes).flatMap((type) =>
         queues[type].data
-          .filter(
-            (gameData) => !remoteActualNames[type].has(gameData.playerName)
-          )
-          .map((gameData) => toMessage(gameData))
+          .filter((game) => !skippedNames[type].has(game.playerName))
+          .map(toMessage)
       );
+      for (const message of messages) {
+        yield message;
+      }
     },
     stream.sink
-  ).catch((error) => debug && console.error(error));
+  ).catch((error) => DEBUG && console.error(error));
 }
 
 function handlePeerDiscovery({ detail: remotePeer }) {
-  if (debug) console.log("peer:discovery", remotePeer.id.toString());
+  if (DEBUG) console.log("peer:discovery", remotePeer.id.toString());
 }
 
-async function handleConnectionOpen({ detail: connection }) {
+async function pushRoot(connection) {
+  if (DEBUG) console.log(PROTOCOLS.root);
+  const messages = Object.entries(roots).map(toMessage);
+  return connection
+    .newStream(PROTOCOLS.root, { runOnTransientConnection: true })
+    .then((rootStream) => pipe(messages, rootStream, validateSource))
+    .catch((error) => {
+      if (DEBUG) console.error(error);
+      if (error.message !== "protocol selection failed") return;
+      libp2p.components.connectionGater.denyDialPeer(connection.remotePeer);
+    });
+}
+
+function handleConnectionOpen({ detail: connection }) {
   const remotePeerId = connection.remotePeer.toString();
-  if (debug) console.log("connection:open", remotePeerId);
+  if (DEBUG) console.log("connection:open", remotePeerId);
   if (remotePeerId === RELAY_PEER_ID) return;
-  if (connection.stat.status !== "OPEN") return;
-  if (debug) console.log(PROTOCOLS.root);
-  const rootStream = await connection
-    .newStream(PROTOCOLS.root)
-    .catch(() => null);
-  if (!rootStream) return;
-  pipe([toMessage(rootHashes)], rootStream, validateSource).catch((error) => {
-    if (debug) console.error(error);
-    if (error.message !== "protocol selection failed") return;
-    libp2p.components.connectionGater.denyDialPeer(connection.remotePeer);
-  });
+  if (connection.status !== "open") return;
+  pushRoot(connection);
 }
 
 (async function initP2PLeaderboard() {
@@ -195,35 +197,38 @@ async function handleConnectionOpen({ detail: connection }) {
   );
   libp2p = await createLibp2p({
     peerId,
-    transports: [
-      webSockets({ filter: filters.all }),
-      circuitRelayTransport({ discoverRelays: 1 }),
-    ],
+    transports: [webSockets(), circuitRelayTransport({ discoverRelays: 1 })],
     connectionEncryption: [plaintext()],
-    streamMuxers: [yamux(), mplex()],
+    streamMuxers: [mplex()],
     peerDiscovery: [
       bootstrap({
         list: [RELAY_MULTIADDR],
       }),
       pubsubPeerDiscovery({
         interval: 10e3,
-        topics: [`digifall._peer-discovery._p2p._pubsub`],
+        topics: ["digifall._peer-discovery"],
+        listenOnly: false,
       }),
     ],
     services: {
-      identify: identifyService(),
+      identify: identify(),
+      dcutr: dcutr(),
       pubsub: gossipsub({ emitSelf: true }),
     },
     connectionManager: {
       minConnections: 2,
-      maxConnections: debug ? 5 : 3,
+      maxConnections: DEBUG ? 5 : 3,
     },
   });
-  libp2p.handle(PROTOCOLS.root, handleRoot);
-  libp2p.handle(PROTOCOLS.preview, handlePreview);
+  libp2p.handle(PROTOCOLS.root, handleRoot, {
+    runOnTransientConnection: true,
+  });
+  libp2p.handle(PROTOCOLS.preview, handlePreview, {
+    runOnTransientConnection: true,
+  });
   libp2p.addEventListener("peer:discovery", handlePeerDiscovery);
   libp2p.addEventListener("connection:open", handleConnectionOpen);
-  if (debug) window.libp2p = libp2p;
+  if (DEBUG) window.libp2p = libp2p;
 })();
 
 RECORD_TYPES.forEach((type) => {
@@ -231,35 +236,27 @@ RECORD_TYPES.forEach((type) => {
   leaderboardStore.subscribe(async ($leaderboard) => {
     if (!$leaderboard || $leaderboard.length === 0) return;
     if (queues[type].data.length > 0) {
-      const rootHashPrev = rootHashes[type];
-      rootHashes[type] = squashIntegers(
+      const rootPrev = roots[type];
+      roots[type] = squashIntegers(
         $leaderboard
           .slice()
           .sort(compare)
-          .map((gameData) =>
-            squashIntegers([getSeed(gameData), gameData.value])
-          )
+          .map((game) => squashIntegers([getSeed(game), game.value]))
       );
-      if (rootHashPrev === rootHashes[type]) return;
+      if (rootPrev === roots[type]) return;
       return libp2p
         .getConnections()
         .filter(
-          ({ remotePeer, stat }) =>
-            remotePeer.toString() !== RELAY_PEER_ID && stat.status === "OPEN"
+          ({ direction, remotePeer, status }) =>
+            direction === "outbound" &&
+            remotePeer.toString() !== RELAY_PEER_ID &&
+            status === "open"
         )
-        .forEach(async (connection) => {
-          const rootStream = await connection
-            .newStream(PROTOCOLS.root)
-            .catch(() => null);
-          if (!rootStream) return;
-          pipe([toMessage(rootHashes)], rootStream, validateSource).catch(
-            (error) => debug && console.error(error)
-          );
-        });
+        .forEach(pushRoot);
     }
     Promise.allSettled(
       $leaderboard.map((record) =>
-        validateRecord(record).then((gameData) => queues[type].push(gameData))
+        validateRecord(record).then((game) => queues[type].push(game))
       )
     ).then(() => leaderboardStore.set(queues[type].data));
   });
@@ -267,7 +264,7 @@ RECORD_TYPES.forEach((type) => {
 
 records.subscribe(($records) => {
   const $phase = get(phase);
-  if ($phase !== PHASES.idle && $phase !== PHASES.gameover) return;
+  if ($phase !== PHASES.idle && $phase !== PHASES.gameOver) return;
   RECORD_TYPES.forEach((type) => {
     const record = $records[type];
     if (record[KEYS.value] === 0) return;

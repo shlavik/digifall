@@ -15,7 +15,6 @@
   $: rightBarStyle = `
     z-index: ${extra ? 1 : 0};
     flex: ${extra ? (value - 100) / 100 : 0};
-    background-color: var(--color-${extra ? "random" : "dark"});
   `;
   $: rightValueStyle = `
     position: ${extra ? "relative" : "absolute"};
@@ -31,7 +30,7 @@
       {value}
     </span>
   </div>
-  <div class="right-bar" style={rightBarStyle}>
+  <div class="right-bar" class:extra style={rightBarStyle}>
     <span class="right-value" class:warning style={rightValueStyle}>
       {value}
     </span>

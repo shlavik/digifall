@@ -1,48 +1,36 @@
-export function longpress(
-  node,
-  {
-    duration = 400,
-    checkStart = () => true,
-    checkStop = () => true,
-    onStart = () => true,
-    onStop = () => true,
-  } = {}
-) {
+export function longpress(node, { duration = 400 } = {}) {
   let timer;
   const start = (event = {}) => {
-    if (!checkStart(event)) return;
-    node.classList.add("longpress");
+    node.dispatchEvent(
+      new CustomEvent("longpressstart", { bubbles: true, detail: event })
+    );
     timer = window.setTimeout(() => {
-      node.dispatchEvent(new CustomEvent("longpress", { bubbles: true }));
-      node.classList.remove("longpress");
+      node.dispatchEvent(
+        new CustomEvent("longpressfire", { bubbles: true, detail: event })
+      );
     }, duration);
-    onStart(event);
   };
   const stop = (event = {}) => {
-    if (!checkStop(event)) return;
-    node.classList.remove("longpress");
     clearTimeout(timer);
-    onStop(event);
+    node.dispatchEvent(
+      new CustomEvent("longpressend", { bubbles: true, detail: event })
+    );
   };
-  node.addEventListener("mousedown", start);
+  node.addEventListener("mousedown", start, { passive: true });
   node.addEventListener("touchstart", start, { passive: true });
-  node.addEventListener("touchend", stop);
-  window.addEventListener("mouseup", stop);
+  node.addEventListener("touchend", stop, { passive: true });
+  window.addEventListener("mouseup", stop, { passive: true });
   return {
     update(newProps) {
+      clearTimeout(timer);
       duration = newProps.duration || duration;
-      checkStart = newProps.checkStart || checkStart;
-      checkStop = newProps.checkStop || checkStop;
-      onStart = newProps.onStart || onStart;
-      onStop = newProps.onStop || onStop;
-      stop();
     },
     destroy() {
+      clearTimeout(timer);
       node.removeEventListener("mousedown", start);
       node.removeEventListener("touchstart", start);
       node.removeEventListener("touchend", stop);
       window.removeEventListener("mouseup", stop);
-      stop();
     },
   };
 }

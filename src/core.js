@@ -40,9 +40,9 @@ export function squashIntegers(integers) {
 
 // CHECK LOGIC /////////////////////////////////////////////////////////////////
 
-export function checkSpeedrun(game, value, timeout = 0) {
-  const { speedrun } = get(game.options);
-  const insta = !speedrun && game.movesInitial === null && timeout > 0;
+export function checkRapid(game, value, timeout = 0) {
+  const { rapid } = get(game.options);
+  const insta = !rapid && game.movesInitial === null && timeout > 0;
   switch (typeof value) {
     case "undefined":
       return { duration: insta ? 0 : 400 };
@@ -55,11 +55,13 @@ export function checkSpeedrun(game, value, timeout = 0) {
   }
 }
 
-export function checkSound(game, callback) {
-  const { sound, speedrun } = get(game.options);
-  if (!sound || speedrun || game.movesInitial !== null) return;
+export function checkSound(game, callback, { muteRapid = false } = {}) {
+  if (!callback) return;
+  const { sound, rapid } = get(game.options);
+  if (muteRapid && rapid) return;
+  if (!sound || game.movesInitial !== null || !game.ready) return;
   if (Array.isArray(callback)) {
-    callback.forEach((cb) => cb());
+    callback.forEach((cb) => cb && cb());
     return;
   }
   callback();
@@ -80,11 +82,11 @@ function checkLocalScore(game, type, value) {
 
 // CARDS LOGIC /////////////////////////////////////////////////////////////////
 
-function getNextCardValue(value) {
+export function getNextCardValue(value) {
   return value < CORE.maxValue ? value + 1 : 0;
 }
 
-function getFieldFromCards($cards) {
+export function getFieldFromCards($cards) {
   const field = Array.from({ length: CORE.columns }, () =>
     Array.from({ length: 2 * CORE.rows })
   );
@@ -94,7 +96,7 @@ function getFieldFromCards($cards) {
 
 function getFallenCards(game, $cards) {
   const $phase = get(game.phase);
-  const { speedrun } = get(game.options);
+  const { rapid } = get(game.options);
   const field = getFieldFromCards($cards);
   const result = [];
   const set = new Set();
@@ -104,7 +106,7 @@ function getFallenCards(game, $cards) {
       if (index === undefined) return ++count;
       const { x, value } = $cards[index];
       const duration =
-        speedrun || game.movesInitial || $phase !== PHASES.fall
+        rapid || game.movesInitial || $phase !== PHASES.fall
           ? 0
           : 100 * (2 * count) ** 0.5;
       result[index] = {
@@ -117,11 +119,11 @@ function getFallenCards(game, $cards) {
       if (count > 0 && duration > 0 && !set.has(duration)) set.add(duration);
     });
   });
-  if (game.sounds) {
-    checkSound(game, () =>
-      set.forEach((delay) => setTimeout(game.sounds.playKick, delay))
-    );
-  }
+  checkSound(
+    game,
+    () => set.forEach((delay) => setTimeout(game.sounds.playKick, delay)),
+    { muteRapid: true }
+  );
   return result;
 }
 
@@ -214,16 +216,16 @@ function getDiffFromBuffer(buffer) {
 
 function doEnergyLogic(game, { buffer, value }) {
   const $phase = get(game.phase);
-  const { speedrun } = get(game.options);
+  const { rapid } = get(game.options);
   const diff =
-    speedrun || game.movesInitial
+    rapid || game.movesInitial
       ? buffer
-      : $phase === PHASES.gameover
+      : $phase === PHASES.gameOver
       ? sign(buffer)
       : getDiffFromBuffer(buffer);
   if ($phase === PHASES.extra) {
     if (buffer === 0) {
-      checkSpeedrun(game, () => game.phase.set(PHASES.combo), 800);
+      checkRapid(game, () => game.phase.set(PHASES.combo), 800);
       return;
     }
     game.log.update(($log) => {
@@ -233,8 +235,13 @@ function doEnergyLogic(game, { buffer, value }) {
       return $log;
     });
   }
-  if (buffer === 0) return;
-  checkSpeedrun(
+  if (buffer === 0) {
+    if ($phase === PHASES.gameOver) {
+      checkSound(game, () => setTimeout(game.sounds.playGameOver, 600));
+    }
+    return;
+  }
+  checkRapid(
     game,
     () => {
       game.energy.set({
@@ -242,7 +249,7 @@ function doEnergyLogic(game, { buffer, value }) {
         value: value + diff,
       });
     },
-    $phase === PHASES.gameover ? 200 : 32
+    $phase === PHASES.gameOver ? 200 : 32
   );
 }
 
@@ -271,7 +278,7 @@ function doIdlePhase(game) {
     $cards.map((card) => ((card.duration = 0), card))
   );
   checkLocalScore(game, KEYS.highScore, get(game.score).value);
-  if (game.sounds) checkSound(game, game.sounds.reset);
+  checkSound(game, game.sounds.reset);
 }
 
 function doPlusPhase(game) {
@@ -319,11 +326,11 @@ function doBlinkPhase(game) {
       (result, index) => result + $cards[index].value,
       0
     );
-    checkSpeedrun(game, () => game.energy.set({ buffer, value }), 400);
-    checkSpeedrun(game, () => game.phase.set(PHASES.match), 800);
-    if (game.sounds) {
-      checkSound(game, [game.sounds.playWordUp, game.sounds.playBlink]);
-    }
+    checkRapid(game, () => game.energy.set({ buffer, value }), 400);
+    checkRapid(game, () => game.phase.set(PHASES.match), 800);
+    checkSound(game, [game.sounds.playWordUp, game.sounds.playBlink], {
+      muteRapid: true,
+    });
     return;
   }
   if (value > 100) {
@@ -335,7 +342,7 @@ function doBlinkPhase(game) {
     return;
   }
   if (value < 10) {
-    game.phase.set(PHASES.gameover);
+    game.phase.set(PHASES.gameOver);
     return;
   }
   game.phase.set(PHASES.idle);
@@ -348,40 +355,44 @@ function doMatchPhase(game) {
     );
     return new Set();
   });
-  checkSpeedrun(game, () => game.phase.set(PHASES.fall), 400);
+  checkRapid(game, () => game.phase.set(PHASES.fall), 400);
 }
 
 function doFallPhase(game) {
   game.cards.update(($cards) =>
     getClusteredCards(game, getFallenCards(game, $cards))
   );
-  checkSpeedrun(game, () => game.phase.set(PHASES.blink), 400);
+  checkRapid(game, () => game.phase.set(PHASES.blink), 400);
 }
 
 function doExtraPhase(game) {
   game.energy.update(({ value }) => ({ buffer: 100 - value, value }));
   game.log.update(($log) => $log.concat({ extra: 100 }));
-  if (game.sounds) checkSound(game, game.sounds.playWordUp);
+  checkSound(game, game.sounds.playWordUp, { muteRapid: true });
 }
 
-function doComboPhase(game) {
-  const $log = get(game.log);
-  const combo = $log.reduce(
+export function getComboFromLog($log) {
+  return $log.reduce(
     (result, { counts, extra, sum }, index) =>
       result + (index + 1) * (sum || extra) * (counts || 1),
     0
   );
+}
+
+function doComboPhase(game) {
+  const $log = get(game.log);
+  const combo = getComboFromLog($log);
   game.score.update(({ value }) => ({
     buffer: combo,
     value,
   }));
   checkLocalScore(game, KEYS.highCombo, combo);
-  checkSpeedrun(
+  checkRapid(
     game,
     () => game.phase.set(PHASES.score),
     $log.length > 1 ? 800 : 0
   );
-  if (game.sounds) checkSound(game, game.sounds.playWordUp);
+  checkSound(game, game.sounds.playWordUp, { muteRapid: true });
 }
 
 function doScorePhase(game) {
@@ -390,7 +401,7 @@ function doScorePhase(game) {
 }
 
 function doGameOverPhase(game) {
-  checkSpeedrun(
+  checkRapid(
     game,
     () => {
       game.energy.update(({ value }) => ({
@@ -404,7 +415,6 @@ function doGameOverPhase(game) {
     },
     400
   );
-  if (game.sounds) checkSound(game, game.sounds.playGameOver);
 }
 
 const PHASE_LOGICS = {
@@ -417,7 +427,7 @@ const PHASE_LOGICS = {
   [PHASES.extra]: doExtraPhase,
   [PHASES.combo]: doComboPhase,
   [PHASES.score]: doScorePhase,
-  [PHASES.gameover]: doGameOverPhase,
+  [PHASES.gameOver]: doGameOverPhase,
 };
 
 function doPhaseLogic(game, $phase) {
@@ -433,13 +443,12 @@ function doPlusIndexLogic(game, $plusIndex) {
   $moves.push($plusIndex);
   game.moves.set(getBase64FromArray($moves));
   game.energy.update(($energy) => ({ ...$energy, buffer: -10 }));
-  checkSpeedrun(game, () => game.phase.set(PHASES.plus), 400);
-  if (game.sounds) checkSound(game, game.sounds.playCardPlus);
+  checkRapid(game, () => game.phase.set(PHASES.plus), 400);
 }
 
 // SCORE LOGIC /////////////////////////////////////////////////////////////////
 
-export function getTimeFromDiff(diff) {
+function getTimeFromDiff(diff) {
   switch (abs(diff)) {
     case 1:
       return 130;
@@ -463,33 +472,33 @@ export function getTimeFromDiff(diff) {
 
 function doScoreLogic(game, { buffer, value }) {
   const $phase = get(game.phase);
-  if ($phase !== PHASES.gameover && $phase !== PHASES.score) return;
+  if ($phase !== PHASES.gameOver && $phase !== PHASES.score) return;
   if (buffer === 0) {
-    if ($phase === PHASES.gameover) {
+    if ($phase === PHASES.gameOver) {
       checkLocalScore(game, KEYS.highScore, value);
       return;
     }
-    checkSpeedrun(
+    checkRapid(
       game,
       () => {
         game.log.set([]);
         game.phase.set(
-          get(game.energy).value < 10 ? PHASES.gameover : PHASES.idle
+          get(game.energy).value < 10 ? PHASES.gameOver : PHASES.idle
         );
-        if (game.sounds) checkSound(game, game.sounds.playFadeIn);
+        checkSound(game, game.sounds.playTurnOn);
       },
       200
     );
     return;
   }
-  const { speedrun } = get(game.options);
+  const { rapid } = get(game.options);
   const diff =
-    speedrun || game.movesInitial
+    rapid || game.movesInitial
       ? buffer
-      : $phase === PHASES.gameover
+      : $phase === PHASES.gameOver
       ? sign(buffer)
       : getDiffFromBuffer(buffer);
-  checkSpeedrun(
+  checkRapid(
     game,
     () => {
       game.score.set({
@@ -497,9 +506,9 @@ function doScoreLogic(game, { buffer, value }) {
         value: value + diff,
       });
     },
-    $phase === PHASES.gameover ? 200 : getTimeFromDiff(diff)
+    $phase === PHASES.gameOver ? 200 : getTimeFromDiff(diff)
   );
-  if (game.sounds) checkSound(game, game.sounds.playBleep);
+  checkSound(game, game.sounds.playBleep, { muteRapid: true });
 }
 
 // SEED LOGIC //////////////////////////////////////////////////////////////////
@@ -587,8 +596,8 @@ function updatePreviousHighs(game) {
 }
 
 export function initCore(game, sounds) {
-  if (sounds) game.sounds = sounds;
   updatePreviousHighs(game);
+  game.sounds = sounds || {};
   game.getNextCardValue = () => 0;
   game.moveCount = 0;
   game.movesInitial = null;
@@ -603,7 +612,7 @@ export function initCore(game, sounds) {
 // GAME RESET //////////////////////////////////////////////////////////////////
 
 function shuffleBoard(game, count, playerName) {
-  if (count < 0) return;
+  if (count < 0) return (game.ready = true);
   setTimeout(() => {
     game.log.set(INITIAL_VALUES.log);
     game.plusIndex.set(INITIAL_VALUES.plusIndex);
@@ -621,7 +630,7 @@ function shuffleBoard(game, count, playerName) {
 
 export function resetGame(game, playerName) {
   updatePreviousHighs(game);
-  if (game.sounds) checkSound(game, game.sounds.playGenerate);
-  const { speedrun } = get(game.options);
-  shuffleBoard(game, speedrun ? 0 : 8, playerName);
+  checkSound(game, game.sounds.playGenerate);
+  game.ready = false;
+  shuffleBoard(game, 8, playerName);
 }

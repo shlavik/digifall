@@ -36,12 +36,16 @@
 </script>
 
 {#if !dialogOpened}
-  <form class="options content" in:blur on:submit|preventDefault={submit}>
+  <form
+    class="options content"
+    in:blur|global
+    on:submit|preventDefault={submit}
+  >
     <div class="section-1">
-      <span in:fly={{ y: -48 }}>options</span>
+      <span in:fly|global={{ y: -48 }}>options</span>
     </div>
     <div class="section-2" />
-    <div class="section-3" in:fly={{ y: 24 }}>
+    <div class="section-3" in:fly|global={{ y: 24 }}>
       <div class="col">
         <PlayerName bind:this={playerNameComponent} bind:playerName />
         <input
@@ -50,29 +54,41 @@
           bind:checked={$options.leaderboard}
         />
         <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
-        <label for="leaderboard" tabindex="0" role="button">
+        <label
+          for="leaderboard"
+          title="for those who like to share records"
+          tabindex="0"
+          role="button"
+        >
           p2p leaderboard
         </label>
-        <input type="checkbox" id="cluster" bind:checked={$options.cluster} />
+        <input type="checkbox" id="rapid" bind:checked={$options.rapid} />
         <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
-        <label for="cluster" tabindex="0" role="button">cluster corners</label>
-        <input type="checkbox" id="speedrun" bind:checked={$options.speedrun} />
-        <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
-        <label for="speedrun" tabindex="0" role="button">speedrun mode</label>
+        <label
+          for="rapid"
+          title="pro mode w/o boring animations"
+          tabindex="0"
+          role="button">rapid mode</label
+        >
         <input
           type="checkbox"
           id="sound"
-          disabled={$options.speedrun}
-          checked={!$options.speedrun && $options.sound}
+          checked={$options.sound}
           on:click={() => ($options.sound = !$options.sound)}
         />
         <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
-        <label for="sound" tabindex="0" role="button">sound effects</label>
+        <label for="sound" title="auditory pleasure" tabindex="0" role="button"
+          >sound effects</label
+        >
       </div>
     </div>
     <div class="section-4">
       <div class="col">
-        <button type="submit" title="RETURN TO MAIN MENU" in:fly={{ y: 48 }}>
+        <button
+          type="submit"
+          title="return to main menu"
+          in:fly|global={{ y: 48 }}
+        >
           return
         </button>
       </div>

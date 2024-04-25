@@ -21,7 +21,7 @@
     visibility = playerNamePrev !== playerName ? "visible" : "hidden";
     if (playerName === "") inputElement && inputElement.focus();
   }
-  $: title = ('PLAYER NAME: "' + playerName + '"').toUpperCase();
+  $: title = "player name: " + playerName.toUpperCase();
 </script>
 
 <span class="symbols" style:visibility>a-z 0-9 @&$!?-+=.:/_</span>

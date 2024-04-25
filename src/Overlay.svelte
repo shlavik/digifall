@@ -1,4 +1,5 @@
 <script>
+  import { tick } from "svelte";
   import { fade } from "svelte/transition";
 
   import GameOver from "./GameOver.svelte";
@@ -7,27 +8,30 @@
   import Options from "./Options.svelte";
   import Wellcome from "./Wellcome.svelte";
 
-  import { OVERLAYS } from "./constants.js";
-  import { overlay } from "./stores.js";
+  import { OVERLAYS, PHASES } from "./constants.js";
+  import { overlay, phase } from "./stores.js";
 
   let leaderboardComponent = null;
   let menuComponent = null;
   let optionsComponent = null;
+  let scoreComponent = null;
   let focusElement = null;
 
-  export function switchOverlay() {
-    if (menuComponent?.isNewGameDialog?.())
+  export async function switchOverlay() {
+    await tick();
+    if (menuComponent && menuComponent.isNewGameDialog()) {
       return menuComponent.closeNewGameDialog();
+    }
     $overlay =
       $overlay === null
         ? OVERLAYS.menu
         : $overlay === OVERLAYS.menu
-        ? null
-        : $overlay === OVERLAYS.leaderboard
-        ? OVERLAYS.menu
-        : $overlay === OVERLAYS.options
-        ? OVERLAYS.menu
-        : null;
+          ? null
+          : $overlay === OVERLAYS.leaderboard
+            ? OVERLAYS.menu
+            : $overlay === OVERLAYS.options
+              ? OVERLAYS.menu
+              : null;
   }
 
   export function moveUp() {
@@ -44,8 +48,8 @@
       return focusElement.classList.contains("type")
         ? focusElement.click()
         : focusElement.classList.contains("pages")
-        ? leaderboardComponent.prevPage()
-        : null;
+          ? leaderboardComponent.prevPage()
+          : null;
     }
     if ($overlay !== OVERLAYS.options || optionsComponent.isDialogOpened())
       shiftFocus(-1);
@@ -57,8 +61,8 @@
       return focusElement.classList.contains("type")
         ? focusElement.click()
         : focusElement.classList.contains("pages")
-        ? leaderboardComponent.nextPage()
-        : null;
+          ? leaderboardComponent.nextPage()
+          : null;
     }
     if ($overlay !== OVERLAYS.options || optionsComponent.isDialogOpened())
       shiftFocus(-1);
@@ -66,13 +70,27 @@
 
   export function perfomAction() {
     if (!focusElement) return;
-    if (focusElement.classList.contains("focus")) focusElement.click();
+    scoreComponent && scoreComponent.isFocused()
+      ? scoreComponent.nextType()
+      : focusElement.classList.contains("focus")
+        ? focusElement.click()
+        : null;
   }
 
   export function blur() {
-    if (!focusElement) return;
-    focusElement.classList.remove("focus");
-    focusElement.blur();
+    if (focusElement) {
+      focusElement.blur();
+    }
+    if (
+      $overlay === OVERLAYS.options ||
+      $overlay === OVERLAYS.leaderboard ||
+      $overlay === OVERLAYS.gameOver
+    ) {
+      return ($overlay = OVERLAYS.menu);
+    }
+    if ($overlay === OVERLAYS.menu && $phase !== PHASES.gameOver) {
+      return ($overlay = null);
+    }
   }
 
   function findElement({ node, selectors, shift = 0 } = {}) {
@@ -91,9 +109,13 @@
 
   function focus(element) {
     if (!element) return;
+    if (scoreComponent && scoreComponent.isFocused()) scoreComponent.blur();
     if (focusElement) {
       focusElement.classList.remove("focus");
       focusElement.blur();
+    }
+    if (element.classList.contains("score")) {
+      return scoreComponent && scoreComponent.focus();
     }
     focusElement = element;
     focusElement.classList.add("focus");
@@ -117,8 +139,8 @@
 
 {#if $overlay}
   <div class="overlay" transition:fade={{ duration: 200 }}>
-    {#if $overlay === OVERLAYS.gameover}
-      <GameOver />
+    {#if $overlay === OVERLAYS.gameOver}
+      <GameOver bind:scoreComponent />
     {:else if $overlay === OVERLAYS.leaderboard}
       <Leaderboard bind:this={leaderboardComponent} />
     {:else if $overlay === OVERLAYS.menu}

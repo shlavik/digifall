@@ -2,11 +2,14 @@ import { derived, writable } from "svelte/store";
 
 import { INITIAL_VALUES, KEYS } from "./constants.js";
 import {
-  checkSpeedrun as coreCheckSpeedrun,
-  getSeed,
+  checkSound as coreCheckSound,
+  checkRapid as coreCheckRapid,
   resetGame as coreResetGame,
+  getComboFromLog,
+  getSeed,
 } from "./core.js";
 import { localStorageStore } from "./persistence.js";
+import { playWordUp } from "./sounds.js";
 
 export const cards = writable(INITIAL_VALUES.cards);
 export const energy = writable(INITIAL_VALUES.energy);
@@ -40,10 +43,15 @@ const game = {
   score,
   seed,
   timestamp,
+  ready: true,
 };
 
-export function checkSpeedrun(value, timeout = 0) {
-  return coreCheckSpeedrun(game, value, timeout);
+export function checkRapid(value, timeout = 0) {
+  return coreCheckRapid(game, value, timeout);
+}
+
+export function checkSound(callback, { muteRapid = false } = {}) {
+  return coreCheckSound(game, callback, { muteRapid });
 }
 
 export function resetGame(playerName) {
@@ -51,7 +59,29 @@ export function resetGame(playerName) {
   coreResetGame(game, playerName);
 }
 
+export const combos = derived(
+  [log, options, seed],
+  ([$log, { rapid }, $seed]) => {
+    if (!rapid) return [];
+    if ($seed !== combos.seed) {
+      combos.seed = $seed;
+      combos.prev = [];
+      combos.rows = [];
+    }
+    if ($log.length === 0) {
+      const combo = getComboFromLog(combos.prev);
+      if (combo) {
+        combos.rows = [...combos.rows, { combo, key: performance.now() }];
+        checkSound(playWordUp);
+        if (combos.rows.length > 7) combos.rows = combos.rows.slice(-7);
+      }
+    } else {
+      combos.prev = $log;
+    }
+    return combos.rows;
+  }
+);
+
 export const overlay = writable(INITIAL_VALUES.overlay);
-export const randomColor = writable(INITIAL_VALUES.randomColor);
 
 export default game;

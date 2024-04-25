@@ -2,15 +2,20 @@
   import { fade, slide } from "svelte/transition";
 
   import { PHASES } from "./constants.js";
-  import { checkSpeedrun, log, phase, score } from "./stores.js";
+  import { checkRapid, combos, log, phase, score } from "./stores.js";
 
   function getCountsStyle(digits = []) {
     let { length } = digits;
     if (length < 1) return "";
     if (length > 4) length = 4;
-    return digits.reduce((result, digit, index) => {
-      return result + `--clr-${index + 1}: var(--color-${digit});`;
-    }, `animation: colors-${length} ${200 + 200 * length}ms steps(2, end) infinite;`);
+    return digits.reduce(
+      (result, digit, index) => {
+        return result + `--clr-${index + 1}: var(--color-${digit});`;
+      },
+      `animation: colors-${length} ${
+        200 + 200 * length
+      }ms steps(2, end) infinite;`,
+    );
   }
 </script>
 
@@ -20,10 +25,11 @@
       {@const rowKeys = Object.keys(row)}
       <li
         class="row"
-        in:slide={checkSpeedrun({ duration: 100 })}
-        out:fade={checkSpeedrun({ duration: 200 })}
+        in:slide={checkRapid({ duration: 100 })}
+        out:fade={checkRapid({ duration: 200 })}
       >
-        <span>{logIndex + 1}[</span>
+        <span>{logIndex + 1}</span>
+        <span>[</span>
         {#each rowKeys as key, rowIndex}
           <span class="value" style:color="var(--color-{key})">{row[key]}</span>
           {#if rowIndex < rowKeys.length - 1}
@@ -49,11 +55,11 @@
     {@const collapse = $log.length === 1}
     <li
       class:collapse
-      in:slide={checkSpeedrun({ duration: collapse ? 0 : 100 })}
-      out:fade={checkSpeedrun({ duration: 200 })}
+      in:slide={checkRapid({ duration: collapse ? 0 : 100 })}
+      out:fade={checkRapid({ duration: 200 })}
     >
       {#if $phase === PHASES.combo}
-        <span out:fade={checkSpeedrun({ duration: 200 })}>
+        <span out:fade={checkRapid({ duration: 200 })}>
           {collapse ? "" : "combo:"}
         </span>
       {/if}
@@ -62,4 +68,7 @@
       </span>
     </li>
   {/if}
+  {#each $combos as { combo, key } (key)}
+    <span class="combo">+{combo}</span>
+  {/each}
 </ol>
