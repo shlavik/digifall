@@ -5,7 +5,7 @@
     <meta name="description" content="Entropy fighting mathematactic game" />
     <meta
       name="keywords"
-      content="digifall, entropy fighting, mathematactic, game, logic, puzzle, leaderboard, p2p, libp2p, svelte, цифропад"
+      content="digifall, survival, logic, puzzle, indie, game, entropy fighting, mathematactic, leaderboard, svelte, p2p, libp2p, pwa, цифропад"
     />
     <meta
       name="viewport"
@@ -14,27 +14,18 @@
     <meta name="color-scheme" content="only light" />
     <meta name="theme-color" content="transparent" />
     <title>Digifall</title>
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" type="image/png" href="/images/icon-48x48.png" />
     <link
-      rel="preload"
-      href="/fonts/5x5.ttf"
-      as="font"
-      type="font/ttf"
-      crossorigin
+      rel="manifest"
+      type="application/manifest+json; charset=utf-8"
+      href="/manifest.json"
     />
-    <link
-      rel="preload"
-      href="/fonts/7x7.ttf"
-      as="font"
-      type="font/ttf"
-      crossorigin
-    />
+    <link rel="icon" type="image/png" href="/images/icon-cr-48x48.png" />
     <link rel="stylesheet" href="/src/styles.css" />
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-KK6TCRZ4TJ"
     ></script>
+    <script type="module" src="/src/main.js"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -43,7 +34,6 @@
       gtag("js", new Date());
       gtag("config", "G-KK6TCRZ4TJ");
     </script>
-    <script type="module" src="/src/main.js"></script>
   </head>
 
   <body oncontextmenu="return false">

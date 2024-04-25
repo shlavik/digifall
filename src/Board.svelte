@@ -1,9 +1,19 @@
 <script>
   import Card from "./Card.svelte";
 
+  import { longpress } from "./actions.js";
   import { CORE, PHASES } from "./constants.js";
+  import { getFieldFromCards } from "./core";
   import {
+    playHit,
+    playPlus,
+    playSlideIn,
+    playSlideMove,
+    playSlideOut,
+  } from "./sounds";
+  import game, {
     cards,
+    checkSound,
     log,
     matchedIndexes,
     options,
@@ -12,112 +22,176 @@
     seed,
   } from "./stores.js";
 
-  let focusCard;
-  let focusCardPrev;
+  let focusedCard = null;
+  let focusedCardPrev = null;
+  let longpressedIndex = undefined;
+  let sliderHorizontal = null;
+  let sliderVertical = null;
 
   export function isFocused() {
-    return focusCard?.x !== undefined && focusCard?.y !== undefined;
-  }
-
-  export function blur(clearPrev = false) {
-    focusCardPrev = clearPrev ? undefined : focusCard;
-    focusCard = undefined;
+    return Boolean(focusedCard);
   }
 
   export function shiftFocus({ x = 0, y = 0 } = {}) {
     if (!idle) return {};
-    if (focusCard) {
-      focusCardPrev = focusCard;
-      x += focusCard.x;
-      y += focusCard.y;
+    highlightGhost();
+    if (focusedCard) {
+      focusedCardPrev = focusedCard;
+      x += focusedCard.x;
+      y += focusedCard.y;
       const newX = x < 0 ? CORE.columns - 1 : x % CORE.columns;
       const newY = y < 0 ? CORE.rows - 1 : y % CORE.rows;
-      return (focusCard = {
+      return focusCard({
         x: newX,
         y: newY,
-        topEdge: newY === 0 && focusCardPrev?.y === CORE.rows - 1,
-        bottomEdge: newY === CORE.rows - 1 && focusCardPrev?.y === 0,
+        topEdge:
+          newY === 0 && focusedCardPrev && focusedCardPrev.y === CORE.rows - 1,
+        bottomEdge:
+          newY === CORE.rows - 1 && focusedCardPrev && focusedCardPrev.y === 0,
       });
     }
     if (x !== 0) {
-      if (focusCardPrev) {
-        focusCard = {
+      if (focusedCardPrev) {
+        newValue = {
           x: x > 0 ? 0 : CORE.columns - 1,
-          y: focusCardPrev.y,
+          y: focusedCardPrev.y,
         };
-        focusCardPrev = undefined;
-        return focusCard;
+        focusedCardPrev = null;
+        return focusCard(newValue);
       }
-      return (focusCard = {
+      return focusCard({
         x: Math.round(CORE.columns / 2) + x + (x > 0 ? -1 : 0),
-        y: Math.round(CORE.rows / 2) + (x > 0 ? -1 : 0),
+        y: Math.round(CORE.rows / 2) + (x > 0 ? 0 : -1),
       });
     }
     if (y !== 0) {
-      if (focusCardPrev) {
-        focusCard = {
-          x: focusCardPrev.x,
+      if (focusedCardPrev) {
+        const newValue = {
+          x: focusedCardPrev.x,
           y: y > 0 ? 0 : CORE.rows - 1,
         };
-        focusCardPrev = undefined;
-        return focusCard;
+        focusedCardPrev = null;
+        return focusCard(newValue);
       }
-      return (focusCard = {
-        x: Math.round(CORE.columns / 2) + (y > 0 ? 0 : -1),
+      return focusCard({
+        x: Math.round(CORE.columns / 2) + (y > 0 ? -1 : 0),
         y: Math.round(CORE.rows / 2) + y + (y > 0 ? -1 : 0),
       });
     }
-    return focusCard || {};
+    return focusedCard || {};
   }
 
-  export function plusFocus() {
-    focusCardPrev = undefined;
+  export function plusFocusedCard() {
+    if (!isFocused()) return;
+    focusedCardPrev = null;
     const index = $cards.findIndex(
-      ({ x, y }) => x === focusCard.x && y === focusCard.y
+      ({ x, y }) => x === focusedCard.x && y === focusedCard.y,
     );
     if (index === -1) return;
     $plusIndex = index;
-  }
-
-  function plusIndexCard(card) {
     if (progress) return;
-    $plusIndex = Number(card.dataset.index);
+    checkSound(playPlus, { muteRapid: true });
   }
 
-  function click(event) {
-    focusCardPrev = undefined;
-    if (!speedrun) return;
-    const card = event
-      .composedPath()
-      .find(({ dataset }) => dataset && dataset.index);
-    if (!card) return;
-    plusIndexCard(card);
+  export function focusCard(newValue) {
+    if (!isFocused()) checkSound(playSlideIn);
+    const index = field[newValue.x][newValue.y];
+    checkSound(() => playSlideMove($cards[index].value));
+    return (focusedCard = newValue);
   }
 
-  function longpress(event) {
-    blur(true);
-    if (speedrun) return;
-    plusIndexCard(event.target);
+  export function blur({ savePrev = false, muteSound = false } = {}) {
+    if (!isFocused()) return;
+    focusedCardPrev = savePrev ? focusedCard : null;
+    focusedCard = null;
+    if (!muteSound) checkSound(playSlideOut);
   }
 
-  /**
-   * Prevent longpress action on Card
-   */
-  function checkStart() {
-    return !speedrun && !progress;
+  function highlightGhost() {
+    sliderHorizontal.style.animation = "none";
+    sliderHorizontal.offsetHeight;
+    sliderHorizontal.style.animation = null;
+    sliderVertical.style.animation = "none";
+    sliderVertical.offsetHeight;
+    sliderVertical.style.animation = null;
   }
 
-  seed.subscribe(() => ((focusCard = undefined), (focusCardPrev = undefined)));
+  function hoverCard(index) {
+    if (progress) return;
+    if (longpressedIndex !== undefined) return;
+    const currentCard = $cards[index];
+    if (!isFocused()) checkSound(playSlideIn);
+    if (currentCard !== focusedCard) {
+      highlightGhost();
+      checkSound(() => playSlideMove(currentCard.value));
+      focusedCardPrev = focusedCard;
+      focusedCard = currentCard;
+    }
+  }
 
-  $: if ($matchedIndexes.size > 0) focusCard = undefined;
-  $: ({ speedrun } = $options);
+  function findNearestCard(element) {
+    if (element.classList.contains("card")) return element;
+    const cardChild = element.querySelector(".card");
+    if (cardChild) return cardChild;
+    let parent = element.parentElement;
+    while (parent) {
+      if (parent.classList.contains("card")) return parent;
+      parent = parent.parentElement;
+    }
+    return null;
+  }
+
+  function findCardIndex(boardEvent) {
+    const cardElement = findNearestCard(boardEvent.target);
+    return cardElement && Number(cardElement.dataset.index);
+  }
+
+  function mouseMove(event) {
+    if (!game.ready) return;
+    const index = findCardIndex(event);
+    if (index > -1) hoverCard(index);
+  }
+
+  function mouseLeave(event) {
+    blur({ muteSound: $phase !== PHASES.idle });
+  }
+
+  function longpressStart(event) {
+    if (progress) return;
+    const index = findCardIndex(event.detail);
+    if (index === undefined) return;
+    hoverCard(index);
+    if (!rapid) longpressedIndex = index;
+    if (event.detail.type !== "mousedown") return;
+    checkSound(() => playHit($cards[index].value), { onlyOnIdle: true });
+    if (rapid) plusFocusedCard();
+  }
+
+  function longpressFire(event) {
+    if (rapid) return;
+    const index = findCardIndex(event.detail);
+    if (index !== longpressedIndex) return;
+    longpressedIndex = undefined;
+    plusFocusedCard();
+    blur();
+  }
+
+  function longpressEnd(event) {
+    if (!rapid) longpressedIndex = undefined;
+  }
+
+  seed.subscribe(() => blur({ muteSound: true }));
+
+  $: if ($matchedIndexes.size > 0) blur({ muteSound: true });
+  $: ({ rapid } = $options);
   $: idle = $phase === PHASES.idle;
   $: blink = $matchedIndexes.size > 0 && $log.length === 1;
   $: overflow = !idle && !blink;
   $: progress = !idle || $plusIndex !== undefined;
   $: plusCard = $cards[$plusIndex];
-  $: plusCardMemoized = plusCard || focusCard || plusCardMemoized;
-  $: focus = Boolean(plusCard || focusCard || blink);
+  $: focusMemoized = plusCard || focusedCard || focusMemoized;
+  $: sliderFocus = plusCard || focusedCard || blink;
+  $: field = getFieldFromCards($cards);
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -125,26 +199,40 @@
   class="board"
   class:overflow
   class:progress
-  style:--focus-x={plusCardMemoized?.x}
-  style:--focus-y={plusCardMemoized?.y}
-  on:click={click}
-  on:longpress={longpress}
+  style:--focus-x={focusMemoized && focusMemoized.x}
+  style:--focus-y={focusMemoized && focusMemoized.y}
+  tabindex="0"
+  role="button"
+  on:mousemove={mouseMove}
+  on:mouseleave={mouseLeave}
+  on:longpressstart={longpressStart}
+  on:longpressfire={longpressFire}
+  on:longpressend={longpressEnd}
+  use:longpress
 >
-  {#each $cards as card, index}
+  {#each $cards as card, index (index)}
+    {@const focus =
+      card.x === (focusedCard && focusedCard.x) &&
+      card.y === (focusedCard && focusedCard.y)}
     <Card
       {card}
       {index}
+      {focus}
       blink={$matchedIndexes.has(index)}
-      cluster={$options.cluster}
-      focus={card.x === focusCard?.x && card.y === focusCard?.y}
+      longpress={longpressedIndex === index}
       plus={$plusIndex === index}
-      {checkStart}
     />
   {/each}
-  <div class="ghost horizontal" class:blink class:focus />
-  <div class="ghost vertical" class:blink class:focus />
-  <div class="slider top" class:blink class:focus />
-  <div class="slider right" class:blink class:focus />
-  <div class="slider bottom" class:blink class:focus />
-  <div class="slider left" class:blink class:focus />
+  <div
+    class="slider horizontal"
+    class:blink
+    class:focus={sliderFocus}
+    bind:this={sliderHorizontal}
+  />
+  <div
+    class="slider vertical"
+    class:blink
+    class:focus={sliderFocus}
+    bind:this={sliderVertical}
+  />
 </div>

@@ -1,6 +1,4 @@
-export const COLORS = Object.freeze({
-  white: "white",
-});
+import { highCombo, highScore } from "./backup.js";
 
 export const CORE = Object.freeze({
   columns: 6,
@@ -28,7 +26,7 @@ export const KEYS = Object.freeze({
 });
 
 export const OVERLAYS = Object.freeze({
-  gameover: "gameover",
+  gameOver: "gameOver",
   leaderboard: "leaderboard",
   menu: "menu",
   options: "options",
@@ -40,7 +38,7 @@ export const PHASES = Object.freeze({
   combo: "combo",
   extra: "extra",
   fall: "fall",
-  gameover: "gameover",
+  gameOver: "gameOver",
   idle: "idle",
   initial: "initial",
   match: "match",
@@ -56,10 +54,10 @@ export const INITIAL_VALUES = Object.freeze({
     buffer: 0,
     value: 100,
   },
-  [KEYS.leaderboard]: RECORD_TYPES.reduce((result, type) => {
-    result[type] = [];
-    return result;
-  }, {}),
+  [KEYS.leaderboard]: {
+    highCombo,
+    highScore,
+  },
   log: [],
   matchedIndexes: new Set(),
   [KEYS.moves]: "",
@@ -67,13 +65,12 @@ export const INITIAL_VALUES = Object.freeze({
     [KEYS.playerName]: "",
     [KEYS.leaderboard]: true,
     cluster: true,
-    speedrun: false,
+    rapid: false,
     sound: true,
   },
   overlay: OVERLAYS.menu,
   phase: PHASES.initial,
   plusIndex: undefined,
-  randomColor: COLORS.white,
   [KEYS.records]: RECORD_TYPES.reduce((result, type) => {
     result[type] = {
       [KEYS.playerName]: "",

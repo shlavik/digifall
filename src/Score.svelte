@@ -89,7 +89,7 @@
     on:click|preventDefault={nextType}
   >
     <span class="type" class:visible>{types[type]}:</span>
-    {#if overlaid || $phase !== PHASES.gameover}
+    {#if overlaid || $phase !== PHASES.gameOver}
       <span class="value">{value}</span>
     {/if}
   </span>

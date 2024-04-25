@@ -19,7 +19,7 @@ export async function validateRecord(gameData = {}) {
       log: writable(INITIAL_VALUES.log),
       matchedIndexes: writable(INITIAL_VALUES.matchedIndexes),
       moves: readable(moves),
-      options: readable({ playerName, speedrun: true }),
+      options: readable({ playerName, cluster: false, rapid: true }),
       phase: writable(INITIAL_VALUES.phase),
       plusIndex: writable(INITIAL_VALUES.plusIndex),
       records: writable({ ...INITIAL_VALUES.records }),
@@ -29,7 +29,7 @@ export async function validateRecord(gameData = {}) {
     });
     game.records.subscribe(($records) => {
       const { movesInitial, phase } = game;
-      if (movesInitial !== null && get(phase) !== PHASES.gameover) return;
+      if (movesInitial !== null && get(phase) !== PHASES.gameOver) return;
       clearTimeout(timer);
       const recordValue = $records[type][KEYS.value];
       gameData = { type, moves, playerName, timestamp, value };

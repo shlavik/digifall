@@ -26,12 +26,12 @@
 {#if !dialogOpened}
   <form
     class="wellcome content"
-    in:blur
+    in:blur|global
     on:input={input}
     on:submit|preventDefault={submit}
   >
     <div class="section-1">
-      <span class="big">digifall</span>
+      <h1>digifall</h1>
     </div>
     <div class="section-2" />
     <div class="section-3">
@@ -45,7 +45,7 @@
 {/if}
 
 <Dialog
-  title="disclaimer"
+  title="heads up!"
   bind:this={dialogComponent}
   bind:opened={dialogOpened}
 >

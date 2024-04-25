@@ -5,8 +5,8 @@
   import Dialog from "./Dialog.svelte";
 
   import { version } from "../package.json";
-  import { KEYS, OVERLAYS } from "./constants.js";
-  import { options, overlay, resetGame } from "./stores.js";
+  import { KEYS, OVERLAYS, PHASES } from "./constants.js";
+  import { options, overlay, phase, resetGame } from "./stores.js";
 
   let dialogComponent = null;
   let newGameDialogOpened = false;
@@ -43,18 +43,23 @@
 </script>
 
 {#if !newGameDialogOpened}
-  <div class="menu content" in:blur>
+  <div class="menu content" in:blur|global>
     <div class="section-1">
-      <span class="big">
+      <h1>
         digifall
+        {#if $options.rapid}<span class="rapid">rapid</span>{/if}
         <span class="version">{version}</span>
-      </span>
+      </h1>
     </div>
     <div class="section-2" />
     <div class="section-3">
       <div class="col">
-        <button on:click={resume}>resume</button>
-        <button on:click={dialogComponent.show}>new game</button>
+        {#if $phase === PHASES.gameOver}
+          <button on:click={startNewGame}>new game</button>
+        {:else}
+          <button on:click={resume}>resume</button>
+          <button on:click={dialogComponent.show}>new game</button>
+        {/if}
         {#if $options[KEYS.leaderboard]}
           <button on:click={showLeaderboard}>p2p leaderboard</button>
         {/if}

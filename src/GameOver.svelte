@@ -4,17 +4,23 @@
   import Energy from "./Energy.svelte";
   import Score from "./Score.svelte";
 
-  import { KEYS } from "./constants.js";
+  import { KEYS, OVERLAYS } from "./constants.js";
   import game, {
-    checkSpeedrun,
     energy,
+    overlay,
     records,
     resetGame,
     score,
   } from "./stores.js";
 
+  export let scoreComponent;
+
   function startNewGame() {
     resetGame();
+  }
+
+  function showMenu() {
+    $overlay = OVERLAYS.menu;
   }
 
   $: energyOut = $energy.value === 0;
@@ -25,25 +31,28 @@
   $: newRecord = newRecordHighCombo || newRecordHighScore;
 </script>
 
-<div
-  class="game-over content"
-  class:new-record={newRecord}
-  in:blur={checkSpeedrun({ delay: 200 })}
->
+<div class="game-over content" class:new-record={newRecord} in:blur>
   <div class="section-1">
     {#if gameOver}
-      <span class="big" in:fly={checkSpeedrun({ delay: 600, y: -48 })}>
+      <h1 in:fly|global={{ delay: 600, y: -48 }}>
         {newRecord ? "new record!" : "game over"}
-      </span>
+      </h1>
     {/if}
   </div>
   <div class="section-2">
-    <Score {newRecordHighCombo} {newRecordHighScore} {newRecord} overlaid />
+    <Score
+      {newRecordHighCombo}
+      {newRecordHighScore}
+      {newRecord}
+      overlaid
+      bind:this={scoreComponent}
+    />
   </div>
   <div class="section-3">
     {#if gameOver}
-      <div class="col" in:fly={checkSpeedrun({ delay: 600, y: 24 })}>
+      <div class="col" in:fly|global={{ delay: 600, y: 24 }}>
         <button on:click={startNewGame}>new game</button>
+        <button on:click={showMenu}>main menu</button>
       </div>
     {/if}
   </div>
@@ -54,11 +63,11 @@
         {#each "ut of energy" as letter, index}
           <span
             class="letter"
-            in:fly={checkSpeedrun({
+            in:fly|global={{
               delay: index * 48,
               duration: 200,
               y: 48,
-            })}
+            }}
           >
             {letter}
           </span>

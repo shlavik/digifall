@@ -2,8 +2,8 @@
   import Game from "./Game.svelte";
   import Overlay from "./Overlay.svelte";
 
-  import { COLORS, OVERLAYS, PHASES } from "./constants.js";
-  import { energy, overlay, phase, randomColor, seed } from "./stores.js";
+  import { OVERLAYS, PHASES } from "./constants.js";
+  import { energy, overlay, phase, seed } from "./stores.js";
 
   let gameComponent = null;
   let overlayComponent = null;
@@ -31,16 +31,20 @@
   onresize = updatePixelSize;
   document.addEventListener("visibilitychange", updatePixelSize);
 
-  function updateRandomColor() {
-    if ($phase === PHASES.idle) return ($randomColor = COLORS.white);
-    const hue = Math.trunc(360 * Math.random());
-    $randomColor = `hsl(${hue}, 100%, 50%)`;
-    requestAnimationFrame(updateRandomColor);
+  function manageRandomColorClass(value) {
+    document.documentElement.classList[value ? "add" : "remove"](
+      "random-color",
+    );
   }
 
-  $: if ($energy.value < 1 || $energy.value > 100) updateRandomColor();
-  $: document.documentElement.style.setProperty("--color-random", $randomColor);
-  $: if ($phase === PHASES.gameover) $overlay = OVERLAYS.gameover;
+  $: if ($phase === PHASES.gameOver) $overlay = OVERLAYS.gameOver;
+  $: manageRandomColorClass(
+    $energy.value > 100 ||
+      $phase === PHASES.extra ||
+      $phase === PHASES.combo ||
+      $overlay === OVERLAYS.leaderboard ||
+      $overlay === OVERLAYS.gameOver,
+  );
 
   function keydown(event) {
     const component = $overlay === null ? gameComponent : overlayComponent;
@@ -52,7 +56,7 @@
         event.preventDefault();
         if (!$seed) return;
         if ($overlay === OVERLAYS.wellcome) return;
-        if ($overlay === OVERLAYS.gameover) return;
+        if ($overlay === OVERLAYS.gameOver) return;
         return overlayComponent.switchOverlay();
       case "ArrowUp":
         return component.moveUp();
