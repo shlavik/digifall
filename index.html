@@ -5,7 +5,7 @@
     <meta name="description" content="Entropy fighting mathematactic game" />
     <meta
       name="keywords"
-      content="digifall, entropy fighting, mathematactic, game, logic, puzzle, leaderboard, p2p, libp2p, svelte, цифропад"
+      content="digifall, survival, logic, puzzle, indie, game, entropy fighting, mathematactic, leaderboard, svelte, p2p, libp2p, pwa, цифропад"
     />
     <meta
       name="viewport"
@@ -14,27 +14,21 @@
     <meta name="color-scheme" content="only light" />
     <meta name="theme-color" content="transparent" />
     <title>Digifall</title>
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkRpZ2lmYWxsIiwKICAic2hvcnRfbmFtZSI6ICJEaWdpZmFsbCIsCiAgImRlc2NyaXB0aW9uIjogIkVudHJvcHkgZmlnaHRpbmcgbWF0aGVtYXRhY3RpYyBnYW1lIiwKICAic3RhcnRfdXJsIjogImh0dHBzOi8vZGlnaWZhbGwuYXBwIiwKICAib3JpZW50YXRpb24iOiAicG9ydHJhaXQiLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJ0aGVtZV9jb2xvciI6ICJ0cmFuc3BhcmVudCIsCiAgImJhY2tncm91bmRfY29sb3IiOiAidHJhbnNwYXJlbnQiLAogICJjYXRlZ29yaWVzIjogWyJnYW1lcyIsICJlbnRlcnRhaW5tZW50Il0sCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vZGlnaWZhbGwuYXBwL2ltYWdlcy9pY29uLTQ4eDQ4LnBuZyIsCiAgICAgICJzaXplcyI6ICI0OHg0OCIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSIKICAgIH0sCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9kaWdpZmFsbC5hcHAvaW1hZ2VzL2ljb24tNzJ4NzIucG5nIiwKICAgICAgInNpemVzIjogIjcyeDcyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIgogICAgfSwKICAgIHsKICAgICAgInNyYyI6ICJodHRwczovL2RpZ2lmYWxsLmFwcC9pbWFnZXMvaWNvbi05Nng5Ni5wbmciLAogICAgICAic2l6ZXMiOiAiOTZ4OTYiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciLAogICAgICAicHVycG9zZSI6ICJhbnkgbWFza2FibGUiCiAgICB9LAogICAgewogICAgICAic3JjIjogImh0dHBzOi8vZGlnaWZhbGwuYXBwL2ltYWdlcy9pY29uLTEyOHgxMjgucG5nIiwKICAgICAgInNpemVzIjogIjEyOHgxMjgiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciLAogICAgICAicHVycG9zZSI6ICJhbnkgbWFza2FibGUiCiAgICB9LAogICAgewogICAgICAic3JjIjogImh0dHBzOi8vZGlnaWZhbGwuYXBwL2ltYWdlcy9pY29uLTE0NHgxNDQucG5nIiwKICAgICAgInNpemVzIjogIjE0NHgxNDQiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciLAogICAgICAicHVycG9zZSI6ICJhbnkgbWFza2FibGUiCiAgICB9LAogICAgewogICAgICAic3JjIjogImh0dHBzOi8vZGlnaWZhbGwuYXBwL2ltYWdlcy9pY29uLTE1MngxNTIucG5nIiwKICAgICAgInNpemVzIjogIjE1MngxNTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciLAogICAgICAicHVycG9zZSI6ICJhbnkgbWFza2FibGUiCiAgICB9LAogICAgewogICAgICAic3JjIjogImh0dHBzOi8vZGlnaWZhbGwuYXBwL2ltYWdlcy9pY29uLTE5MngxOTIucG5nIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciLAogICAgICAicHVycG9zZSI6ICJhbnkgbWFza2FibGUiCiAgICB9LAogICAgewogICAgICAic3JjIjogImh0dHBzOi8vZGlnaWZhbGwuYXBwL2ltYWdlcy9pY29uLTM4NHgzODQucG5nIiwKICAgICAgInNpemVzIjogIjM4NHgzODQiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciLAogICAgICAicHVycG9zZSI6ICJhbnkgbWFza2FibGUiCiAgICB9LAogICAgewogICAgICAic3JjIjogImh0dHBzOi8vZGlnaWZhbGwuYXBwL2ltYWdlcy9pY29uLTUxMng1MTIucG5nIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciLAogICAgICAicHVycG9zZSI6ICJhbnkgbWFza2FibGUiCiAgICB9CiAgXSwKICAic2NyZWVuc2hvdHMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9kaWdpZmFsbC5hcHAvaW1hZ2VzL3NjcmVlbnNob3QucG5nIiwKICAgICAgInNpemVzIjogIjEwODB4MTA4MCIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0KICBdCn0K" />
-    <link rel="icon" type="image/png" href="/images/icon-48x48.png" />
     <link
-      rel="preload"
-      href="/assets/5x5-ce60bd7d.ttf"
-      as="font"
-      type="font/ttf"
-      crossorigin
+      rel="manifest"
+      type="application/manifest+json; charset=utf-8"
+      href="/assets/manifest-DoVmLX1V.json"
     />
-    <link
-      rel="preload"
-      href="/assets/7x7-364c6c01.ttf"
-      as="font"
-      type="font/ttf"
-      crossorigin
-    />
-    
+    <link rel="icon" type="image/png" href="/images/icon-cr-48x48.png" />
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-KK6TCRZ4TJ"
     ></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("service-worker.js");
+      }
+    </script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -43,9 +37,8 @@
       gtag("js", new Date());
       gtag("config", "G-KK6TCRZ4TJ");
     </script>
-    
-    <script type="module" crossorigin src="/assets/index-e8662ce3.js"></script>
-    <link rel="stylesheet" href="/assets/index-878e8e4c.css">
+    <script type="module" crossorigin src="/assets/index-Dosz7j_b.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BJcfdePw.css">
   </head>
 
   <body oncontextmenu="return false">
