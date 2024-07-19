@@ -1,5 +1,3 @@
-import { highCombo, highScore } from "./backup.js";
-
 export const CORE = Object.freeze({
   columns: 6,
   rows: 6,
@@ -55,8 +53,8 @@ export const INITIAL_VALUES = Object.freeze({
     value: 100,
   },
   [KEYS.leaderboard]: {
-    highCombo,
-    highScore,
+    highCombo: [],
+    highScore: [],
   },
   log: [],
   matchedIndexes: new Set(),

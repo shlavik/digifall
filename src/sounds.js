@@ -29,6 +29,9 @@ const SOUNDS = {
       src: "/sounds/kick2.wav",
     }),
   ],
+  lowEnergy: new Howl({
+    src: "/sounds/lowEnergy.wav",
+  }),
   plus: new Howl({
     src: "/sounds/plus.wav",
   }),
@@ -61,6 +64,10 @@ export function playBlink() {
   play();
   setTimeout(play, 200);
   setTimeout(() => play(0.04), 400);
+}
+
+export function playLowEnergy() {
+  SOUNDS.lowEnergy.play();
 }
 
 export function playPlus() {

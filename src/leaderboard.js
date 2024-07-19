@@ -1,7 +1,6 @@
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { bootstrap } from "@libp2p/bootstrap";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
-import { dcutr } from "@libp2p/dcutr";
 import { identify } from "@libp2p/identify";
 import { mplex } from "@libp2p/mplex";
 import { createEd25519PeerId, createFromJSON } from "@libp2p/peer-id-factory";
@@ -212,7 +211,6 @@ function handleConnectionOpen({ detail: connection }) {
     ],
     services: {
       identify: identify(),
-      dcutr: dcutr(),
       pubsub: gossipsub({ emitSelf: true }),
     },
     connectionManager: {

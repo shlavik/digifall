@@ -86,7 +86,7 @@ body {
   margin: 0;
   background-color: var(--color-body);
   color: white;
-  font-family: pixel;
+  font-family: pixel, sans-serif;
   font-size: 5rem;
   letter-spacing: 2rem;
   line-height: 1;
@@ -754,11 +754,6 @@ p.exclam-fix {
   white-space: nowrap;
 }
 
-.leaderboard .player-name.syncing::before {
-  animation: syncing 2s calc(var(--delay) * 2s) normal forwards;
-  content: "";
-}
-
 .leaderboard dd {
   display: flex;
   height: 4rem;
@@ -1177,60 +1172,6 @@ p.exclam-fix {
   to {
     -webkit-clip-path: polygon(0% 50%, 100% 50%, 100% 50%, 0% 50%);
     clip-path: polygon(0% 50%, 100% 50%, 100% 50%, 0% 50%);
-  }
-}
-
-@keyframes syncing {
-  0% {
-    content: "syncing";
-  }
-
-  8% {
-    content: "syncing_";
-  }
-
-  16% {
-    content: "syncing__";
-  }
-
-  24% {
-    content: "syncing___";
-  }
-
-  32% {
-    content: "syncing____";
-  }
-
-  40% {
-    content: "syncing_____";
-  }
-
-  48% {
-    content: "syncing______";
-  }
-
-  56% {
-    content: "syncing_______";
-  }
-
-  64% {
-    content: "syncing________";
-  }
-
-  72% {
-    content: "syncing_________";
-  }
-
-  80% {
-    content: "syncing__________";
-  }
-
-  88% {
-    content: "syncing___________";
-  }
-
-  100% {
-    content: "syncing___________";
   }
 }
 

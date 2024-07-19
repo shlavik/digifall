@@ -132,12 +132,7 @@
             value
           ).toUpperCase()}
           <dt class:self style:margin-left={marginLeft} data-nth={nth}>
-            <div
-              class="player-name"
-              class:syncing={!playerName}
-              style:--delay={delay}
-              {title}
-            >
+            <div class="player-name" style:--delay={delay} {title}>
               {playerName}
             </div>
           </dt>

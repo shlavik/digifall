@@ -1,10 +1,12 @@
 <script>
   import { PHASES } from "./constants.js";
-  import { energy, phase } from "./stores.js";
+  import { playLowEnergy } from "./sounds.js";
+  import { checkSound, energy, phase } from "./stores.js";
 
   $: ({ value } = $energy);
   $: extra = value > 100;
   $: warning = value < 20 && $phase === PHASES.idle;
+  $: if (warning) checkSound(playLowEnergy);
   $: leftBarStyle = `
     z-index: ${extra ? 0 : 1};
     flex: ${(extra ? 200 - value : value) / 100};
