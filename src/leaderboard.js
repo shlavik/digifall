@@ -175,12 +175,24 @@ async function pushRoot(connection) {
     });
 }
 
-function handleConnectionOpen({ detail: connection }) {
+async function handleConnectionOpen({ detail: connection }) {
   const remotePeerId = connection.remotePeer.toString();
   if (DEBUG) console.log("connection:open", remotePeerId);
   if (remotePeerId === RELAY_PEER_ID) return;
   if (connection.status !== "open") return;
   pushRoot(connection);
+}
+
+async function forcePushRoot() {
+  libp2p
+    .getConnections()
+    .filter(
+      ({ direction, remotePeer, status }) =>
+        direction === "outbound" &&
+        remotePeer.toString() !== RELAY_PEER_ID &&
+        status === "open"
+    )
+    .forEach(pushRoot);
 }
 
 (async function initP2PLeaderboard() {
@@ -226,6 +238,7 @@ function handleConnectionOpen({ detail: connection }) {
   });
   libp2p.addEventListener("peer:discovery", handlePeerDiscovery);
   libp2p.addEventListener("connection:open", handleConnectionOpen);
+  setInterval(forcePushRoot, 12000);
   if (DEBUG) window.libp2p = libp2p;
 })();
 
@@ -242,15 +255,7 @@ RECORD_TYPES.forEach((type) => {
           .map((game) => squashIntegers([getSeed(game), game.value]))
       );
       if (rootPrev === roots[type]) return;
-      return libp2p
-        .getConnections()
-        .filter(
-          ({ direction, remotePeer, status }) =>
-            direction === "outbound" &&
-            remotePeer.toString() !== RELAY_PEER_ID &&
-            status === "open"
-        )
-        .forEach(pushRoot);
+      return forcePushRoot();
     }
     Promise.allSettled(
       $leaderboard.map((record) =>
