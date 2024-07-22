@@ -62,7 +62,6 @@ html {
   --color-invis-1: #10100b;
   --color-invis-2: #22221a;
   --color-random: white;
-  --pixel: 1px;
   --gloss: 0 -1px 0 var(--color-gloss);
   --gloss-inset: 0 1px 0 var(--color-gloss);
   --glow: 0 0 1px white;
@@ -72,7 +71,7 @@ html {
   --shadow-inset: inset 0 0.5rem 0.5rem var(--color-black-04);
 
   color-scheme: only light;
-  font-size: var(--pixel);
+  font-size: 1px;
 }
 
 html.random-color {

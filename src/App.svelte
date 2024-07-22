@@ -2,34 +2,33 @@
   import Game from "./Game.svelte";
   import Overlay from "./Overlay.svelte";
 
-  import { OVERLAYS, PHASES } from "./constants.js";
+  import { RELOAD_IN_SEC, OVERLAYS, PHASES } from "./constants.js";
   import { energy, overlay, phase, seed } from "./stores.js";
 
   let gameComponent = null;
   let overlayComponent = null;
 
-  /**
-   * Reloading page 1 time in day just in case
-   */
-  setTimeout(() => (location = location), 86400000);
+  if (RELOAD_IN_SEC > 0) {
+    setTimeout(() => (location = location), RELOAD_IN_SEC * 1e3);
+  }
 
   onstorage = function syncTabs() {
     if (document.hasFocus()) return;
     document.location = document.location;
   };
 
-  function updatePixelSize() {
+  function updateRem() {
     const { style, offsetHeight, offsetWidth } = document.documentElement;
     const ratio = offsetHeight / offsetWidth;
     const landscape = ratio < 1.5;
     const size = landscape ? offsetHeight / 192 : offsetWidth / 128;
     const diff = size % 0.25;
-    style.setProperty("--pixel", size - diff + "px");
+    style.setProperty("font-size", size - diff + "px");
   }
 
-  updatePixelSize();
-  onresize = updatePixelSize;
-  document.addEventListener("visibilitychange", updatePixelSize);
+  updateRem();
+  onresize = updateRem;
+  document.addEventListener("visibilitychange", updateRem);
 
   function manageRandomColorClass(value) {
     document.documentElement.classList[value ? "add" : "remove"](

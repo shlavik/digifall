@@ -11,7 +11,7 @@ export async function validateRecord(gameData = {}) {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(
       () => reject(["RECORD VALIDATION: TIMEOUT!", gameData]),
-      3333
+      3e3
     );
     const game = initCore({
       cards: writable(INITIAL_VALUES.cards),

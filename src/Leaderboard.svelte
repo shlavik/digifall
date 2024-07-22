@@ -1,14 +1,14 @@
 <script>
   import { blur, fly } from "svelte/transition";
 
-  import { KEYS, OVERLAYS } from "./constants.js";
-  import { compare, leaderboardStores, maxSize } from "./leaderboard.js";
+  import { MAX_RECORDS, KEYS, OVERLAYS } from "./constants.js";
+  import { compare, leaderboardStores } from "./leaderboard.js";
   import { options, overlay } from "./stores.js";
 
   const pageSize = 9;
   let page = 0;
 
-  const pageCounts = Math.ceil(maxSize / pageSize);
+  const pageCounts = Math.ceil(MAX_RECORDS / pageSize);
   let type = KEYS.highScore;
   let pagePrev = page;
 
