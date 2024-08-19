@@ -76,6 +76,13 @@
     visible = true;
   }
   $: value = type === KEYS.score ? $score.value : $records[type][KEYS.value];
+  $: title =
+    "current score: " +
+    value +
+    "\nlocal high score: " +
+    $records[KEYS.highScore][KEYS.value] +
+    "\nlocal high combo: " +
+    $records[KEYS.highCombo][KEYS.value];
 </script>
 
 {#key type}
@@ -85,6 +92,7 @@
     class:focus={focused}
     tabindex="0"
     role="button"
+    {title}
     in:blurTransition
     on:click|preventDefault={nextType}
   >

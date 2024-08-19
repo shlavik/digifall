@@ -4,7 +4,7 @@
   import Dialog from "./Dialog.svelte";
   import PlayerName from "./PlayerName.svelte";
 
-  import { INITIAL_VALUES, KEYS, OVERLAYS } from "./constants.js";
+  import { INITIAL_VALUES, OVERLAYS } from "./constants.js";
   import { options, overlay, records, resetGame } from "./stores.js";
 
   let dialogComponent = null;
@@ -56,7 +56,9 @@
         <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
         <label
           for="leaderboard"
-          title="for those who like to share records"
+          title="sharing records {$options.leaderboard
+            ? 'enabled'
+            : 'disabled'}"
           tabindex="0"
           role="button"
         >
@@ -66,7 +68,7 @@
         <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
         <label
           for="rapid"
-          title="pro mode w/o boring animations"
+          title="boring animations {$options.rapid ? 'disabled' : 'enabled'}"
           tabindex="0"
           role="button">rapid mode</label
         >
@@ -77,18 +79,17 @@
           on:click={() => ($options.sound = !$options.sound)}
         />
         <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
-        <label for="sound" title="auditory pleasure" tabindex="0" role="button"
-          >sound effects</label
+        <label
+          for="sound"
+          title="making sounds {$options.sound ? 'enabled' : 'disabled'}"
+          tabindex="0"
+          role="button">sound effects</label
         >
       </div>
     </div>
     <div class="section-4">
       <div class="col">
-        <button
-          type="submit"
-          title="return to main menu"
-          in:fly|global={{ y: 48 }}
-        >
+        <button type="submit" title="[open menu]" in:fly|global={{ y: 48 }}>
           return
         </button>
       </div>

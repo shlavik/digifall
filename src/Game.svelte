@@ -109,6 +109,7 @@
         <button
           class="digifall"
           class:screen
+          title="[open menu]"
           on:click={() => ($overlay = OVERLAYS.menu)}
           bind:this={digifallElement}
         >
