@@ -1,5 +1,6 @@
 <script>
   import { options } from "./stores.js";
+  import { sanitizePlayerName } from "./validation.js";
 
   export let playerName = $options.playerName;
 
@@ -15,9 +16,7 @@
 
   $: {
     let playerNamePrev = playerName;
-    playerName = playerName
-      .toLowerCase()
-      .replace(/[^a-z0-9\@\&\$\!\?\-\+\=\.\:\/\_]/g, "");
+    playerName = sanitizePlayerName(playerName);
     visibility = playerNamePrev !== playerName ? "visible" : "hidden";
     if (playerName === "") inputElement && inputElement.focus();
   }

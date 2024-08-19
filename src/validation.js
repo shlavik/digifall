@@ -3,10 +3,17 @@ import { get, readable, writable } from "svelte/store";
 import { INITIAL_VALUES, KEYS, PHASES } from "./constants.js";
 import { getSeed, initCore } from "./core.js";
 
+export function sanitizePlayerName(playerName) {
+  return playerName.toLowerCase().replace(/[^a-z0-9@&$!?\-+=.:/_]/g, "");
+}
+
 export async function validateRecord(gameData = {}) {
   const { type, moves, playerName, timestamp, value } = gameData;
   if (!type || !moves || !playerName || !timestamp || !value) {
     throw new Error(["RECORD VALIDATION: BAD GAME DATA!", gameData]);
+  }
+  if (sanitizePlayerName(playerName) !== playerName) {
+    throw new Error(["RECORD VALIDATION: BAD PLAYER NAME!", gameData]);
   }
   return new Promise((resolve, reject) => {
     const timer = setTimeout(

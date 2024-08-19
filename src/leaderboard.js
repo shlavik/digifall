@@ -255,7 +255,13 @@ async function forceSync(connection) {
   });
   libp2p.addEventListener("peer:discovery", handlePeerDiscovery);
   libp2p.addEventListener("connection:open", handleConnectionOpen);
-  setInterval(() => restoreRelay().then(forceSync), 6e4);
+  setInterval(
+    () =>
+      restoreRelay()
+        .then(forceSync)
+        .catch((error) => DEBUG && console.error(error)),
+    6e4
+  );
   if (DEBUG) window.libp2p = libp2p;
 })();
 

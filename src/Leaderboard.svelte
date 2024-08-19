@@ -36,7 +36,7 @@
     page = Math.trunc(selfIndex / pageSize);
   }
 
-  function changeType(event) {
+  function switchType(event) {
     type = type === KEYS.highScore ? KEYS.highCombo : KEYS.highScore;
   }
 
@@ -78,11 +78,11 @@
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div
       class="type"
-      title="change leaderboard type"
+      title="[switch leaderboard]"
       tabindex="0"
       role="button"
       in:fly={{ y: -48 }}
-      on:click={changeType}
+      on:click={switchType}
     >
       <span>
         <span>high</span>
@@ -97,7 +97,7 @@
     <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
     <ul
       class="pages"
-      title="select page"
+      title="[select page]"
       tabindex="0"
       role="button"
       on:click={selectPage}
@@ -123,14 +123,13 @@
           {@const nth = page * pageSize + index + 1}
           {@const marginLeft = (nth.toString().length === 1 ? 8 : 14) + "rem"}
           {@const delay = index % 10}
-          {@const title = (
-            "PLACE: " +
+          {@const title =
+            "place: " +
             nth +
-            '\nPLAYER NAME: "' +
-            playerName +
-            '"\nSCORE: ' +
-            value
-          ).toUpperCase()}
+            "\nname: " +
+            playerName.toUpperCase() +
+            "\nscore: " +
+            value}
           <dt class:self style:margin-left={marginLeft} data-nth={nth}>
             <div class="player-name" style:--delay={delay} {title}>
               {playerName}
@@ -145,11 +144,7 @@
   </div>
   <div class="section-4">
     <div class="col">
-      <button
-        title="return to main menu"
-        on:click={showMenu}
-        in:fly={{ y: 48 }}
-      >
+      <button title="[open menu]" on:click={showMenu} in:fly={{ y: 48 }}>
         return
       </button>
     </div>
