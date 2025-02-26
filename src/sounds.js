@@ -13,7 +13,7 @@ const SOUNDS = {
     rate: blinkRateInitial,
   }),
   gameOver: new Howl({
-    src: "/sounds/gameOver.wav",
+    src: "/sounds/game-over.wav",
   }),
   generate: new Howl({
     src: "/sounds/generate.wav",
@@ -23,32 +23,35 @@ const SOUNDS = {
   }),
   kicks: [
     new Howl({
-      src: "/sounds/kick1.wav",
+      src: "/sounds/kick-1.wav",
     }),
     new Howl({
-      src: "/sounds/kick2.wav",
+      src: "/sounds/kick-2.wav",
     }),
   ],
   lowEnergy: new Howl({
-    src: "/sounds/lowEnergy.wav",
+    src: "/sounds/low-energy.wav",
+  }),
+  newRecord: new Howl({
+    src: "/sounds/happy.mp3",
   }),
   plus: new Howl({
     src: "/sounds/plus.wav",
   }),
   slideIn: new Howl({
-    src: "/sounds/slideIn.wav",
+    src: "/sounds/slide-in.wav",
   }),
   slideMove: new Howl({
-    src: "/sounds/slideMove.wav",
+    src: "/sounds/slide-move.wav",
   }),
   slideOut: new Howl({
-    src: "/sounds/slideOut.wav",
+    src: "/sounds/slide-out.wav",
   }),
   turnOn: new Howl({
-    src: "/sounds/turnOn.wav",
+    src: "/sounds/turn-on.wav",
   }),
   wordUp: new Howl({
-    src: "/sounds/wordUp.wav",
+    src: "/sounds/word-up.wav",
   }),
 };
 
@@ -91,6 +94,10 @@ export function playKick() {
   const kick = SOUNDS.kicks[round(random())];
   kick.rate(1 - (random() - 0.5) / 2);
   kick.play();
+}
+
+export function playNewRecord() {
+  SOUNDS.newRecord.play();
 }
 
 export function playSlideIn() {

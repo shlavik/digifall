@@ -102,7 +102,7 @@
 </script>
 
 <div class="game" class:blur={$overlay}>
-  <div class="seedground" style={getSeedgroundStyle($seed)} />
+  <div class="seedground" style={getSeedgroundStyle($seed)}></div>
   <div class="content">
     {#if $seed}
       <div class="section-1">

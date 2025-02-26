@@ -45,11 +45,11 @@
   export function moveLeft() {
     if ($overlay === OVERLAYS.leaderboard) {
       if (!focusElement) return;
-      return focusElement.classList.contains("type")
+      return focusElement.classList.contains("types")
         ? focusElement.click()
-        : focusElement.classList.contains("pages")
-          ? leaderboardComponent.prevPage()
-          : null;
+        : leaderboardComponent.prevPage(
+            focusElement.classList.contains("pages"),
+          );
     }
     if ($overlay !== OVERLAYS.options || optionsComponent.isDialogOpened())
       shiftFocus(-1);
@@ -58,11 +58,11 @@
   export function moveRight() {
     if ($overlay === OVERLAYS.leaderboard) {
       if (!focusElement) return;
-      return focusElement.classList.contains("type")
+      return focusElement.classList.contains("types")
         ? focusElement.click()
-        : focusElement.classList.contains("pages")
-          ? leaderboardComponent.nextPage()
-          : null;
+        : leaderboardComponent.nextPage(
+            focusElement.classList.contains("pages"),
+          );
     }
     if ($overlay !== OVERLAYS.options || optionsComponent.isDialogOpened())
       shiftFocus(-1);
@@ -97,10 +97,12 @@
     if (!selectors || selectors.length < 1) return;
     const selector = selectors.map((s) => ".overlay " + s).join(", ");
     const elements = Array.from(document.querySelectorAll(selector));
-    if (!node) return elements.at(shift < 0 ? shift : 0);
+    if (!node)
+      return shift < 0 ? elements[elements.length + shift] : elements[0];
     if (shift === 0) return node;
     const index = elements.indexOf(node);
-    if (index === -1) return elements.at(shift < 0 ? shift : 0);
+    if (index === -1)
+      return shift < 0 ? elements[elements.length + shift] : elements[0];
     let newIndex = index + shift;
     if (newIndex < 0) newIndex = elements.length + newIndex;
     if (newIndex > elements.length - 1) newIndex = newIndex - elements.length;
@@ -127,6 +129,7 @@
       "button:not(.digifall)",
       "[role='button']",
       "input:not([type='checkbox'])",
+      "[tabindex='-1']",
     ];
     const selector = selectors
       .map((s) => ".overlay " + s + ".focus")

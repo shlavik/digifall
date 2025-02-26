@@ -7,6 +7,7 @@
   import { KEYS, OVERLAYS } from "./constants.js";
   import game, {
     energy,
+    options,
     overlay,
     records,
     resetGame,
@@ -19,8 +20,12 @@
     resetGame();
   }
 
-  function showMenu() {
-    $overlay = OVERLAYS.menu;
+  function showLeaderboard() {
+    $overlay = OVERLAYS.leaderboard;
+  }
+
+  function showOptions() {
+    $overlay = OVERLAYS.options;
   }
 
   $: energyOut = $energy.value === 0;
@@ -52,7 +57,10 @@
     {#if gameOver}
       <div class="col" in:fly|global={{ delay: 600, y: 24 }}>
         <button on:click={startNewGame}>new game</button>
-        <button on:click={showMenu}>main menu</button>
+        {#if $options[KEYS.leaderboard]}
+          <button on:click={showLeaderboard}>p2p leaderboard</button>
+        {/if}
+        <button on:click={showOptions}>options</button>
       </div>
     {/if}
   </div>

@@ -16,6 +16,9 @@ export default defineConfig({
   plugins: [
     svelte({
       compilerOptions: {
+        compatibility: {
+          componentApi: 4,
+        },
         immutable: false,
       },
     }),
