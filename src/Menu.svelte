@@ -48,10 +48,9 @@
       <h1>
         digifall
         {#if $options.rapid}<span class="rapid">rapid</span>{/if}
-        <span class="version">{version}</span>
       </h1>
     </div>
-    <div class="section-2" />
+    <div class="section-2"></div>
     <div class="section-3">
       <div class="col">
         {#if $phase === PHASES.gameOver}
@@ -66,13 +65,14 @@
         <button on:click={showOptions}>options</button>
       </div>
     </div>
-    <div class="section-4" />
+    <div class="section-4"></div>
   </div>
+  <span class="version" in:blur|global>{version}</span>
   <a
     href="https://github.com/shlavik/digifall"
     class="github-corner"
     aria-label="View source on GitHub"
-    in:blur
+    in:blur|global
   >
     <svg viewBox="0 0 250 250" aria-hidden="true">
       <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z" />

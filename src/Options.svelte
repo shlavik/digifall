@@ -44,7 +44,7 @@
     <div class="section-1">
       <span in:fly|global={{ y: -48 }}>options</span>
     </div>
-    <div class="section-2" />
+    <div class="section-2"></div>
     <div class="section-3" in:fly|global={{ y: 24 }}>
       <div class="col">
         <PlayerName bind:this={playerNameComponent} bind:playerName />
@@ -90,7 +90,7 @@
     <div class="section-4">
       <div class="col">
         <button type="submit" title="[open menu]" in:fly|global={{ y: 48 }}>
-          return
+          menu
         </button>
       </div>
     </div>

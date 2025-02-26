@@ -2,7 +2,7 @@ export const DEBUG = Boolean(localStorage.getItem("debug"));
 
 export const RELOAD_IN_SEC = Number(localStorage.getItem("reload"));
 
-export const MAX_RECORDS = 81;
+export const MAX_RECORDS = 1000;
 
 export const CORE = Object.freeze({
   columns: 6,
