@@ -31,10 +31,10 @@
         </span>
       {/if}
     </div>
-    <div class="section-2" />
+    <div class="section-2"></div>
     <div class="section-3" in:fly={{ y: 24 }}>
       <slot />
     </div>
-    <div class="section-4" />
+    <div class="section-4"></div>
   </div>
 {/if}

@@ -33,14 +33,14 @@
     <div class="section-1">
       <h1>digifall</h1>
     </div>
-    <div class="section-2" />
+    <div class="section-2"></div>
     <div class="section-3">
       <div class="col">
         <PlayerName bind:this={playerNameComponent} bind:playerName />
         <button type="submit">start</button>
       </div>
     </div>
-    <div class="section-4" />
+    <div class="section-4"></div>
   </form>
 {/if}
 

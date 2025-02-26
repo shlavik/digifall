@@ -30,6 +30,21 @@
   outline: none;
 }
 
+*::-webkit-scrollbar {
+  width: 1rem;
+  background-color: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  height: 7rem;
+  background-color: var(--color-0);
+}
+
+*::-webkit-scrollbar-thumb:active,
+*::-webkit-scrollbar-thumb:hover {
+  background-color: white;
+}
+
 html,
 body,
 .app,
@@ -83,7 +98,7 @@ html.random-color {
 body {
   overflow: hidden;
   margin: 0;
-  background-color: var(--color-body);
+  background-color: black;
   color: white;
   font-family: pixel, sans-serif;
   font-size: 5rem;
@@ -92,6 +107,7 @@ body {
   text-indent: 2rem;
   text-shadow: var(--shadow-1);
   -webkit-user-select: none;
+  touch-action: manipulation;
   user-select: none;
 }
 
@@ -104,24 +120,13 @@ h1 {
   text-indent: 3rem;
 }
 
-h1 .rapid,
-h1 .version {
-  position: absolute;
-  font-weight: bold;
-}
-
 h1 .rapid {
+  position: absolute;
   top: -6.2rem;
   left: 0;
   font-size: 3.4rem;
+  font-weight: bold;
   letter-spacing: 2rem;
-}
-
-h1 .version {
-  right: 2rem;
-  bottom: -5rem;
-  font-size: 2.6rem;
-  letter-spacing: 1rem;
 }
 
 form {
@@ -133,7 +138,7 @@ input[type="text"],
 input[type="checkbox"] + label {
   position: relative;
   padding: 2rem 4rem;
-  margin: 4rem 0;
+  margin: 4rem 1rem;
   font-family: inherit;
   font-size: 4rem;
   letter-spacing: inherit;
@@ -641,147 +646,6 @@ p.exclam-fix {
   text-indent: 0;
 }
 
-.leaderboard .page,
-.leaderboard .type {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  margin: 0;
-}
-
-.leaderboard .pages {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  margin: auto;
-}
-
-.leaderboard .type {
-  --color: white;
-
-  justify-content: space-evenly;
-  padding: 11rem 0;
-  color: var(--color);
-  cursor: pointer;
-}
-
-.leaderboard .type:active {
-  --color: var(--color-invis-1);
-
-  text-shadow: 0 0 1px white;
-}
-
-.leaderboard .type::before,
-.leaderboard .type::after {
-  display: block;
-  border-style: solid;
-  content: "";
-}
-
-.leaderboard .type::before {
-  border-width: 3rem 3rem 3rem 0;
-  border-color: transparent var(--color) transparent transparent;
-}
-
-.leaderboard .type::after {
-  border-width: 3rem 0 3rem 3rem;
-  border-color: transparent transparent transparent var(--color);
-}
-
-.leaderboard .type:active::before,
-.leaderboard .type:active::after {
-  filter: drop-shadow(0 0 0.75px white);
-}
-
-.leaderboard .page {
-  width: 13rem;
-  height: 13rem;
-  color: var(--color);
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.leaderboard .page.active {
-  border: 1rem solid var(--color);
-  box-shadow: var(--shadow-1), var(--shadow-inset);
-}
-
-.leaderboard .page.active:active {
-  border-color: var(--color-invis-2);
-  box-shadow: 0 0 1px var(--color), inset 0 0 1px var(--color);
-}
-
-.leaderboard .page:active {
-  color: var(--color-invis-2);
-  text-shadow: 0 0 1px var(--color);
-}
-
-.leaderboard dl {
-  position: absolute;
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  align-items: stretch;
-  padding: 0 1rem;
-  margin: 0;
-  font-size: 4rem;
-  list-style: none;
-}
-
-.leaderboard dt {
-  position: relative;
-  height: 5rem;
-  margin: 1rem;
-}
-
-.leaderboard dt::before {
-  position: absolute;
-  top: 5.25rem;
-  right: 100%;
-  color: var(--color-0);
-  content: attr(data-nth);
-  font-weight: bold;
-}
-
-.leaderboard .player-name {
-  overflow: hidden;
-  width: 100%;
-  padding: 1rem 0;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.leaderboard dd {
-  display: flex;
-  height: 4rem;
-  margin: 1rem 0 2rem;
-  text-align: right;
-  text-indent: 0;
-}
-
-.leaderboard dd::before {
-  position: relative;
-  box-sizing: border-box;
-  flex: 1;
-  order: -2;
-  border-top: 0.75rem solid white;
-  border-right: 0.75rem solid white;
-  margin-right: 2rem;
-  content: "";
-}
-
-.leaderboard dt.self,
-.leaderboard dd.self {
-  color: var(--color-random);
-}
-
-.leaderboard dd.self::before {
-  border-color: currentcolor;
-  color: inherit;
-}
-
 .log {
   position: absolute;
   top: 0;
@@ -864,18 +728,21 @@ p.exclam-fix {
   text-indent: 0;
 }
 
-@media (max-aspect-ratio: 1/1) {
-  .overlay .github-corner {
-    display: none;
-  }
-}
-
 .overlay .github-corner .octo-arm {
   transform-origin: 130px 106px;
 }
 
 .overlay .github-corner:hover .octo-arm {
   animation: octocat-wave 560ms ease-in-out;
+}
+
+.overlay .version {
+  position: absolute;
+  font-weight: bold;
+  right: 2rem;
+  bottom: 2rem;
+  font-size: 2.6rem;
+  letter-spacing: 1rem;
 }
 
 .player-name.blink {
@@ -913,7 +780,6 @@ p.exclam-fix {
 .section-3 .row {
   display: flex;
   width: 100%;
-  padding: 0 3rem;
 }
 
 .section-3 .col,
@@ -989,10 +855,6 @@ p.exclam-fix {
   font-size: 3rem;
   line-height: 0;
   text-align: center;
-}
-
-.version {
-  margin-left: auto;
 }
 
 @keyframes blink {
