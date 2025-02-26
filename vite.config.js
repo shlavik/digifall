@@ -1,5 +1,5 @@
-import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { defineConfig } from "vite";
 
 export default defineConfig({
   build: {
@@ -16,6 +16,9 @@ export default defineConfig({
   plugins: [
     svelte({
       compilerOptions: {
+        compatibility: {
+          componentApi: 4,
+        },
         immutable: false,
       },
     }),

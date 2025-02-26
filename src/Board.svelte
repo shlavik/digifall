@@ -182,6 +182,10 @@
     if (!rapid) longpressedIndex = undefined;
   }
 
+  function dblclick(event) {
+    event.preventDefault();
+  }
+
   seed.subscribe(() => blur({ muteSound: true }));
 
   $: if ($matchedIndexes.size > 0) blur({ muteSound: true });
@@ -210,6 +214,7 @@
   on:longpressstart={longpressStart}
   on:longpressfire={longpressFire}
   on:longpressend={longpressEnd}
+  on:dblclick={dblclick}
   use:longpress
   bind:this={boardElement}
 >
@@ -231,11 +236,11 @@
     class:blink
     class:focus={sliderFocus}
     bind:this={sliderHorizontalElement}
-  />
+  ></div>
   <div
     class="slider vertical"
     class:blink
     class:focus={sliderFocus}
     bind:this={sliderVerticalElement}
-  />
+  ></div>
 </div>

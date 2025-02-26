@@ -1,13 +1,15 @@
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
+import { yamux } from "@chainsafe/libp2p-yamux";
 import { bootstrap } from "@libp2p/bootstrap";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
+import { loadOrCreateSelfKey } from "@libp2p/config";
 import { identify } from "@libp2p/identify";
-import { mplex } from "@libp2p/mplex";
-import { createEd25519PeerId, createFromJSON } from "@libp2p/peer-id-factory";
+import { keychain } from "@libp2p/keychain";
 import { plaintext } from "@libp2p/plaintext";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { webSockets } from "@libp2p/websockets";
 import { multiaddr } from "@multiformats/multiaddr";
+import { IDBDatastore } from "datastore-idb";
 import { pipe } from "it-pipe";
 import { createLibp2p } from "libp2p";
 import { get } from "svelte/store";
@@ -23,7 +25,7 @@ import {
   RECORD_TYPES,
 } from "./constants.js";
 import { getSeed, squashIntegers } from "./core.js";
-import { createIndexedDBStore, localStorageStore } from "./persistence.js";
+import { createIndexedDBStore } from "./persistence.js";
 import { options, phase, records } from "./stores.js";
 import { UniQueue } from "./uniqueue.js";
 import { validateRecord } from "./validation.js";
@@ -32,11 +34,13 @@ const PROTOCOLS = {
   root: "/digifall/root/1.0",
   preview: "/digifall/preview/1.0",
 };
-const RELAY_PEER_ID = "12D3KooWRjPoVe5DnnMJzy8PYUwmgrkvgaXSpuR3MuNmbgoSRvio";
+const RELAY_PEER_ID = "12D3KooWP8LPHKp89km1GrGZemAshNGmEUc8KMndHhhAVBMSSKDf";
 const RELAY_MULTIADDR =
   "/dns4/relay.digifall.app/tcp/443/wss/p2p/" + RELAY_PEER_ID;
 
+/** @type {import('@libp2p/interface').Libp2p} */
 let libp2p;
+const blacklist = new Set();
 
 export const indexedDBStore = createIndexedDBStore(
   KEYS.digifall,
@@ -94,44 +98,6 @@ async function validateSource(source) {
   }
 }
 
-async function pushPreview(connection, types) {
-  if (DEBUG) console.log(PROTOCOLS.preview);
-  const messages = types.flatMap((type) =>
-    queues[type].data.map(({ playerName, value }) =>
-      toMessage({ type, playerName, value })
-    )
-  );
-  return connection
-    .newStream(PROTOCOLS.preview, { runOnTransientConnection: true })
-    .then((previewStream) => pipe(messages, previewStream, validateSource))
-    .catch((error) => DEBUG && console.error(error));
-}
-
-async function handleRoot({ connection, stream }) {
-  if (DEBUG) console.log("handleRoot");
-  pipe(
-    stream.source,
-    async function* (source) {
-      const previewTypes = new Set();
-      for await (const message of source) {
-        const [type, remoteRoot] = parseMessage(message);
-        if (remoteRoot === 0) {
-          for (const game of queues[type].data) {
-            yield toMessage(game);
-          }
-          continue;
-        }
-        if (type in roots && remoteRoot !== roots[type]) {
-          previewTypes.add(type);
-        }
-      }
-      if (previewTypes.size === 0 || connection.status !== "open") return;
-      pushPreview(connection, Array.from(previewTypes));
-    },
-    stream.sink
-  ).catch((error) => DEBUG && console.error(error));
-}
-
 async function handlePreview({ stream }) {
   if (DEBUG) console.log("handlePreview");
   pipe(
@@ -163,20 +129,54 @@ async function handlePreview({ stream }) {
   ).catch((error) => DEBUG && console.error(error));
 }
 
-function handlePeerDiscovery({ detail: remotePeer }) {
-  if (DEBUG) console.log("peer:discovery", remotePeer.id.toString());
+async function pushPreview(connection, types) {
+  if (DEBUG) console.log(PROTOCOLS.preview);
+  const messages = types.flatMap((type) =>
+    queues[type].data.map(({ playerName, value }) =>
+      toMessage({ type, playerName, value })
+    )
+  );
+  return connection
+    .newStream(PROTOCOLS.preview, { runOnLimitedConnection: true })
+    .then((previewStream) => pipe(messages, previewStream, validateSource))
+    .catch((error) => DEBUG && console.error(error));
+}
+
+async function handleRoot({ connection, stream }) {
+  if (DEBUG) console.log("handleRoot");
+  pipe(
+    stream.source,
+    async function* (source) {
+      const previewTypes = new Set();
+      for await (const message of source) {
+        const [type, remoteRoot] = parseMessage(message);
+        if (remoteRoot === 0) {
+          for (const game of queues[type].data) {
+            yield toMessage(game);
+          }
+          continue;
+        }
+        if (type in roots && remoteRoot !== roots[type]) {
+          previewTypes.add(type);
+        }
+      }
+      if (previewTypes.size === 0 || connection.status !== "open") return;
+      pushPreview(connection, Array.from(previewTypes));
+    },
+    stream.sink
+  ).catch((error) => DEBUG && console.error(error));
 }
 
 async function pushRoot(connection) {
   if (DEBUG) console.log(PROTOCOLS.root);
   const messages = Object.entries(roots).map(toMessage);
-  connection
-    .newStream(PROTOCOLS.root, { runOnTransientConnection: true })
+  return connection
+    .newStream(PROTOCOLS.root, { runOnLimitedConnection: true })
     .then((rootStream) => pipe(messages, rootStream, validateSource))
     .catch((error) => {
       if (DEBUG) console.error(error);
-      if (error.code === "ERR_UNSUPPORTED_PROTOCOL") {
-        libp2p.components.connectionGater.denyDialPeer(connection.remotePeer);
+      if (error.name === "UnsupportedProtocolError") {
+        blacklist.add(connection.remotePeer.toString());
       }
       connection.close();
     });
@@ -187,13 +187,24 @@ async function handleConnectionOpen({ detail: connection }) {
   if (DEBUG) console.log("connection:open", remotePeerId);
   if (remotePeerId === RELAY_PEER_ID) return;
   if (connection.status !== "open") return;
-  libp2p
-    .getConnections()
-    .filter(({ id, remotePeer }) => {
-      return remotePeer.toString() === remotePeerId && id !== connection.id;
-    })
-    .forEach((connection) => connection.close());
-  pushRoot(connection);
+  // libp2p
+  //   .getConnections()
+  //   .filter(({ id, remotePeer }) => {
+  //     return remotePeer.toString() === remotePeerId && id !== connection.id;
+  //   })
+  //   .forEach((connection) => connection.close());
+  await pushRoot(connection);
+}
+
+async function handlePubsubMessage({ detail: { from: peerId } }) {
+  if (DEBUG) {
+    console.log(
+      "pubsub:message",
+      peerId.toString(),
+      peerId === libp2p.peerId ? "local" : "remote"
+    );
+  }
+  libp2p.dial(peerId).catch(() => {});
 }
 
 async function restoreRelay() {
@@ -202,8 +213,56 @@ async function restoreRelay() {
   return libp2p.dial(multiaddr(RELAY_MULTIADDR));
 }
 
-async function forceSync(connection) {
-  if (connection) return;
+(async function initP2PLeaderboard() {
+  const store = new IDBDatastore("keystore");
+  await store.open();
+  const privateKey = await loadOrCreateSelfKey(store);
+  libp2p = await createLibp2p({
+    privateKey,
+    addresses: {
+      listen: ["/p2p-circuit"],
+    },
+    transports: [webSockets(), circuitRelayTransport({ discoverRelays: 1 })],
+    connectionEncrypters: [plaintext()],
+    streamMuxers: [yamux()],
+    peerDiscovery: [
+      bootstrap({
+        list: [RELAY_MULTIADDR],
+      }),
+      pubsubPeerDiscovery({
+        interval: 13e3,
+        topics: ["digifall._peer-discovery"],
+        listenOnly: false,
+      }),
+    ],
+    connectionGater: {
+      denyDialPeer(remotePeer) {
+        if (blacklist.has(remotePeer.toString())) return true;
+        return libp2p.getConnections().length >= 3;
+      },
+      denyInboundConnection() {
+        return libp2p.getConnections().length >= 5;
+      },
+    },
+    services: {
+      identify: identify({ protocolPrefix: "digifall" }),
+      pubsub: gossipsub({ emitSelf: true }),
+      keychain: keychain(),
+    },
+  });
+  setInterval(() => restoreRelay().catch(() => {}), 73e3);
+  libp2p.services.pubsub.addEventListener("message", handlePubsubMessage);
+  libp2p.addEventListener("connection:open", handleConnectionOpen);
+  libp2p.handle(PROTOCOLS.root, handleRoot, {
+    runOnLimitedConnection: true,
+  });
+  libp2p.handle(PROTOCOLS.preview, handlePreview, {
+    runOnLimitedConnection: true,
+  });
+  if (DEBUG) window.libp2p = libp2p;
+})();
+
+async function forceSync() {
   libp2p
     .getConnections()
     .filter(({ remotePeer, status }) => {
@@ -211,59 +270,6 @@ async function forceSync(connection) {
     })
     .forEach(pushRoot);
 }
-
-(async function initP2PLeaderboard() {
-  const initialPeerId = await createEd25519PeerId();
-  const peerId = await createFromJSON(
-    get(
-      localStorageStore(KEYS.peerId, {
-        id: initialPeerId.toString(),
-        privKey: uint8ArrayToString(initialPeerId.privateKey, "base64pad"),
-        pubKey: uint8ArrayToString(initialPeerId.publicKey, "base64pad"),
-      })
-    )
-  );
-  libp2p = await createLibp2p({
-    peerId,
-    transports: [webSockets(), circuitRelayTransport({ discoverRelays: 1 })],
-    connectionEncryption: [plaintext()],
-    streamMuxers: [mplex()],
-    peerDiscovery: [
-      bootstrap({
-        list: [RELAY_MULTIADDR],
-      }),
-      pubsubPeerDiscovery({
-        interval: 1e4,
-        topics: ["digifall._peer-discovery"],
-        listenOnly: false,
-      }),
-    ],
-    services: {
-      identify: identify({ protocolPrefix: "digifall" }),
-      pubsub: gossipsub({ emitSelf: true }),
-    },
-    connectionManager: {
-      minConnections: 3,
-      maxConnections: 5,
-    },
-  });
-  libp2p.handle(PROTOCOLS.root, handleRoot, {
-    runOnTransientConnection: true,
-  });
-  libp2p.handle(PROTOCOLS.preview, handlePreview, {
-    runOnTransientConnection: true,
-  });
-  libp2p.addEventListener("peer:discovery", handlePeerDiscovery);
-  libp2p.addEventListener("connection:open", handleConnectionOpen);
-  setInterval(
-    () =>
-      restoreRelay()
-        .then(forceSync)
-        .catch((error) => DEBUG && console.error(error)),
-    6e4
-  );
-  if (DEBUG) window.libp2p = libp2p;
-})();
 
 RECORD_TYPES.forEach((type) => {
   const leaderboardStore = leaderboardStores[type];
@@ -277,8 +283,7 @@ RECORD_TYPES.forEach((type) => {
           .sort(compare)
           .map((game) => squashIntegers([getSeed(game), game.value]))
       );
-      if (rootPrev === roots[type]) return;
-      return forceSync();
+      return rootPrev !== roots[type] && libp2p && forceSync();
     }
     Promise.allSettled(
       $leaderboard.map((record) =>

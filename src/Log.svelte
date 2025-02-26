@@ -72,3 +72,50 @@
     <span class="combo">+{combo}</span>
   {/each}
 </ol>
+
+<style>
+  .log {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 1rem 4rem;
+    margin: 0;
+    color: white;
+    font-size: 5rem;
+    letter-spacing: 1rem;
+    line-height: 7rem;
+    list-style-type: none;
+    text-indent: 1rem;
+    text-shadow: var(--gloss), var(--shadow-1);
+  }
+
+  .log li {
+    display: flex;
+    width: 100%;
+    height: 7rem;
+  }
+
+  .log .combo {
+    align-self: flex-end;
+  }
+
+  .log .extra {
+    color: var(--color-random);
+  }
+
+  .log .sum {
+    flex: 1;
+    text-align: right;
+  }
+
+  .log .collapse {
+    margin-top: -7rem;
+  }
+</style>
