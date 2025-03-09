@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "digifall",
+      "package_name": "com.llblab.digifall",
+      "sha256_cert_fingerprints": [
+        "0B:70:FF:C1:47:6E:A9:4A:1A:CA:27:A7:9E:E6:4C:D1:EE:F9:6D:56:4A:28:99:55:6A:C7:01:72:01:6E:C3:AD"
+      ]
+    }
+  }
+]
