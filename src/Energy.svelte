@@ -1,4 +1,6 @@
 <script>
+  import { blur } from "svelte/transition";
+
   import { PHASES } from "./constants.js";
   import { playLowEnergy } from "./sounds.js";
   import { checkSound, energy, phase } from "./stores.js";
@@ -38,3 +40,53 @@
     </span>
   </div>
 </div>
+
+<style>
+  :global .energy {
+    position: relative;
+    display: flex;
+    width: 100%;
+    background-color: var(--color-dark);
+    box-shadow: var(--gloss-inset), var(--shadow-inset);
+    font-size: 7rem;
+    letter-spacing: 0;
+    text-indent: 1rem;
+
+    .left-bar,
+    .right-bar {
+      overflow: hidden;
+      padding: 1rem 0;
+      box-shadow: var(--gloss), var(--shadow-1);
+    }
+
+    .left-bar {
+      background-color: white;
+      text-align: right;
+
+      .left-value {
+        right: 0;
+        color: var(--color-dark);
+      }
+    }
+
+    .right-bar {
+      background-color: var(--color-dark);
+
+      &.extra {
+        background-color: var(--color-random);
+      }
+
+      .right-value {
+        color: white;
+
+        span {
+          position: absolute;
+        }
+      }
+    }
+
+    .warning {
+      animation: flick 2s infinite;
+    }
+  }
+</style>

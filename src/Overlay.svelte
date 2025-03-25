@@ -155,3 +155,28 @@
     {/if}
   </div>
 {/if}
+
+<style>
+  :global .overlay {
+    position: fixed;
+    z-index: 3;
+    width: 100%;
+    background-color: var(--color-black-08);
+
+    button {
+      height: 9rem;
+      padding: 0;
+      border: 1rem solid white;
+      margin: 6rem 0;
+      box-shadow: var(--shadow-2);
+
+      &:active {
+        border: 0.75rem solid white;
+      }
+
+      .section-4 & {
+        margin: 0;
+      }
+    }
+  }
+</style>

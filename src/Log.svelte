@@ -89,10 +89,9 @@
     margin: 0;
     color: white;
     font-size: 5rem;
-    letter-spacing: 1rem;
+    letter-spacing: 0.5rem;
     line-height: 7rem;
     list-style-type: none;
-    text-indent: 1rem;
     text-shadow: var(--gloss), var(--shadow-1);
   }
 

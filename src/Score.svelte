@@ -102,3 +102,49 @@
     {/if}
   </span>
 {/key}
+
+<style>
+  :global .score {
+    display: flex;
+    align-items: baseline;
+    padding: 2rem 0;
+    margin: 1rem 3rem;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &.focus,
+    &:active {
+      text-shadow: var(--shadow-0);
+    }
+
+    &:active {
+      color: var(--color-base);
+    }
+
+    &:not(:active).focus {
+      box-shadow:
+        1px 1px var(--color-dark),
+        1px -1px var(--color-dark),
+        -1px -1px var(--color-dark),
+        -1px 1px var(--color-dark);
+      outline-offset: -1px;
+    }
+
+    &.focus .type,
+    &:hover .type,
+    .type.visible {
+      display: inline;
+    }
+
+    .type {
+      display: none;
+    }
+
+    .value {
+      width: 100%;
+      font-size: 6.5rem;
+      font-weight: bold;
+      text-align: right;
+    }
+  }
+</style>

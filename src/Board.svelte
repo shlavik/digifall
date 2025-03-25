@@ -244,3 +244,103 @@
     bind:this={sliderVerticalElement}
   ></div>
 </div>
+
+<style>
+  :global .board {
+    position: relative;
+    width: 128rem;
+    height: 128rem;
+    border: 1rem solid var(--color-dark);
+    background-color: var(--color-body);
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill-opacity=".6"><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
+    background-size: 6rem;
+    box-shadow: var(--gloss-inset), var(--shadow-inset);
+
+    &::before {
+      position: absolute;
+      z-index: 1;
+      top: -1rem;
+      left: -1rem;
+      display: block;
+      width: 128rem;
+      height: 1rem;
+      box-shadow: var(--shadow-inset);
+      content: "";
+    }
+
+    &.overflow .slider {
+      border-color: transparent;
+    }
+
+    &:not(.progress) .slider {
+      transition-duration: 200ms;
+      transition-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);
+    }
+
+    .slider {
+      position: absolute;
+      z-index: 1;
+      top: -1rem;
+      right: -1rem;
+      bottom: -1rem;
+      left: -1rem;
+      width: 128rem;
+      height: 128rem;
+      border-width: 0;
+      border-style: solid;
+      border-color: white;
+      background-color: transparent;
+      mix-blend-mode: luminosity;
+      outline-color: transparent;
+      outline-offset: -1px;
+      outline-style: solid;
+      pointer-events: none;
+
+      &.blink {
+        opacity: 0.8;
+      }
+
+      &.focus {
+        animation: focus 250ms ease-in;
+        background-color: var(--color-ghost);
+        outline-color: var(--color-focus);
+      }
+
+      &.horizontal {
+        border-right-width: 1rem;
+        border-left-width: 1rem;
+        transition-property: top, bottom, height, background-color;
+
+        &.blink {
+          animation:
+            blink 200ms steps(2, end) 2,
+            shrink-vertical 400ms ease 400ms forwards;
+        }
+
+        &.focus {
+          top: calc(126rem - 21rem * (var(--focus-y) + 1));
+          bottom: calc(var(--focus-y) * 21rem);
+          height: 21rem;
+        }
+      }
+
+      &.vertical {
+        border-top-width: 1rem;
+        border-bottom-width: 1rem;
+        transition-property: right, left, width, background-color;
+
+        &.blink {
+          animation:
+            blink 200ms steps(2, end) 2,
+            shrink-horizontal 400ms ease 400ms forwards;
+        }
+
+        &.focus {
+          right: calc(126rem - 21rem * (var(--focus-x) + 1));
+          left: calc(var(--focus-x) * 21rem);
+          width: 21rem;
+        }
+      }
+    }
+  }
+</style>

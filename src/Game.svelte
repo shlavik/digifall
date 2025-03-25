@@ -132,3 +132,60 @@
     {/if}
   </div>
 </div>
+
+<style>
+  :global .game {
+    .seedground {
+      position: absolute;
+      top: 50%;
+      right: 50%;
+      bottom: 50%;
+      left: 50%;
+      width: 100vh;
+      height: 100vw;
+      background-blend-mode: difference;
+      background-position: center;
+      transform: translate(-50%, -50%) rotate(90deg);
+    }
+
+    .content {
+      background-color: var(--color-base);
+      box-shadow:
+        -1rem 0 0 0 var(--color-base),
+        1rem 0 0 0 var(--color-base),
+        0 0 3rem 2rem var(--color-black-04);
+    }
+
+    .digifall {
+      display: flex;
+      overflow: hidden;
+      width: 100%;
+      flex-grow: 1;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      margin: auto;
+      background-color: var(--color-dark);
+      box-shadow: var(--gloss-inset), var(--shadow-inset);
+      color: var(--color-0);
+      font-size: inherit;
+      font-weight: bold;
+      outline-offset: -3px;
+      text-shadow: var(--gloss), var(--shadow-1);
+
+      &:active,
+      &.screen {
+        color: var(--color-dark);
+      }
+
+      &.focus,
+      &:active,
+      &.screen,
+      &.screen.focus,
+      &.screen:hover {
+        background-color: var(--color-dark);
+        text-shadow: var(--shadow-0);
+      }
+    }
+  }
+</style>

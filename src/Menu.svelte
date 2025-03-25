@@ -99,3 +99,32 @@
     </div>
   </div>
 </Dialog>
+
+<style>
+  .github-corner {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 20rem;
+    color: black;
+    fill: white;
+    text-indent: 0;
+  }
+
+  .github-corner .octo-arm {
+    transform-origin: 130px 106px;
+  }
+
+  .github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out;
+  }
+
+  .version {
+    position: absolute;
+    font-weight: bold;
+    right: 2rem;
+    bottom: 2rem;
+    font-size: 2.5rem;
+    letter-spacing: 0.5rem;
+  }
+</style>

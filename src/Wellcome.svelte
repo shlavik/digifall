@@ -50,8 +50,8 @@
   bind:opened={dialogOpened}
 >
   <div class="col">
-    <p>this game doesn't contain tutorial mode!</p>
-    <p>the rules may not be obvious at first, but they're pretty simple!</p>
+    <p>Game doesn't contain tutorial mode!</p>
+    <p>Target: understand how to play it</p>
     <button on:click={dialogComponent.close}>continue</button>
   </div>
 </Dialog>

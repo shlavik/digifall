@@ -223,7 +223,7 @@
 </div>
 
 <style>
-  .leaderboard :global(.virtual-list) {
+  :global .leaderboard .virtual-list {
     margin: 4rem 0 12rem;
   }
 
@@ -341,7 +341,7 @@
     box-shadow: none;
     font-size: 4rem;
     list-style: none;
-    letter-spacing: 1rem;
+    letter-spacing: 0.5rem;
     background-color: transparent;
   }
 
@@ -357,22 +357,22 @@
   }
 
   .grid.first {
-    zoom: 1.22;
+    zoom: 1.18;
   }
 
   .grid.second {
-    zoom: 1.13;
+    zoom: 1.12;
   }
 
   .grid.third {
-    zoom: 1.05;
+    zoom: 1.06;
   }
 
   .place {
     grid-area: a;
     display: grid;
     align-items: center;
-    margin-top: 1.5rem;
+    padding-top: 2rem;
     color: var(--color-0);
     text-shadow: var(--gloss);
   }

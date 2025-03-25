@@ -84,3 +84,49 @@
     {/if}
   </div>
 </div>
+
+<style>
+  :global .game-over {
+    &.new-record {
+      h1,
+      .score {
+        color: var(--color-random);
+      }
+
+      .score:active {
+        text-shadow: 0 0 1px var(--color-random);
+      }
+    }
+
+    .score:active {
+      color: var(--color-invis-2);
+      text-shadow: var(--glow);
+    }
+
+    .energy {
+      background-color: transparent;
+      box-shadow: none;
+    }
+
+    .left-value {
+      color: black;
+    }
+
+    .energy-out {
+      position: absolute;
+      width: 100%;
+      height: 7rem;
+      padding-top: 2rem;
+      padding-left: 11rem;
+      font-size: 0;
+      text-indent: 0;
+
+      .letter {
+        display: inline-block;
+        min-width: 7rem;
+        font-size: 5rem;
+        font-weight: bold;
+      }
+    }
+  }
+</style>

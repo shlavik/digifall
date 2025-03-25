@@ -88,7 +88,7 @@ export function getNextCardValue(value) {
 
 export function getFieldFromCards($cards) {
   const field = Array.from({ length: CORE.columns }, () =>
-    Array.from({ length: 2 * CORE.rows })
+    Array.from({ length: 2 * CORE.rows }),
   );
   $cards.forEach(({ x, y }, index) => (field[x][y] = index));
   return field;
@@ -122,7 +122,7 @@ function getFallenCards(game, $cards) {
   checkSound(
     game,
     () => set.forEach((delay) => setTimeout(game.sounds.playKick, delay)),
-    { muteRapid: true }
+    { muteRapid: true },
   );
   return result;
 }
@@ -157,7 +157,7 @@ function getMatchedFromCards($cards) {
       counts: 0,
       digits: new Set(),
       indexes: new Set(),
-    }
+    },
   );
 }
 
@@ -221,8 +221,8 @@ function doEnergyLogic(game, { buffer, value }) {
     rapid || game.movesInitial
       ? buffer
       : $phase === PHASES.gameOver
-      ? sign(buffer)
-      : getDiffFromBuffer(buffer);
+        ? sign(buffer)
+        : getDiffFromBuffer(buffer);
   if ($phase === PHASES.extra) {
     if (buffer === 0) {
       checkRapid(game, () => game.phase.set(PHASES.combo), 800);
@@ -249,7 +249,7 @@ function doEnergyLogic(game, { buffer, value }) {
         value: value + diff,
       });
     },
-    $phase === PHASES.gameOver ? 200 : 32
+    $phase === PHASES.gameOver ? 200 : 32,
   );
 }
 
@@ -275,7 +275,7 @@ function doIdlePhase(game) {
     return;
   }
   game.cards.update(($cards) =>
-    $cards.map((card) => ((card.duration = 0), card))
+    $cards.map((card) => ((card.duration = 0), card)),
   );
   checkLocalScore(game, KEYS.highScore, get(game.score).value);
   checkSound(game, game.sounds.reset);
@@ -295,8 +295,8 @@ function doPlusPhase(game) {
             nextValue: getNextCardValue(value),
             duration: 0,
           };
-        })
-      )
+        }),
+      ),
     );
     return undefined;
   });
@@ -319,12 +319,12 @@ function doBlinkPhase(game) {
           result.counts = counts;
           result.digits = Array.from(digits);
           return result;
-        }, {})
-      )
+        }, {}),
+      ),
     );
     const buffer = indexesArray.reduce(
       (result, index) => result + $cards[index].value,
-      0
+      0,
     );
     checkRapid(game, () => game.energy.set({ buffer, value }), 400);
     checkRapid(game, () => game.phase.set(PHASES.match), 800);
@@ -351,7 +351,7 @@ function doBlinkPhase(game) {
 function doMatchPhase(game) {
   game.matchedIndexes.update(($matchedIndexes) => {
     game.cards.update(($cards) =>
-      getClusteredCards(game, getMatchedCards(game, $cards, $matchedIndexes))
+      getClusteredCards(game, getMatchedCards(game, $cards, $matchedIndexes)),
     );
     return new Set();
   });
@@ -360,7 +360,7 @@ function doMatchPhase(game) {
 
 function doFallPhase(game) {
   game.cards.update(($cards) =>
-    getClusteredCards(game, getFallenCards(game, $cards))
+    getClusteredCards(game, getFallenCards(game, $cards)),
   );
   checkRapid(game, () => game.phase.set(PHASES.blink), 400);
 }
@@ -375,7 +375,7 @@ export function getComboFromLog($log) {
   return $log.reduce(
     (result, { counts, extra, sum }, index) =>
       result + (index + 1) * (sum || extra) * (counts || 1),
-    0
+    0,
   );
 }
 
@@ -390,7 +390,7 @@ function doComboPhase(game) {
   checkRapid(
     game,
     () => game.phase.set(PHASES.score),
-    $log.length > 1 ? 800 : 0
+    $log.length > 1 ? 800 : 0,
   );
   checkSound(game, game.sounds.playWordUp, { muteRapid: true });
 }
@@ -413,7 +413,7 @@ function doGameOverPhase(game) {
         value,
       }));
     },
-    400
+    400,
   );
 }
 
@@ -483,11 +483,11 @@ function doScoreLogic(game, { buffer, value }) {
       () => {
         game.log.set([]);
         game.phase.set(
-          get(game.energy).value < 10 ? PHASES.gameOver : PHASES.idle
+          get(game.energy).value < 10 ? PHASES.gameOver : PHASES.idle,
         );
         checkSound(game, game.sounds.playTurnOn);
       },
-      200
+      200,
     );
     return;
   }
@@ -496,8 +496,8 @@ function doScoreLogic(game, { buffer, value }) {
     rapid || game.movesInitial
       ? buffer
       : $phase === PHASES.gameOver
-      ? sign(buffer)
-      : getDiffFromBuffer(buffer);
+        ? sign(buffer)
+        : getDiffFromBuffer(buffer);
   checkRapid(
     game,
     () => {
@@ -506,7 +506,7 @@ function doScoreLogic(game, { buffer, value }) {
         value: value + diff,
       });
     },
-    $phase === PHASES.gameOver ? 200 : getTimeFromDiff(diff)
+    $phase === PHASES.gameOver ? 200 : getTimeFromDiff(diff),
   );
   checkSound(game, game.sounds.playBleep, { muteRapid: true });
 }
@@ -557,7 +557,7 @@ function getInitialCards(game) {
         nextValue: getNextCardValue(value),
         duration: 0,
       }
-    )
+    ),
   );
 }
 
@@ -574,7 +574,7 @@ function doSeedLogic(game, $seed) {
   if (!$seed) return;
   game.getNextCardValue = createGetNextCardValue($seed);
   game.cards.set(
-    getClusteredCards(game, getPreparedCards(game, getInitialCards(game)))
+    getClusteredCards(game, getPreparedCards(game, getInitialCards(game))),
   );
   let $moves = get(game.moves);
   if (!$moves) return;
