@@ -87,6 +87,11 @@
       "src": "/images/screenshot_3.png",
       "sizes": "1439x2881",
       "type": "image/png"
+    },
+    {
+      "src": "/images/screenshot_w_0.png",
+      "sizes": "1920x1080",
+      "type": "image/png"
     }
   ]
 }
