@@ -1,6 +1,7 @@
 {
   "dir": "ltr",
   "lang": "en",
+  "id": "com.llblab.digifall",
   "name": "Digifall",
   "short_name": "Digifall",
   "description": "Deterministic survival adventures",
@@ -9,7 +10,7 @@
   "display": "standalone",
   "theme_color": "#000000",
   "background_color": "#000000",
-  "categories": ["games", "entertainment"],
+  "categories": ["games", "entertainment", "kids"],
   "icons": [
     {
       "src": "/images/icon-48x48.png",
@@ -63,7 +64,7 @@
       "src": "/images/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any"
     }
   ],
   "screenshots": [

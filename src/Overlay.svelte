@@ -173,10 +173,10 @@
       &:active {
         border: 0.75rem solid white;
       }
+    }
 
-      .section-4 & {
-        margin: 0;
-      }
+    .section-4 button {
+      margin: 0;
     }
   }
 </style>

@@ -1,4 +1,6 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import Autoprefixer from "autoprefixer";
+import PostcssNested from "postcss-nested";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -23,4 +25,9 @@ export default defineConfig({
       },
     }),
   ],
+  css: {
+    postcss: {
+      plugins: [Autoprefixer, PostcssNested],
+    },
+  },
 });
