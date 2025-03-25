@@ -172,6 +172,7 @@
 
       &:active {
         border: 0.75rem solid white;
+        letter-spacing: 1.1rem;
       }
     }
 
