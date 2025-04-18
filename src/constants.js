@@ -2,6 +2,8 @@ export const DEBUG = Boolean(localStorage.getItem("debug"));
 
 export const RELOAD_IN_SEC = Number(localStorage.getItem("reload"));
 
+export const ALLOW_ALL_RELAYS = Boolean(localStorage.getItem("aar"));
+
 export const MAX_RECORDS = 1000;
 
 export const CORE = Object.freeze({

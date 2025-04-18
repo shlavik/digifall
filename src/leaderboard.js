@@ -17,6 +17,7 @@ import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 
 import {
+  ALLOW_ALL_RELAYS,
   DEBUG,
   INITIAL_VALUES,
   KEYS,
@@ -34,9 +35,16 @@ const PROTOCOLS = {
   root: "/digifall/root/1.0",
   preview: "/digifall/preview/1.0",
 };
-const RELAY_PEER_ID = "12D3KooWP8LPHKp89km1GrGZemAshNGmEUc8KMndHhhAVBMSSKDf";
-const RELAY_MULTIADDR =
-  "/dns4/relay.digifall.app/tcp/443/wss/p2p/" + RELAY_PEER_ID;
+const RELAY_PEER_ID_1 = "12D3KooWPtwHvQJPynCEtb4ZXN9fCTEABJnrSdX6aq3nczNwdUTw";
+const RELAY_PEER_ID_2 = "12D3KooWLfyJ73CXB57rFZuSuL1AVyVZxrwGmbzRNq8jDPJzfFRa";
+const ALL_RELAY_PEER_IDS = [RELAY_PEER_ID_1, RELAY_PEER_ID_2];
+const RELAY_MULTIADDR_1 =
+  "/dns4/r1.digifall.app/tcp/443/wss/p2p/" + RELAY_PEER_ID_1;
+const RELAY_MULTIADDR_2 =
+  "/dns4/r2.digifall.app/tcp/443/wss/p2p/" + RELAY_PEER_ID_2;
+const ALL_RELAY_MULTIADDRS = [RELAY_MULTIADDR_1, RELAY_MULTIADDR_2];
+
+let currentRelayIndex = -1;
 
 /** @type {import('@libp2p/interface').Libp2p} */
 let libp2p;
@@ -44,7 +52,7 @@ const blacklist = new Set();
 
 export const indexedDBStore = createIndexedDBStore(
   KEYS.digifall,
-  KEYS.leaderboard
+  KEYS.leaderboard,
 );
 
 export const leaderboardStores = RECORD_TYPES.reduce((result, type) => {
@@ -55,8 +63,9 @@ export const leaderboardStores = RECORD_TYPES.reduce((result, type) => {
 export function compare(a, b) {
   if (a.value > b.value) return 1;
   if (a.value < b.value) return -1;
-  if (a.timestamp === b.timestamp) return 0;
-  return a.timestamp < b.timestamp ? 1 : -1;
+  if (a.timestamp < b.timestamp) return -1;
+  if (a.timestamp > b.timestamp) return 1;
+  return 0;
 }
 
 function extractKey({ playerName }) {
@@ -85,6 +94,7 @@ async function validateSource(source) {
   for await (const message of source) {
     const game = parseMessage(message);
     const { type, playerName, value } = game;
+    if (!queues[type]) continue;
     const { data, indexes } = queues[type];
     const index = indexes.get(playerName);
     if (index in data && data[index].value >= value) continue;
@@ -110,7 +120,8 @@ async function handlePreview({ stream }) {
       }, {});
       for await (const message of source) {
         const { type, playerName, value } = parseMessage(message);
-        if (type in roots) touchedTypes.add(type);
+        if (type in queues) touchedTypes.add(type);
+        else continue;
         const index = queues[type].indexes.get(playerName);
         if (index === undefined) continue;
         if (queues[type].data[index].value > value) continue;
@@ -119,13 +130,13 @@ async function handlePreview({ stream }) {
       const messages = Array.from(touchedTypes).flatMap((type) =>
         queues[type].data
           .filter((game) => !skippedNames[type].has(game.playerName))
-          .map(toMessage)
+          .map(toMessage),
       );
       for (const message of messages) {
         yield message;
       }
     },
-    stream.sink
+    stream.sink,
   ).catch((error) => DEBUG && console.error(error));
 }
 
@@ -133,8 +144,8 @@ async function pushPreview(connection, types) {
   if (DEBUG) console.log(PROTOCOLS.preview);
   const messages = types.flatMap((type) =>
     queues[type].data.map(({ playerName, value }) =>
-      toMessage({ type, playerName, value })
-    )
+      toMessage({ type, playerName, value }),
+    ),
   );
   return connection
     .newStream(PROTOCOLS.preview, { runOnLimitedConnection: true })
@@ -150,6 +161,7 @@ async function handleRoot({ connection, stream }) {
       const previewTypes = new Set();
       for await (const message of source) {
         const [type, remoteRoot] = parseMessage(message);
+        if (!(type in roots)) continue;
         if (remoteRoot === 0) {
           for (const game of queues[type].data) {
             yield toMessage(game);
@@ -163,7 +175,7 @@ async function handleRoot({ connection, stream }) {
       if (previewTypes.size === 0 || connection.status !== "open") return;
       pushPreview(connection, Array.from(previewTypes));
     },
-    stream.sink
+    stream.sink,
   ).catch((error) => DEBUG && console.error(error));
 }
 
@@ -185,14 +197,8 @@ async function pushRoot(connection) {
 async function handleConnectionOpen({ detail: connection }) {
   const remotePeerId = connection.remotePeer.toString();
   if (DEBUG) console.log("connection:open", remotePeerId);
-  if (remotePeerId === RELAY_PEER_ID) return;
+  if (ALL_RELAY_PEER_IDS.includes(remotePeerId)) return;
   if (connection.status !== "open") return;
-  // libp2p
-  //   .getConnections()
-  //   .filter(({ id, remotePeer }) => {
-  //     return remotePeer.toString() === remotePeerId && id !== connection.id;
-  //   })
-  //   .forEach((connection) => connection.close());
   await pushRoot(connection);
 }
 
@@ -201,16 +207,39 @@ async function handlePubsubMessage({ detail: { from: peerId } }) {
     console.log(
       "pubsub:message",
       peerId.toString(),
-      peerId === libp2p.peerId ? "local" : "remote"
+      peerId === libp2p.peerId ? "local" : "remote",
     );
   }
   libp2p.dial(peerId).catch(() => {});
 }
 
+function getCurrentRelayPeerId() {
+  if (currentRelayIndex === -1) {
+    return ALL_RELAY_PEER_IDS[
+      (currentRelayIndex = Math.floor(
+        Math.random() * ALL_RELAY_PEER_IDS.length,
+      ))
+    ];
+  }
+  return ALL_RELAY_PEER_IDS[currentRelayIndex];
+}
+
 async function restoreRelay() {
-  if (libp2p.getConnections().length !== 0) return false;
+  if (libp2p.getConnections().length > 0) return;
   if (DEBUG) console.log("restoreRelay");
-  return libp2p.dial(multiaddr(RELAY_MULTIADDR));
+  getCurrentRelayPeerId(); // Initialize current relay index
+  return libp2p
+    .dial(
+      multiaddr(
+        ALL_RELAY_MULTIADDRS[
+          (currentRelayIndex =
+            (currentRelayIndex + 1) % ALL_RELAY_PEER_IDS.length) // Next relay
+        ],
+      ),
+    )
+    .catch((ee) => {
+      console.error("Failed to restore relay", ee);
+    });
 }
 
 (async function initP2PLeaderboard() {
@@ -222,12 +251,12 @@ async function restoreRelay() {
     addresses: {
       listen: ["/p2p-circuit"],
     },
-    transports: [webSockets(), circuitRelayTransport({ discoverRelays: 1 })],
+    transports: [webSockets(), circuitRelayTransport()],
     connectionEncrypters: [plaintext()],
     streamMuxers: [yamux()],
     peerDiscovery: [
       bootstrap({
-        list: [RELAY_MULTIADDR],
+        list: ALL_RELAY_MULTIADDRS,
       }),
       pubsubPeerDiscovery({
         interval: 13e3,
@@ -237,8 +266,14 @@ async function restoreRelay() {
     ],
     connectionGater: {
       denyDialPeer(remotePeer) {
-        if (blacklist.has(remotePeer.toString())) return true;
-        return libp2p.getConnections().length >= 3;
+        const remotePeerId = remotePeer.toString();
+        if (blacklist.has(remotePeerId)) return true;
+        if (libp2p.getConnections().length >= 3) return true;
+        if (ALLOW_ALL_RELAYS) return false;
+        if (ALL_RELAY_PEER_IDS.includes(remotePeerId)) {
+          return remotePeerId !== getCurrentRelayPeerId();
+        }
+        return false;
       },
       denyInboundConnection() {
         return libp2p.getConnections().length >= 5;
@@ -266,7 +301,9 @@ async function forceSync() {
   libp2p
     .getConnections()
     .filter(({ remotePeer, status }) => {
-      return status === "open" && remotePeer.toString() !== RELAY_PEER_ID;
+      return (
+        status === "open" && !ALL_RELAY_PEER_IDS.includes(remotePeer.toString())
+      );
     })
     .forEach(pushRoot);
 }
@@ -281,14 +318,14 @@ RECORD_TYPES.forEach((type) => {
         $leaderboard
           .slice()
           .sort(compare)
-          .map((game) => squashIntegers([getSeed(game), game.value]))
+          .map((game) => squashIntegers([getSeed(game), game.value])),
       );
       return rootPrev !== roots[type] && libp2p && forceSync();
     }
     Promise.allSettled(
       $leaderboard.map((record) =>
-        validateRecord(record).then((game) => queues[type].push(game))
-      )
+        validateRecord(record).then((game) => queues[type].push(game)),
+      ),
     ).then(() => leaderboardStore.set(queues[type].data));
   });
 });
