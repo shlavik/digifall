@@ -58,7 +58,7 @@
   </div>
 </div>
 
-<style>
+<style lang="postcss">
   .virtual-scroll {
     width: 100%;
     height: 100%;

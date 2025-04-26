@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-idiomatic-order",
+    "stylelint-config-css-modules",
+    "stylelint-config-html"
+  ],
+  "rules": {
+    "at-rule-empty-line-before": null,
+    "media-feature-range-notation": "prefix",
+    "no-descending-specificity": null,
+    "rule-empty-line-before": null,
+    "selector-type-no-unknown": null
+  },
+  "validate": ["css", "postcss", "html", "svelte"]
+}

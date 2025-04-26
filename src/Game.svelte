@@ -133,18 +133,15 @@
   </div>
 </div>
 
-<style>
+<style lang="postcss">
   :global .game {
     .seedground {
       position: absolute;
-      top: 50%;
-      right: 50%;
-      bottom: 50%;
-      left: 50%;
       width: 100vh;
       height: 100vw;
       background-blend-mode: difference;
       background-position: center;
+      inset: 50%;
       transform: translate(-50%, -50%) rotate(90deg);
     }
 
@@ -166,7 +163,7 @@
       border: none;
       margin: auto;
       background-color: var(--color-dark);
-      box-shadow: var(--gloss-inset), var(--shadow-inset);
+      box-shadow: var(--shadow-inset), var(--gloss-inset);
       color: var(--color-0);
       font-size: inherit;
       font-weight: bold;

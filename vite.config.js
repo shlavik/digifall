@@ -35,7 +35,7 @@ export default defineConfig({
   ],
   css: {
     postcss: {
-      plugins: [Autoprefixer, PostcssNested],
+      plugins: [PostcssNested, Autoprefixer],
     },
   },
 });

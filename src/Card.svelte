@@ -29,11 +29,16 @@
       class:cluster-right={card.cluster && card.cluster.right}
       class:cluster-bottom={card.cluster && card.cluster.bottom}
       class:cluster-left={card.cluster && card.cluster.left}
+      class:only-shadow={card.y === 5}
       style:--color="var(--color-{card.value})"
     >
       {card.value}
     </div>
-    <div class="next" style:--color="var(--color-{nextValue})">
+    <div
+      class="next"
+      class:only-shadow={card.y === 5}
+      style:--color="var(--color-{nextValue})"
+    >
       {nextValue}
     </div>
   </div>
@@ -42,11 +47,11 @@
 <style>
   :global .card {
     position: absolute;
+    z-index: var(--card-y);
     bottom: calc(var(--card-y) * 21rem);
     left: calc(var(--card-x) * 21rem);
     width: 21rem;
     height: 21rem;
-    box-shadow: var(--shadow-2);
     cursor: pointer;
     transition-duration: calc(var(--card-duration) * 1ms);
     transition-property: bottom;
@@ -107,7 +112,7 @@
 
     .board:not(.progress) & {
       &.focus {
-        z-index: 2;
+        z-index: 20;
         box-shadow: none;
         filter: drop-shadow(0 0 1px white) drop-shadow(0 0 1px white)
           drop-shadow(0 0 1px white) drop-shadow(0 0 1px white);
@@ -122,6 +127,7 @@
       }
 
       &.longpress {
+        z-index: var(--card-y);
         filter: none;
         transform: none;
 
@@ -155,16 +161,14 @@
       --bottom-left: 17% 110%, -10% 83%;
 
       position: absolute;
-      z-index: 1;
+      z-index: 10;
+      display: flex;
       width: 21rem;
       height: 21rem;
-      display: flex;
-      justify-content: center;
       align-items: center;
-      -webkit-backface-visibility: hidden;
+      justify-content: center;
       backface-visibility: hidden;
       background-color: var(--color);
-      box-shadow: var(--shadow-0);
       clip-path: polygon(
         var(--top-left),
         var(--top-right),
@@ -172,15 +176,52 @@
         var(--bottom-left)
       );
       color: white;
+      filter: drop-shadow(var(--gloss)) drop-shadow(var(--shadow-0));
       font-size: 12rem;
       letter-spacing: 1rem;
       text-indent: 3rem;
       transition: clip-path 200ms ease;
+
+      &.only-shadow {
+        filter: drop-shadow(var(--shadow-0));
+      }
     }
 
     .next {
-      box-shadow: var(--gloss), var(--shadow-1);
+      filter: var(--gloss) var(--shadow-1);
       transform: rotateY(-180deg);
+    }
+
+    @keyframes blink {
+      from {
+        background-color: white;
+        color: var(--color);
+      }
+
+      to {
+        background-color: var(--color);
+        color: white;
+      }
+    }
+
+    @keyframes fade-out {
+      from {
+        clip-path: circle(100%);
+      }
+
+      to {
+        clip-path: circle(0%);
+      }
+    }
+
+    @keyframes longpress {
+      from {
+        clip-path: circle(0%);
+      }
+
+      to {
+        clip-path: circle(100%);
+      }
     }
   }
 </style>

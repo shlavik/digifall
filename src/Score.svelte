@@ -103,12 +103,12 @@
   </span>
 {/key}
 
-<style>
+<style lang="postcss">
   :global .score {
     display: flex;
     align-items: baseline;
-    padding: 2rem 0;
-    margin: 1rem 3rem;
+    padding: 3rem;
+    padding-left: 3.5rem;
     cursor: pointer;
     white-space: nowrap;
 

@@ -147,7 +147,8 @@
       on:click={switchType}
     >
       <span class="type" class:active={type === KEYS.highCombo}>combos</span>
-      <span class="high">high</span>
+      <span class="high">high &gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;</span
+      >
       <span class="type" class:active={type === KEYS.highScore}>scores</span>
     </div>
   </div>
@@ -222,7 +223,7 @@
   </div>
 </div>
 
-<style>
+<style lang="postcss">
   :global .leaderboard .virtual-list {
     margin: 4rem 0 12rem;
   }
@@ -230,50 +231,35 @@
   .types {
     position: relative;
     display: flex;
-    flex-direction: column;
     height: 100%;
+    flex-direction: column;
     align-items: flex-end;
     justify-content: center;
     cursor: pointer;
-    text-shadow: var(--gloss);
+    filter: drop-shadow(var(--gloss));
   }
 
   .types:active .high,
   .types:active .active {
     color: var(--color-invis-1);
-    border-color: var(--color-invis-1);
-    text-shadow: 0 0 1px white;
-  }
-
-  .types:active .high {
-    box-shadow:
-      0 0 1px white,
-      inset 0 0 1px white;
   }
 
   .types:active .type:not(.active) {
     color: var(--color-invis-1);
-    border-color: var(--color-invis-1);
-    text-shadow: 0 0 1px var(--color-dark);
   }
 
   .high {
     position: absolute;
-    margin: auto;
     top: 0;
     bottom: 0;
-    width: 82rem;
+    left: 19rem;
     height: fit-content;
-    left: 23rem;
-    padding: 2rem 0;
-    color: white;
-    border: 1rem solid white;
-    text-align: left;
+    margin: auto;
   }
 
   .type {
     position: relative;
-    right: 24rem;
+    right: 25rem;
     color: white;
     transition: top 200ms ease-in-out;
   }
@@ -283,7 +269,7 @@
   }
 
   .type:not(.active):first-child {
-    top: -7rem;
+    top: -5rem;
     color: var(--color-dark);
   }
 
@@ -292,7 +278,7 @@
   }
 
   .type:not(.active):last-child {
-    top: 8rem;
+    top: 6rem;
     color: var(--color-dark);
   }
 
@@ -300,8 +286,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0;
     padding: 0;
+    margin: 0;
     font-size: 4rem;
   }
 
@@ -314,13 +300,12 @@
     border: 1rem solid transparent;
     color: var(--color);
     cursor: pointer;
+    filter: drop-shadow(var(--gloss));
     font-weight: bold;
-    text-shadow: var(--gloss);
   }
 
   .page.active {
     border-color: var(--color);
-    box-shadow: var(--gloss), var(--shadow-1), var(--shadow-inset);
   }
 
   .page.active:active {
@@ -338,22 +323,23 @@
   .board {
     padding-left: 1rem;
     margin: 0;
+    background-color: transparent;
     box-shadow: none;
     font-size: 4rem;
-    list-style: none;
     letter-spacing: 0.5rem;
-    background-color: transparent;
+    list-style: none;
+
+    &::before,
+    &::after {
+      display: none;
+    }
   }
 
   .grid {
     display: grid;
-    grid-template-columns: 18rem 1fr auto;
-    grid-template-rows: auto auto;
-    grid-template-areas:
-      "a b b"
-      "a c d";
     height: 14rem;
     padding: 2rem 0;
+    grid-template: "a b b" auto "a c d" auto / 18rem 1fr auto;
   }
 
   .grid.first {
@@ -369,31 +355,31 @@
   }
 
   .place {
-    grid-area: a;
     display: grid;
     align-items: center;
     padding-top: 2rem;
     color: var(--color-0);
+    grid-area: a;
     text-shadow: var(--gloss);
   }
 
   .player-name {
-    grid-area: b;
     overflow: hidden;
     height: 1em;
-    margin-bottom: 1rem;
     justify-content: flex-start;
+    margin-bottom: 1rem;
+    grid-area: b;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .bar {
-    grid-area: c;
     height: 4rem;
     flex-grow: 1;
     border-top: 0.75rem solid white;
     border-right: 0.75rem solid white;
     margin-right: 2rem;
+    grid-area: c;
   }
 
   .bar.self {
@@ -401,10 +387,10 @@
   }
 
   .record {
-    grid-area: d;
     height: 4rem;
     justify-content: flex-end;
     margin-right: 1rem;
+    grid-area: d;
     text-align: right;
     text-indent: 0;
   }

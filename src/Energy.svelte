@@ -1,9 +1,11 @@
 <script>
-  import { blur } from "svelte/transition";
-
   import { PHASES } from "./constants.js";
   import { playLowEnergy } from "./sounds.js";
   import { checkSound, energy, phase } from "./stores.js";
+
+  export let gameOver = false;
+
+  let zeroFlipped = false;
 
   $: ({ value } = $energy);
   $: extra = value > 100;
@@ -26,6 +28,9 @@
       extra ? `calc(${value > 119 ? 0 : (value - 120) / 100} * 128rem)` : 0
     };
   `;
+  $: if (gameOver && !zeroFlipped) {
+    setTimeout(() => (zeroFlipped = true));
+  }
 </script>
 
 <div class="energy">
@@ -35,19 +40,40 @@
     </span>
   </div>
   <div class="right-bar" class:extra style={rightBarStyle}>
-    <span class="right-value" class:warning style={rightValueStyle}>
-      {value}
+    <span
+      class="right-value"
+      class:warning
+      class:flip={zeroFlipped}
+      style={rightValueStyle}
+    >
+      <span class="front">{value}</span>
+      {#if gameOver}
+        <span class="back">O</span>
+      {/if}
     </span>
   </div>
+  {#if gameOver}
+    <span class="energy-out">
+      {#each "ut of energy" as letter, index}
+        <span
+          class={letter === " " ? "space" : "letter"}
+          style:animation-delay="{400 + index * 100}ms"
+        >
+          {letter}
+        </span>
+      {/each}
+    </span>
+  {/if}
 </div>
 
-<style>
+<style lang="postcss">
   :global .energy {
     position: relative;
     display: flex;
     width: 100%;
+    height: 9rem;
     background-color: var(--color-dark);
-    box-shadow: var(--gloss-inset), var(--shadow-inset);
+    box-shadow: var(--shadow-inset), var(--gloss-inset);
     font-size: 7rem;
     letter-spacing: 0;
     text-indent: 1rem;
@@ -66,27 +92,96 @@
       .left-value {
         right: 0;
         color: var(--color-dark);
+        transition: color 200ms ease;
       }
     }
 
     .right-bar {
-      background-color: var(--color-dark);
-
       &.extra {
         background-color: var(--color-random);
       }
 
       .right-value {
+        width: 7rem;
+        height: 7rem;
+        backface-visibility: hidden;
         color: white;
+        transform-style: preserve-3d;
+        transition: transform 800ms ease-in-out;
 
-        span {
-          position: absolute;
+        &.flip {
+          transform: rotateY(180deg);
         }
+
+        .front,
+        .back {
+          width: 100%;
+          height: 100%;
+          backface-visibility: hidden;
+          color: white;
+        }
+
+        .back {
+          position: absolute;
+          top: 0;
+          transform: rotateY(180deg);
+        }
+      }
+    }
+
+    .energy-out {
+      position: absolute;
+      width: 100%;
+      height: 7rem;
+      padding-top: 3rem;
+      padding-left: 9rem;
+      color: white;
+      font-size: 5rem;
+      font-weight: bold;
+      letter-spacing: 1rem;
+      text-indent: 0;
+
+      .letter,
+      .space {
+        display: inline-block;
+        width: 7rem;
+        padding-left: 1rem;
+        animation: flip 400ms ease-in-out forwards;
+        opacity: 0;
+        perspective: 128rem;
+        transform-style: preserve-3d;
       }
     }
 
     .warning {
       animation: flick 2s infinite;
+    }
+  }
+
+  @keyframes flick {
+    20%,
+    25%,
+    30%,
+    35% {
+      opacity: 1;
+    }
+
+    21%,
+    24%,
+    31%,
+    34% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes flip {
+    0% {
+      opacity: 1;
+      transform: rotateY(90deg);
+    }
+    100% {
+      opacity: 1;
+      transform: rotateY(0);
     }
   }
 </style>

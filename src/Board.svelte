@@ -268,6 +268,16 @@
       content: "";
     }
 
+    &::after {
+      position: absolute;
+      bottom: calc(-1rem);
+      left: -1rem;
+      width: 128rem;
+      height: 1px;
+      background-color: var(--color-gloss);
+      content: "";
+    }
+
     &.overflow .slider {
       border-color: transparent;
     }
@@ -279,17 +289,14 @@
 
     .slider {
       position: absolute;
-      z-index: 1;
-      top: -1rem;
-      right: -1rem;
-      bottom: -1rem;
-      left: -1rem;
+      z-index: 10;
       width: 128rem;
       height: 128rem;
       border-width: 0;
       border-style: solid;
       border-color: white;
       background-color: transparent;
+      inset: -1rem;
       mix-blend-mode: luminosity;
       outline-color: transparent;
       outline-offset: -1px;
@@ -341,6 +348,44 @@
           width: 21rem;
         }
       }
+    }
+  }
+
+  @keyframes focus {
+    0% {
+      background-color: var(--color-ghost);
+    }
+
+    40% {
+      background-color: var(--color-focus);
+    }
+
+    60% {
+      background-color: var(--color-focus);
+    }
+
+    100% {
+      background-color: var(--color-ghost);
+    }
+  }
+
+  @keyframes shrink-horizontal {
+    from {
+      clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+    }
+
+    to {
+      clip-path: polygon(50% 0%, 50% 0%, 50% 100%, 50% 100%);
+    }
+  }
+
+  @keyframes shrink-vertical {
+    from {
+      clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+    }
+
+    to {
+      clip-path: polygon(0% 50%, 100% 50%, 100% 50%, 0% 50%);
     }
   }
 </style>

@@ -73,7 +73,7 @@
   {/each}
 </ol>
 
-<style>
+<style lang="postcss">
   .log {
     position: absolute;
     top: 0;
@@ -85,7 +85,7 @@
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-end;
-    padding: 1rem 4rem;
+    padding: 1rem 4rem 1rem 4.5rem;
     margin: 0;
     color: white;
     font-size: 5rem;
@@ -93,28 +93,103 @@
     line-height: 7rem;
     list-style-type: none;
     text-shadow: var(--gloss), var(--shadow-1);
+
+    & li {
+      display: flex;
+      width: 100%;
+      height: 7rem;
+    }
+
+    & span {
+      margin: 0 -1rem;
+    }
+
+    & .combo {
+      align-self: flex-end;
+    }
+
+    & .extra {
+      color: var(--color-random);
+    }
+
+    & .sum {
+      flex: 1;
+      margin-right: 0;
+      text-align: right;
+    }
+
+    & .collapse {
+      margin-top: -7rem;
+    }
   }
 
-  .log li {
-    display: flex;
-    width: 100%;
-    height: 7rem;
-  }
+  :global {
+    @keyframes colors-1 {
+      0%,
+      100% {
+        color: white;
+      }
 
-  .log .combo {
-    align-self: flex-end;
-  }
+      50% {
+        color: var(--clr-1);
+      }
+    }
 
-  .log .extra {
-    color: var(--color-random);
-  }
+    @keyframes colors-2 {
+      0%,
+      100% {
+        color: white;
+      }
 
-  .log .sum {
-    flex: 1;
-    text-align: right;
-  }
+      33% {
+        color: var(--clr-1);
+      }
 
-  .log .collapse {
-    margin-top: -7rem;
+      66% {
+        color: var(--clr-2);
+      }
+    }
+
+    @keyframes colors-3 {
+      0%,
+      100% {
+        color: white;
+      }
+
+      25% {
+        color: var(--clr-1);
+      }
+
+      50% {
+        color: var(--clr-2);
+      }
+
+      75% {
+        color: var(--clr-3);
+      }
+    }
+
+    @keyframes colors-4 {
+      0%,
+      100% {
+        color: white;
+      }
+
+      20% {
+        color: var(--clr-1);
+      }
+
+      40% {
+        color: var(--clr-2);
+      }
+
+      60% {
+        color: var(--clr-3);
+      }
+
+      80% {
+        color: var(--clr-4);
+      }
+    }
   }
 </style>

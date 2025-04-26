@@ -100,7 +100,7 @@
   </div>
 </Dialog>
 
-<style>
+<style lang="postcss">
   .github-corner {
     position: fixed;
     top: 0;
@@ -121,10 +121,27 @@
 
   .version {
     position: absolute;
-    font-weight: bold;
     right: 2rem;
     bottom: 2rem;
     font-size: 2.5rem;
+    font-weight: bold;
     letter-spacing: 0.5rem;
+  }
+
+  @keyframes octocat-wave {
+    0%,
+    100% {
+      transform: rotate(0);
+    }
+
+    20%,
+    60% {
+      transform: rotate(-25deg);
+    }
+
+    40%,
+    80% {
+      transform: rotate(10deg);
+    }
   }
 </style>

@@ -156,7 +156,7 @@
   </div>
 {/if}
 
-<style>
+<style lang="postcss">
   :global .overlay {
     position: fixed;
     z-index: 3;

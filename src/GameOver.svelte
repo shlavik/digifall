@@ -65,27 +65,11 @@
     {/if}
   </div>
   <div class="section-4">
-    <Energy />
-    {#if energyOut}
-      <span class="energy-out">
-        {#each "ut of energy" as letter, index}
-          <span
-            class="letter"
-            in:fly|global={{
-              delay: index * 48,
-              duration: 200,
-              y: 48,
-            }}
-          >
-            {letter}
-          </span>
-        {/each}
-      </span>
-    {/if}
+    <Energy {gameOver} />
   </div>
 </div>
 
-<style>
+<style lang="postcss">
   :global .game-over {
     &.new-record {
       h1,
@@ -106,27 +90,20 @@
     .energy {
       background-color: transparent;
       box-shadow: none;
-    }
 
-    .left-value {
-      color: black;
-    }
-
-    .energy-out {
-      position: absolute;
-      width: 100%;
-      height: 7rem;
-      padding-top: 2rem;
-      padding-left: 11rem;
-      font-size: 0;
-      text-indent: 0;
-
-      .letter {
-        display: inline-block;
-        min-width: 7rem;
-        font-size: 5rem;
-        font-weight: bold;
+      .left-bar .left-value {
+        color: black;
       }
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      transform: scale(0);
+    }
+
+    to {
+      transform: scale(1);
     }
   }
 </style>

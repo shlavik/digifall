@@ -73,12 +73,12 @@ html {
   --color-black-08: rgb(0 0 0 / 80%);
   --color-ghost: rgb(255 255 255 / 10%);
   --color-focus: rgb(255 255 255 / 20%);
-  --color-gloss: rgb(255 255 255 / 60%);
+  --color-gloss: rgb(255 255 255 / 70%);
   --color-invis-1: #10100b;
   --color-invis-2: #22221a;
   --color-random: white;
   --gloss: 0 -1px 0 var(--color-gloss);
-  --gloss-inset: 0 1px 0 var(--color-gloss);
+  --gloss-inset: inset 0 -1px 0 var(--color-gloss);
   --glow: 0 0 1px white;
   --shadow-0: 0 0 1px black;
   --shadow-1: 0 0.5rem 0.5rem var(--color-black-04);
@@ -106,7 +106,6 @@ body {
   line-height: 1;
   text-indent: 2rem;
   text-shadow: var(--shadow-1);
-  -webkit-user-select: none;
   touch-action: manipulation;
   user-select: none;
 }
@@ -215,7 +214,7 @@ input[type="checkbox"] + label::before {
   right: 4rem;
   width: 2.5rem;
   height: 2.5rem;
-  border: 1rem solid currentColor;
+  border: 1rem solid currentcolor;
 }
 
 input[type="checkbox"]:checked + label::after {
@@ -293,13 +292,13 @@ p.exclam-fix {
   text-align: center;
 }
 
-@media (max-aspect-ratio: 128/203) {
+@media (max-aspect-ratio: 128 / 203) {
   .section-1 {
     flex-basis: 44rem;
   }
 }
 
-@media (max-aspect-ratio: 128/214) {
+@media (max-aspect-ratio: 128 / 214) {
   .section-1 {
     flex-basis: 51rem;
   }
@@ -310,7 +309,6 @@ p.exclam-fix {
 }
 
 .section-3 {
-  overflow: hidden;
   flex-basis: 128rem;
 }
 
@@ -353,185 +351,6 @@ p.exclam-fix {
   font-size: 3rem;
   line-height: 0;
   text-align: center;
-}
-
-@keyframes blink {
-  from {
-    background-color: white;
-    color: var(--color);
-  }
-
-  to {
-    background-color: var(--color);
-    color: white;
-  }
-}
-
-@keyframes colors-1 {
-  0%,
-  100% {
-    color: white;
-  }
-
-  50% {
-    color: var(--clr-1);
-  }
-}
-
-@keyframes colors-2 {
-  0%,
-  100% {
-    color: white;
-  }
-
-  33% {
-    color: var(--clr-1);
-  }
-
-  66% {
-    color: var(--clr-2);
-  }
-}
-
-@keyframes colors-3 {
-  0%,
-  100% {
-    color: white;
-  }
-
-  25% {
-    color: var(--clr-1);
-  }
-
-  50% {
-    color: var(--clr-2);
-  }
-
-  75% {
-    color: var(--clr-3);
-  }
-}
-
-@keyframes colors-4 {
-  0%,
-  100% {
-    color: white;
-  }
-
-  20% {
-    color: var(--clr-1);
-  }
-
-  40% {
-    color: var(--clr-2);
-  }
-
-  60% {
-    color: var(--clr-3);
-  }
-
-  80% {
-    color: var(--clr-4);
-  }
-}
-
-@keyframes fade-out {
-  from {
-    -webkit-clip-path: circle(100%);
-    clip-path: circle(100%);
-  }
-
-  to {
-    -webkit-clip-path: circle(0%);
-    clip-path: circle(0%);
-  }
-}
-
-@keyframes flick {
-  20%,
-  25%,
-  30%,
-  35% {
-    opacity: 1;
-  }
-
-  21%,
-  24%,
-  31%,
-  34% {
-    opacity: 0;
-  }
-}
-
-@keyframes focus {
-  0% {
-    background-color: var(--color-ghost);
-  }
-
-  40% {
-    background-color: var(--color-focus);
-  }
-
-  60% {
-    background-color: var(--color-focus);
-  }
-
-  100% {
-    background-color: var(--color-ghost);
-  }
-}
-
-@keyframes longpress {
-  from {
-    -webkit-clip-path: circle(0%);
-    clip-path: circle(0%);
-  }
-
-  to {
-    -webkit-clip-path: circle(100%);
-    clip-path: circle(100%);
-  }
-}
-
-@keyframes octocat-wave {
-  0%,
-  100% {
-    transform: rotate(0);
-  }
-
-  20%,
-  60% {
-    transform: rotate(-25deg);
-  }
-
-  40%,
-  80% {
-    transform: rotate(10deg);
-  }
-}
-
-@keyframes shrink-horizontal {
-  from {
-    -webkit-clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-  }
-
-  to {
-    -webkit-clip-path: polygon(50% 0%, 50% 0%, 50% 100%, 50% 100%);
-    clip-path: polygon(50% 0%, 50% 0%, 50% 100%, 50% 100%);
-  }
-}
-
-@keyframes shrink-vertical {
-  from {
-    -webkit-clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-  }
-
-  to {
-    -webkit-clip-path: polygon(0% 50%, 100% 50%, 100% 50%, 0% 50%);
-    clip-path: polygon(0% 50%, 100% 50%, 100% 50%, 0% 50%);
-  }
 }
 
 @keyframes random-360 {
