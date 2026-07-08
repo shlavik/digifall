@@ -240,16 +240,54 @@ RECORD_TYPES.forEach((type) => {
   });
 });
 
+function getReplayValue(error) {
+  return Array.isArray(error) && typeof error[2] === "number" ? error[2] : null;
+}
+
+function logInvalidLocalRecord(type, record, error) {
+  if (!DEBUG) return;
+  const replayValue = getReplayValue(error);
+  console.warn("Invalid local record was not published", {
+    type,
+    playerName: record?.[KEYS.playerName],
+    timestamp: record?.[KEYS.timestamp],
+    localValue: record?.[KEYS.value],
+    replayValue,
+    delta:
+      replayValue === null || typeof record?.[KEYS.value] !== "number"
+        ? null
+        : record[KEYS.value] - replayValue,
+    movesLength: record?.[KEYS.moves]?.length,
+    error,
+  });
+}
+
+function normalizeLocalRecord(records, type, validatedRecord) {
+  const original = records[type];
+  if (original[KEYS.value] === validatedRecord[KEYS.value]) return;
+  recordsStore.set({
+    ...records,
+    [type]: {
+      ...original,
+      [KEYS.value]: validatedRecord[KEYS.value],
+    },
+  });
+}
+
 recordsStore.subscribe((records) => {
   Promise.allSettled(
     RECORD_TYPES.map(async (type) => {
       const record = records[type];
       if (record[KEYS.value] === 0) return;
-      const updated = await core.handleRecordWithValidation({
-        ...record,
-        [KEYS.type]: type,
-      });
-      if (updated) leaderboardStores[type].set(core.getData(type));
+      const typedRecord = { ...record, [KEYS.type]: type };
+      try {
+        const validatedRecord = await validateRecord(typedRecord);
+        normalizeLocalRecord(records, type, validatedRecord);
+        await core.handleRecord(validatedRecord);
+        leaderboardStores[type].set(core.getData(type));
+      } catch (error) {
+        logInvalidLocalRecord(type, record, error);
+      }
     }),
   );
 });

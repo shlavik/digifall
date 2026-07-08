@@ -6,8 +6,16 @@
   import { activeRelaysStore, overlayStore, relaysStore } from "./stores.js";
   import { sanitizeMultiaddr, validateMultiaddr } from "./validation.js";
 
+  function getRelayParam() {
+    const searchRelay = new URLSearchParams(location.search).get("relay");
+    const hashRelay = new URLSearchParams(location.hash.replace(/^#/, "")).get(
+      "relay",
+    );
+    return sanitizeMultiaddr(searchRelay || hashRelay || "");
+  }
+
   let values = $state([...$activeRelaysStore]);
-  let newValue = $state("");
+  let newValue = $state(getRelayParam());
 
   const getError = (v) => {
     const trimmed = v.trim();
@@ -67,7 +75,9 @@
     const value = newValue.trim();
     if (!value || newError) return;
     const validated = validateMultiaddr(value);
-    updateActiveRelays((relays) => [...relays, validated]);
+    updateActiveRelays((relays) =>
+      relays.includes(validated) ? relays : [...relays, validated],
+    );
     newValue = "";
   }
 

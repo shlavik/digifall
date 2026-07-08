@@ -3,8 +3,9 @@ import test from "node:test";
 
 import { get, readable, writable } from "svelte/store";
 
-import { INITIAL_VALUES, PHASES } from "./constants.js";
+import { INITIAL_VALUES, KEYS, PHASES } from "./constants.js";
 import { getBase64FromArray, getSeed, initCore, resetGame } from "./core.js";
+import { validateRecord } from "./validation.js";
 
 function withGet(store) {
   store.get = () => get(store);
@@ -34,11 +35,12 @@ function createGame({
   seed,
   sound = false,
   sounds,
+  cards = createCards(),
 } = {}) {
   const playerName = "tester";
   const timestamp = 1700000000000;
   const game = {
-    cardsStore: withGet(writable(createCards())),
+    cardsStore: withGet(writable(cards)),
     energyStore: withGet(writable({ ...INITIAL_VALUES.energy })),
     logStore: withGet(writable([...INITIAL_VALUES.log])),
     matchedIndexesStore: withGet(
@@ -137,4 +139,62 @@ test("reset cancels restored replay before playing generate sound", () => {
   assert.equal(game.movesInitial, null);
   assert.equal(game.moveCount, 0);
   assert.equal(generated, 1);
+});
+
+function createDeterministicMoves(seed, count) {
+  let state = seed;
+  return Array.from({ length: count }, () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state % 36;
+  });
+}
+
+function createLiveLikeReplayGame(moves, playerName, timestamp) {
+  return createGame({
+    moves,
+    phase: PHASES.initial,
+    seed: getSeed({ playerName, timestamp }),
+    cards: [...INITIAL_VALUES.cards],
+  });
+}
+
+test("validation replay matches live-like highScore replay and rejects inflated deltas", async () => {
+  const scenarios = [
+    [4, 8],
+    [4, 9],
+    [4, 10],
+    [5, 8],
+    [5, 9],
+  ];
+  for (let index = 0; index < scenarios.length; index++) {
+    const [seed, count] = scenarios[index];
+    const playerName = `fuzz${index}`;
+    const timestamp = 1700000000000 + index;
+    const moves = getBase64FromArray(createDeterministicMoves(seed, count));
+    const baselineRecord = {
+      [KEYS.type]: KEYS.highScore,
+      [KEYS.moves]: moves,
+      [KEYS.playerName]: playerName,
+      [KEYS.timestamp]: timestamp,
+      [KEYS.value]: 1,
+    };
+    const replayedRecord = await validateRecord(baselineRecord);
+    const liveGame = createLiveLikeReplayGame(moves, playerName, timestamp);
+    await waitUntil(
+      () =>
+        liveGame.recordsStore.get()[KEYS.highScore][KEYS.value] ===
+        replayedRecord[KEYS.value],
+      3000,
+    );
+    const invalidValue = replayedRecord[KEYS.value] + 7;
+    await assert.rejects(
+      () =>
+        validateRecord({
+          ...replayedRecord,
+          [KEYS.value]: invalidValue,
+        }),
+      (error) => Array.isArray(error) && error[2] === replayedRecord.value,
+      `highScore non-energy delta was accepted for generated sequence ${index}`,
+    );
+  }
 });

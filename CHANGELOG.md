@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 0.15.2 Relay and Leaderboard Reliability
+
+- `P2P Infrastructure`: Updated default relays with the refreshed `r1.digifall.app` peer id and added `r3.digifall.app` as a third built-in relay path for better network resilience
+- `P2P Infrastructure`: Relay share links can now open the Relays overlay with a sanitized `?relay=` or `#relay=` multiaddr preview before adding it to user relay settings
+- `Leaderboard Reliability`: Headless leaderboard persistence now writes snapshots atomically through a serialized save queue, preventing interrupted or overlapping saves from corrupting `nodes/leaderboard/data.json`
+- `Leaderboard Reliability`: Headless leaderboard startup now fails closed on malformed persisted JSON instead of silently treating corrupted persistence as empty data
+- `Relay Deployment`: Relay deployment now respects an existing Node.js runtime, installs NodeSource Node.js 26 only when no `node` is available, refreshes npm to the latest stable release, and fails if the relay smoke test exits before verification completes
+- `Leaderboard Reliability`: Local personal-best records are now replay-audited before leaderboard promotion, valid records can be normalized upward to replay-derived values, and invalid records stay local-only with debug diagnostics instead of being published or deleted
+- `Developer Experience`: Added generated high-score replay coverage that compares validation-style replay with live-like core startup replay and rejects non-energy-sized inflated local-record values while preserving replay-value diagnostics
+
 ## 0.15.1 Leaderboard Hotfix
 
 - `Leaderboard Reliability`: Local personal bests are now replay-validated and synced into the IndexedDB-backed leaderboard regardless of the current game phase, so high-combo records saved during combo resolution are not stranded in localStorage

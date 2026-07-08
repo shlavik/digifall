@@ -171,7 +171,7 @@ Not a traditional game-as-product, but a protocol-as-game:
 
 - Deployment Runtime Validation: Relay deployment must validate both Node.js and npm before installing app dependencies
   - Rationale: Distros can provide a usable `node` binary without `npm`; systemd units should use resolved absolute runtime paths
-  - Pattern: Keep curl-installed lifecycle scripts self-contained; duplicate shell helpers intentionally when single-file bootstrap reliability matters more than DRY
+  - Pattern: Keep curl-installed lifecycle scripts self-contained; duplicate shell helpers intentionally when single-file bootstrap reliability matters more than DRY; respect an existing Node.js runtime and install the current stable NodeSource major only when no `node` is available; refresh npm to the latest stable release after runtime detection/installation; fail deployment if the resolved npm runtime cannot keep the relay alive as the `digifall` service user
   - See: [ensure_node_runtime()](scripts/deploy-relay.sh)
 
 - CI Toolchain Parity: Keep GitHub Actions Node/npm aligned with the local lockfile-generating toolchain

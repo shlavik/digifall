@@ -46,15 +46,32 @@ async function loadPersistedData() {
   try {
     const data = await fs.readFile(PERSISTENCE_PATH, "utf-8");
     return JSON.parse(data);
-  } catch {
-    return null;
+  } catch (error) {
+    if (error?.code === "ENOENT") return null;
+    console.error(`Failed to load persistence from ${PERSISTENCE_PATH}`);
+    throw error;
   }
 }
 
-async function savePersistedData(data) {
+async function writePersistedData(data) {
   const dir = path.dirname(PERSISTENCE_PATH);
   await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(PERSISTENCE_PATH, JSON.stringify(data, null, 2));
+  const tempPath = path.join(
+    dir,
+    `.${path.basename(PERSISTENCE_PATH)}.${process.pid}.${Date.now()}.tmp`,
+  );
+  await fs.writeFile(tempPath, `${JSON.stringify(data, null, 2)}\n`);
+  await fs.rename(tempPath, PERSISTENCE_PATH);
+}
+
+let saveQueue = Promise.resolve();
+
+function savePersistedData(data) {
+  const snapshot = structuredClone(data);
+  saveQueue = saveQueue
+    .catch(() => {})
+    .then(() => writePersistedData(snapshot));
+  return saveQueue;
 }
 
 async function validatePersistedRecords(type, records) {

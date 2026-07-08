@@ -13,10 +13,22 @@
   let gameComponent = $state(null);
   let overlayComponent = $state(null);
 
+  let relayImportChecked = false;
+
   $effect(() => {
     if (RELOAD_IN_SEC > 0) {
       setTimeout(() => (location = location), RELOAD_IN_SEC * 1e3);
     }
+  });
+
+  $effect(() => {
+    if (relayImportChecked) return;
+    relayImportChecked = true;
+    const searchRelay = new URLSearchParams(location.search).get("relay");
+    const hashRelay = new URLSearchParams(location.hash.replace(/^#/, "")).get(
+      "relay",
+    );
+    if (searchRelay || hashRelay) $overlayStore = OVERLAYS.relays;
   });
 
   $effect(() => {

@@ -52,23 +52,34 @@ install_rpm_dependencies() {
         warn "Failed to install SELinux policy utilities; continuing"
 }
 
+ensure_latest_stable_npm() {
+    log "Updating npm to the latest stable release..."
+    "$NPM_BIN" install -g npm@latest || error "Failed to update npm to the latest stable release"
+    NPM_BIN=$(command -v npm || true)
+    [ -n "$NPM_BIN" ] || error "npm was not found after update"
+}
+
 ensure_node_runtime() {
     : "${REQUIRED_NODE_MAJOR:=22}"
-    : "${NODESOURCE_MAJOR:=22}"
+    : "${NODESOURCE_MAJOR:=26}"
     local current_major
     local install_major
     local package_manager
-    current_major=$(get_node_major || echo 0)
-    if command -v node &>/dev/null && [ "${current_major:-0}" -ge "$REQUIRED_NODE_MAJOR" ] && command -v npm &>/dev/null; then
+    if command -v node &>/dev/null; then
         NODE_BIN=$(command -v node)
-        NPM_BIN=$(command -v npm)
+        current_major=$(get_node_major || echo 0)
+        if [ "${current_major:-0}" -lt "$REQUIRED_NODE_MAJOR" ]; then
+            error "Node.js $REQUIRED_NODE_MAJOR+ is required, found $($NODE_BIN -v) at $NODE_BIN. Install/activate a newer Node.js and rerun this script."
+        fi
+        NPM_BIN=$(command -v npm || true)
+        if [ -z "$NPM_BIN" ]; then
+            error "Node.js was found at $NODE_BIN, but npm was not found. Install/activate npm for the existing Node.js runtime and rerun this script."
+        fi
+        ensure_latest_stable_npm
         return
     fi
     install_major="$NODESOURCE_MAJOR"
-    if [ "${current_major:-0}" -ge "$REQUIRED_NODE_MAJOR" ]; then
-        install_major="$current_major"
-    fi
-    warn "Node.js >= $REQUIRED_NODE_MAJOR with npm was not found. Installing NodeSource Node.js $install_major.x..."
+    warn "Node.js was not found. Installing NodeSource Node.js $install_major.x..."
     if command -v apt-get &>/dev/null; then
         curl -fsSL "https://deb.nodesource.com/setup_$install_major.x" | bash -
         apt-get install -y nodejs
@@ -87,6 +98,7 @@ ensure_node_runtime() {
     if [ "${current_major:-0}" -lt "$REQUIRED_NODE_MAJOR" ]; then
         error "Node.js $REQUIRED_NODE_MAJOR+ is required, found $($NODE_BIN -v)."
     fi
+    ensure_latest_stable_npm
 }
 
 run_as_user() {
@@ -115,7 +127,7 @@ DEFAULT_DOMAIN="relay.digifall.app"
 DEFAULT_EMAIL="shlavik@gmail.com"
 DEFAULT_RESTART_FREQUENCY="daily"
 REQUIRED_NODE_MAJOR="22"
-NODESOURCE_MAJOR="22"
+NODESOURCE_MAJOR="26"
 NODE_BIN=""
 NPM_BIN=""
 
@@ -195,12 +207,15 @@ log "Starting application temporarily for 5 seconds..."
 APP_PID=$!
 sleep 5
 
-# Terminate the application
-if ps -p $APP_PID > /dev/null; then
+# Terminate the application, or fail if it exited before verification completed
+if ps -p "$APP_PID" > /dev/null; then
     log "Stopping temporary application instance..."
-    kill $APP_PID
+    kill "$APP_PID"
     sleep 2
-    kill -9 $APP_PID 2>/dev/null || true
+    kill -9 "$APP_PID" 2>/dev/null || true
+else
+    wait "$APP_PID" || true
+    error "Temporary relay process exited before verification completed. Check that $NPM_BIN is usable by the digifall user and that the relay can start."
 fi
 
 # Check for and stop any existing services on port 80

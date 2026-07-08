@@ -4,8 +4,9 @@ import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 
 /** @type {readonly string[]} */
 export const DEFAULT_RELAYS = Object.freeze([
-  "/dns4/r1.digifall.app/tcp/443/wss/p2p/12D3KooWHPiLGQPesjGdBZW3WbGSf6avJYQZj64RNqyLcyXW28UG",
+  "/dns4/r1.digifall.app/tcp/443/wss/p2p/12D3KooWJGwYsjsyFR3SfBswpnFHkUdMTXicAdsKMPtEW5mBhdat",
   "/dns4/r2.digifall.app/tcp/443/wss/p2p/12D3KooWCyGBu37RppPBto2SNbXGuBY5qAWbKJxxqv1FMqxTiXif",
+  "/dns4/r3.digifall.app/tcp/443/wss/p2p/12D3KooWBKS5e6VaCE6VsRMjqa1aXzP46dA3yudQmF3GxxrDngSe",
 ]);
 
 /** @type {Readonly<{ root: string; preview: string }>} */
