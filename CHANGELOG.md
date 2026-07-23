@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.15.3 Android 16 Compatibility Hotfix
+
+- `Android Compatibility`: Android release builds now compile against and target Android 16 (API level 36) while preserving Bubblewrap's minimum-device compatibility, satisfying the Google Play target API requirement
+- `Dependencies`: Refreshed Svelte, Vite, Stylelint, Prettier, libp2p, and related lockfile dependencies to their latest compatible releases
+
 ## 0.15.2 Relay and Leaderboard Reliability
 
 - `P2P Infrastructure`: Updated default relays with the refreshed `r1.digifall.app` peer id and added `r3.digifall.app` as a third built-in relay path for better network resilience

@@ -178,6 +178,10 @@ Not a traditional game-as-product, but a protocol-as-game:
   - Rationale: npm 10 and npm 11 serialize optional peer dependencies differently; mismatched npm majors can make `npm ci` reject an otherwise valid lockfile
   - Pattern: Build/deploy workflow uses Node 24/npm 11; if CI Node changes, regenerate and validate `package-lock.json` with that npm major
 
+- Android Target SDK: Apply API-level requirements after Bubblewrap project generation
+  - Rationale: Bubblewrap exposes minimum SDK but hardcodes target SDK in its generated Gradle template
+  - Pattern: Run `android/configure-sdk.mjs` after `bubblewrap update`; keep compile and target SDK aligned and preserve the generated minimum SDK
+
 - Git-Tracked Bootstrap Data: Leaderboard `data.json` committed to repo for disaster recovery and new node bootstrap
   - Rationale: P2P network may be empty; git provides backup and historical record of leaderboard evolution
   - Trade-off: Manual commits required to update backup (acceptable for low-frequency changes)

@@ -15,6 +15,6 @@
   },
   "dependencies": {
     "@llblab/uniqueue": "1.4.0",
-    "uint8arrays": "5.1.1"
+    "uint8arrays": "6.1.1"
   }
 }

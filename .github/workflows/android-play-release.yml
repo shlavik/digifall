@@ -206,6 +206,7 @@ jobs:
           node -e 'require("fs").writeFileSync(process.env.HOME + "/.bubblewrap/config.json", JSON.stringify({ jdkPath: process.env.JAVA_HOME, androidSdkPath: process.env.ANDROID_HOME }))'
       - run: ../node_modules/.bin/bubblewrap update --skipVersionUpgrade
         working-directory: android
+      - run: node android/configure-sdk.mjs
       - run: |
           ../node_modules/.bin/bubblewrap build \
             --signingKeyPath="../.secrets/LLBLab.keystore" \
