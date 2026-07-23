@@ -16,7 +16,9 @@ Manual dispatch with `force_publish=true` publishes the current version even if 
 
 GitHub workflow run titles use the shared `Digifall / <surface> / <ref> / <event>` pattern for readable Actions history; GitHub's own `pages-build-deployment` workflow is system-managed and remains outside project control.
 
-## Android versioning
+## Android SDK and versioning
+
+The generated TWA compiles against and targets Android 16 (API level 36). Bubblewrap does not expose the target SDK in `twa-manifest.json`, so `android/configure-sdk.mjs` applies and verifies both SDK values after `bubblewrap update`. The minimum supported device SDK remains Bubblewrap's default and does not need to match the Google Play target API requirement.
 
 `android/compute-version-code.mjs` maps semver to Android versionCode:
 
@@ -150,6 +152,7 @@ npm run build
 node android/compute-version-code.mjs
 node android/generate-release-notes.mjs
 node android/sync-twa-version.mjs
+node --test android/configure-sdk.test.mjs
 node scripts/validate-records.mjs nodes/leaderboard/data.json
 ```
 
