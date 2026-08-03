@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.15.4 Mobile Fall Animation Smoothness
+
+- `Rendering`: Card fall animations now use GPU-composited transforms instead of layout offsets, removing per-frame reflow on mobile — falling cards stay smooth during match resolution on low-end devices
+- `Rendering`: Leaderboard type switching (combos/scores) animates with transforms instead of layout offsets
+- `Engine`: Match collapse in the deterministic core dropped from quadratic filter-and-sort to a single pass, speeding up match resolution and record replay validation
+- `Dependencies`: Refreshed the libp2p stack, Svelte, Vite, PostCSS, and related lockfile dependencies; fixed the high-severity `brace-expansion` advisory (0 known vulnerabilities)
 ## 0.15.3 Android 16 Compatibility Hotfix
 
 - `Android Compatibility`: Android release builds now compile against and target Android 16 (API level 36) while preserving Bubblewrap's minimum-device compatibility, satisfying the Google Play target API requirement

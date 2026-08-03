@@ -263,26 +263,27 @@
 
   .type {
     position: relative;
+    top: 0;
     right: 25rem;
     color: white;
-    transition: top 200ms ease-in-out;
+    transition: transform 200ms ease-in-out;
 
     &.active:first-child {
-      top: 2.5rem;
+      transform: translateY(2.5rem);
     }
 
     &:not(.active):first-child {
-      top: -5rem;
       color: var(--color-dark);
+      transform: translateY(-5rem);
     }
 
     &.active:last-child {
-      top: -2.5rem;
+      transform: translateY(-2.5rem);
     }
 
     &:not(.active):last-child {
-      top: 6rem;
       color: var(--color-dark);
+      transform: translateY(6rem);
     }
   }
 
