@@ -1,6 +1,6 @@
 {
   "name": "digifall",
-  "version": "0.15.3",
+  "version": "0.15.4",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -28,7 +28,7 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "7.2.0",
     "autoprefixer": "10.5.4",
-    "postcss": "8.5.22",
+    "postcss": "8.5.25",
     "postcss-nested": "7.0.2",
     "prettier": "3.9.6",
     "prettier-plugin-svelte": "4.1.1",
@@ -38,30 +38,30 @@
     "stylelint-config-idiomatic-order": "10.0.0",
     "stylelint-config-standard": "40.0.0",
     "stylelint-order": "8.1.1",
-    "svelte": "5.56.7",
-    "svelte-check": "4.7.3",
-    "vite": "8.1.5",
+    "svelte": "5.56.8",
+    "svelte-check": "4.7.4",
+    "vite": "8.2.0",
     "vite-plugin-pwa": "1.3.0",
     "workbox-build": "7.4.1"
   },
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "14.1.2",
     "@chainsafe/libp2p-yamux": "8.0.1",
-    "@libp2p/bootstrap": "12.0.27",
-    "@libp2p/circuit-relay-v2": "4.2.9",
-    "@libp2p/config": "1.1.34",
-    "@libp2p/floodsub": "11.0.26",
-    "@libp2p/identify": "4.1.10",
+    "@libp2p/bootstrap": "12.0.29",
+    "@libp2p/circuit-relay-v2": "4.2.11",
+    "@libp2p/config": "1.1.36",
+    "@libp2p/floodsub": "11.0.28",
+    "@libp2p/identify": "4.1.12",
     "@libp2p/interface": "3.2.5",
-    "@libp2p/keychain": "6.1.4",
-    "@libp2p/plaintext": "3.0.24",
+    "@libp2p/keychain": "6.1.6",
+    "@libp2p/plaintext": "3.0.26",
     "@libp2p/pubsub-peer-discovery": "12.0.0",
-    "@libp2p/websockets": "10.1.17",
+    "@libp2p/websockets": "10.1.19",
     "@multiformats/multiaddr": "13.0.3",
     "datastore-fs": "12.0.1",
     "datastore-idb": "5.0.1",
     "howler": "2.2.4",
-    "libp2p": "3.3.6",
+    "libp2p": "3.3.8",
     "uint8arrays": "6.1.1"
   }
 }

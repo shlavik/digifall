@@ -43,18 +43,19 @@
   :global .card {
     position: absolute;
     z-index: var(--card-y);
-    bottom: calc(var(--card-y) * 21rem);
+    bottom: 0;
     left: calc(var(--card-x) * 21rem);
     width: 21rem;
     height: 21rem;
     cursor: pointer;
     touch-action: none;
     -webkit-touch-callout: none;
+    transform: translate3d(0, calc(-1 * var(--card-y) * 21rem), 0);
     transition-duration: calc(var(--card-duration) * 1ms);
-    transition-property: bottom;
+    transition-property: transform;
     transition-timing-function: cubic-bezier(0.56, 0, 1, 1);
     user-select: none;
-    will-change: bottom;
+    will-change: transform;
 
     &.blink {
       animation: fade-out 400ms ease 400ms forwards;
@@ -114,7 +115,11 @@
         box-shadow: none;
         filter: drop-shadow(0 0 1px white) drop-shadow(0 0 1px white)
           drop-shadow(0 0 1px white) drop-shadow(0 0 1px white);
-        transform: translateX(-0.5px) translateY(-0.5px);
+        transform: translate3d(
+          -0.5px,
+          calc(-1 * var(--card-y) * 21rem - 0.5px),
+          0
+        );
 
         .current {
           border-right: 0.5px solid var(--color);
@@ -127,7 +132,7 @@
       &.longpress {
         z-index: var(--card-y);
         filter: none;
-        transform: none;
+        transform: translate3d(0, calc(-1 * var(--card-y) * 21rem), 0);
 
         .current {
           border-right: none;

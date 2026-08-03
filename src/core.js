@@ -291,17 +291,16 @@ function getMatchedFromCards(cards) {
  */
 function getMatchedCards(game, cards, matchedIndexes) {
   const counts = Array.from({ length: CORE.columns }, () => 0);
-  const getNextY = (nextX) =>
-    counts[nextX] +
-    cards
-      .filter(({ x }) => x === nextX)
-      .sort(({ y: y1 }, { y: y2 }) => y2 - y1)[0].y;
+  const maxY = Array.from({ length: CORE.columns }, () => 0);
+  for (let index = 0; index < cards.length; index++) {
+    const { x, y } = cards[index];
+    if (y > maxY[x]) maxY[x] = y;
+  }
   return cards.map((card, index) => {
     if (card.y < CORE.rows && matchedIndexes.has(index)) {
-      ++counts[card.x];
       return {
         x: card.x,
-        y: getNextY(card.x),
+        y: ++counts[card.x] + maxY[card.x],
         value: game.getNextCardValue(card.x),
         duration: 0,
       };
