@@ -64,6 +64,7 @@
       .current {
         animation: blink 200ms steps(2, end) 2;
         box-shadow: none;
+        filter: none;
       }
     }
 
@@ -209,11 +210,13 @@
 
     @keyframes fade-out {
       from {
-        clip-path: circle(100%);
+        filter: blur(0);
+        transform: translate3d(0, calc(-1 * var(--card-y) * 21rem), 0) scale(1);
       }
 
       to {
-        clip-path: circle(0%);
+        filter: blur(1rem);
+        transform: translate3d(0, calc(-1 * var(--card-y) * 21rem), 0) scale(0);
       }
     }
 

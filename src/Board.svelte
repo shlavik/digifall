@@ -398,7 +398,7 @@
 
         &.blink {
           animation:
-            blink 200ms steps(2, end) 2,
+            slider-blink 200ms steps(2, end) 2,
             shrink-vertical 400ms ease 400ms forwards;
         }
 
@@ -416,7 +416,7 @@
 
         &.blink {
           animation:
-            blink 200ms steps(2, end) 2,
+            slider-blink 200ms steps(2, end) 2,
             shrink-horizontal 400ms ease 400ms forwards;
         }
 
@@ -447,23 +447,33 @@
     }
   }
 
-  @keyframes shrink-horizontal {
+  @keyframes slider-blink {
     from {
-      clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+      opacity: 1;
     }
 
     to {
-      clip-path: polygon(50% 0%, 50% 0%, 50% 100%, 50% 100%);
+      opacity: 0.2;
+    }
+  }
+
+  @keyframes shrink-horizontal {
+    from {
+      transform: scaleX(1);
+    }
+
+    to {
+      transform: scaleX(0.02);
     }
   }
 
   @keyframes shrink-vertical {
     from {
-      clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+      transform: scaleY(1);
     }
 
     to {
-      clip-path: polygon(0% 50%, 100% 50%, 100% 50%, 0% 50%);
+      transform: scaleY(0.02);
     }
   }
 </style>

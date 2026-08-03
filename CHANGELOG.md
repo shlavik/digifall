@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.15.5 Match Animation Smoothness
+
+- `Rendering`: Matched cards visibly blink again — the match flash was hidden by a rendering issue with filtered layers on composited cards and now draws directly on the card layer
+- `Rendering`: Matched cards dissolve with a soft blur-and-shrink effect instead of a hard cut
+- `Rendering`: Match highlight sliders animate with GPU transforms and opacity instead of per-frame clipping, removing the stutter during match resolution on mobile
+
 ## 0.15.4 Mobile Fall Animation Smoothness
 
 - `Rendering`: Card fall animations now use GPU-composited transforms instead of layout offsets, removing per-frame reflow on mobile — falling cards stay smooth during match resolution on low-end devices
