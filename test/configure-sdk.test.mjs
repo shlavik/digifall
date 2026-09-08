@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { configureSdk } from "./configure-sdk.mjs";
+import { configureSdk } from "../android/configure-sdk.mjs";
 
 test("configures Bubblewrap compile and target SDK levels", () => {
   const gradle = `android {

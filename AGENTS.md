@@ -59,12 +59,10 @@ Not a traditional game-as-product, but a protocol-as-game:
   - Rationale: Enables validation through replay without cryptographic signatures
   - Trade-offs: CPU cost of re-simulation vs cryptographic verification overhead
   - See: [getRandom()](src/core.js#L96-L98), [getSeed()](src/core.js#L727-L739)
-
 - Validation Through Replay: Records validated by re-executing game with same seed and moves
   - Rationale: Mathematical proof of legitimacy without trusted authority
   - Trade-offs: 3-second timeout limit constrains maximum game length
   - See: [validateRecord](src/validation.js)
-
 - P2P Leaderboard: Floodsub + eventual consistency without consensus algorithm
   - Rationale: Zero hosting cost, censorship resistance, community ownership
   - Trade-offs: No global ordering guarantees, requires relay infrastructure for NAT traversal
@@ -77,15 +75,12 @@ Not a traditional game-as-product, but a protocol-as-game:
   - Rationale: Validation layer makes encryption redundant—MITM cannot inject invalid records, only waste bandwidth. Defense-by-validation eliminates need for defense-by-encryption.
   - Trade-offs: No privacy (acceptable for public leaderboard), visible traffic (irrelevant since validation is sole trust boundary)
   - See: [plaintext() config](src/leaderboard.js#L270), [relay config](nodes/relay/relay.mjs)
-
 - Svelte 5 Runes: Modern reactive primitives ($state, $derived, $effect)
   - Rationale: Simplified reactivity compared to stores-only approach
   - Trade-offs: Requires Svelte 5+ (no backward compatibility)
-
 - Single Core File: All game logic concentrated in core.js (~900 lines)
   - Rationale: Simplifies validation runtime, ensures deterministic execution
   - Trade-offs: Monolithic structure reduces modularity
-
 - Atomic Relay State: Relays stored as `{ active, applied }` object for migration consistency
   - Rationale: Enables bidirectional relay updates—new defaults auto-inject, removed defaults auto-cleanup, user custom relays preserved
   - Trade-offs: Idempotent migration runs on every load (no persistence until user action)
@@ -99,18 +94,15 @@ Not a traditional game-as-product, but a protocol-as-game:
   - `leaderboard.js`: P2P sync protocol (root hash exchange, preview diffing)
   - `validation.js`: Record replay validation, player name sanitizing, and multiaddr validation
   - `persistence.js`: localStorage and IndexedDB store factories (business-logic-agnostic)
-
   - `sounds.js`: Howler.js audio management
   - `constants.js`: Frozen configuration objects (CORE, KEYS, PHASES, etc.)
   - `*.svelte`: UI components (App, Game, Board, Card, overlays)
-
 - `/packages/`: Shared npm workspaces
   - `leaderboard/`: Shared P2P leaderboard protocol logic
     - `LeaderboardCore` class with queues, root hashes, handler factories
     - Protocol constants (`PROTOCOLS`), utilities (`compare`, `parseMessage`, `toMessage`)
     - Hash functions (`squashIntegers`, `getSeed`, `computeRootHash`)
     - `DEFAULT_RELAYS` as single source of truth
-
 - `/nodes/`: Server-side infrastructure (each node in own folder with colocated data)
   - `relay/`: Standalone libp2p circuit relay for NAT traversal
     - `relay.mjs`: Relay server implementation
@@ -123,6 +115,7 @@ Not a traditional game-as-product, but a protocol-as-game:
   - `deploy-relay.sh`: One-command relay deployment with systemd + SSL + certbot renewal hooks
   - `undeploy-relay.sh`: Clean removal of relay services, certificates, and user
   - `validate-records.mjs`: CLI validator for replay-checking leaderboard records from JSON files or stdin
+- `/test/`: All project tests, named by domain; [test guide](test/README.md) owns unit, workspace, browser, and Domain DAG validation entrypoints
 - `/public/`: Static assets (fonts, images, sounds, manifest.json)
 - `/dist/`: Vite build output (generated)
 - `vite.config.js`: Build configuration with PWA plugin
@@ -135,17 +128,14 @@ Not a traditional game-as-product, but a protocol-as-game:
 - Determinism First: Never use Math.random(), Date.now(), or non-seeded randomness in core logic
   - Rationale: Breaks replay validation if any non-deterministic operation enters core.js
   - See: [getRandom()](src/core.js#L96-L98)
-
 - Reactive Stores with .get(): Extend stores with synchronous getter alongside subscriptions
   - Rationale: Phase logic needs instant state reads without subscription overhead
   - Pattern: `store.get = () => get(store)`
   - See: [createStore()](src/stores.js#L13-L17)
-
 - Validation Timeout: 3-second limit for replay prevents DoS through artificially long games
   - Rationale: Malicious peer could send infinite-length game record; game mechanics naturally constrain legitimate games well below timeout
   - Note: Game difficulty makes 1000+ move records practically unreachable before energy depletion
   - See: [createRecordValidator() timeout](src/validation.js)
-
 - Replay-Compatible State Gates: Core phase/reset guards must not assume UI-only fields exist in validation runtimes
   - Rationale: `createRecordValidator()` constructs a minimal replay game object; broad falsy checks like `!game.ready` can freeze `initial → idle` and reject or hang valid records
   - Pattern: Check explicit UI gate states (`game.ready === false`) when absence should mean “not applicable”; run `timeout 10s npm run validate-records -- nodes/leaderboard/data.json` after core phase/reset/replay changes
@@ -156,42 +146,33 @@ Not a traditional game-as-product, but a protocol-as-game:
 - Idempotent Deployment: Relay setup must be single-command, creating systemd services and SSL certs automatically
   - Rationale: Radical simplification allows non-technical users to host relays, preventing centralization
   - See: [scripts/deploy-relay.sh](scripts/deploy-relay.sh)
-
 - Early Rejection: Validate record constraints (moves length, field types) before expensive replay
   - Rationale: O(1) rejection of malformed records prevents DoS via crafted payloads
   - See: [MAX_MOVES_LENGTH](src/constants.js#L9), [createRecordValidator()](src/validation.js)
-
 - Symmetric Deploy/Undeploy: Both scripts support interactive and non-interactive modes for deb/rpm systems
   - Rationale: Automated CI/CD pipelines need non-interactive; manual ops need confirmation prompts
   - See: [deploy-relay.sh](scripts/deploy-relay.sh), [undeploy-relay.sh](scripts/undeploy-relay.sh)
-
 - Environment-First Configuration: Server nodes read `DIGIFALL_RELAYS` env var before falling back to hardcoded defaults
   - Rationale: Enables staging/prod separation, custom relay testing without code changes
   - See: [parseRelaysFromEnv()](nodes/leaderboard/leaderboard.mjs#L28-L35)
-
 - Deployment Runtime Validation: Relay deployment must validate both Node.js and npm before installing app dependencies
   - Rationale: Distros can provide a usable `node` binary without `npm`; systemd units should use resolved absolute runtime paths
   - Pattern: Keep curl-installed lifecycle scripts self-contained; duplicate shell helpers intentionally when single-file bootstrap reliability matters more than DRY; respect an existing Node.js runtime and install the current stable NodeSource major only when no `node` is available; refresh npm to the latest stable release after runtime detection/installation; fail deployment if the resolved npm runtime cannot keep the relay alive as the `digifall` service user
   - See: [ensure_node_runtime()](scripts/deploy-relay.sh)
-
 - CI Toolchain Parity: Keep GitHub Actions Node/npm aligned with the local lockfile-generating toolchain
   - Rationale: npm 10 and npm 11 serialize optional peer dependencies differently; mismatched npm majors can make `npm ci` reject an otherwise valid lockfile
   - Pattern: Build/deploy workflow uses Node 24/npm 11; if CI Node changes, regenerate and validate `package-lock.json` with that npm major
-
 - Android Target SDK: Apply API-level requirements after Bubblewrap project generation
   - Rationale: Bubblewrap exposes minimum SDK but hardcodes target SDK in its generated Gradle template
   - Pattern: Run `android/configure-sdk.mjs` after `bubblewrap update`; keep compile and target SDK aligned and preserve the generated minimum SDK
-
 - Git-Tracked Bootstrap Data: Leaderboard `data.json` committed to repo for disaster recovery and new node bootstrap
   - Rationale: P2P network may be empty; git provides backup and historical record of leaderboard evolution
   - Trade-off: Manual commits required to update backup (acceptable for low-frequency changes)
   - Constraint: Bootstrap data must pass `npm run validate-records -- nodes/leaderboard/data.json` before commit
-
 - Release Note Ordering: Version sections in `CHANGELOG.md` must list the most player-visible and user-important changes first, then operational/CI/internal details
   - Rationale: Android release notes are generated from the current changelog section; Google Play truncates `whatsnew-*` text to 500 Unicode characters, so the first bullets become the public store copy
   - Pattern: Start with gameplay, compatibility, platform availability, fixes, and user-facing behavior; put build automation, docs, safety, and refactors later
   - See: [Release flow notes](docs/release-flow.md#release-notes)
-
 - Release Workflow Idempotence: Published version rewrites must not re-upload the same Android versionCode
   - Rationale: Google Play rejects replacing an already published APK; release-commit amend/force-push workflows must detect `vX.Y.Z` already pointing at `HEAD` and skip publish unless manually forced
   - Pattern: Keep version-bump detection, tag guards, and full workflow `run-name` labels consistent across `.github/workflows/*`
@@ -199,26 +180,26 @@ Not a traditional game-as-product, but a protocol-as-game:
 
 ### Recommended (Performance and maintainability)
 
-- Phase-Driven Animation: All visual timing derives from phase transitions and duration calculations
-  - Rationale: Keeps animation synchronized with deterministic game state
-  - See: [checkRapid()](src/core.js#L138-L151)
-
+- Identity-First Polish: Deepen the existing pixel palette, motion, and sound language before expanding game modes or product systems
+  - Rationale: Digifall's character lives in the details of its existing mechanics
+- Phase-Driven Animation: Game animation follows phase transitions; decorative feedback observes state without delaying or mutating core transactions
+  - Rationale: Keeps replay deterministic while allowing presentation-only trails and sound accents
+  - Pattern: Energy feedback groups buffer-drain frames by `value + buffer`; audio pitch continuously follows visible energy reserve, not the already credited target, delta size or score; capture both old and resulting card digits at the debit boundary before plus-phase mutation, including `9 → 0`; restoration/reset stays silent and only the primary energy surface owns sound
+  - Energy surface: Preserve the folded 100–200% bar and its split-color numeral; gain fill holds while the rainbow delta keeps moving, then catches up without advancing beyond real energy, and reset/reduced-motion must cancel delayed animation
+  - Audio lifecycle: Use Howler's public audio context/master gain for sustained energy synthesis; keep sources bounded, release at visual completion, and cancel sources plus room tails on mute/reset/backgrounding without replaying expired gestures
+  - See: [checkRapid()](src/core.js#L138-L151), [energy feedback](src/energy-feedback.js), [sound design](public/sounds/README.md)
 - Game Surface Owns Touch Gestures: Long-press gameplay zones must suppress browser-native selection/callout/scroll gestures at both CSS and event-listener boundaries
   - Rationale: Mobile Safari can otherwise treat a long tap as text selection or callout instead of the game action; touch listeners that call `preventDefault()` must not be passive
   - Pattern: Scope suppression to the board/card surface, keep the state machine unchanged, and avoid global overrides that break form controls or overlays
-
 - Move Encoding: Game actions serialized as base64-encoded integer arrays for compactness
   - Rationale: Reduces localStorage size and P2P bandwidth
   - See: [getBase64FromArray()](src/core.js#L103-L105)
-
 - Root Hash Optimization: Leaderboard state compressed via squashIntegers() for efficient sync
   - Rationale: Prevents sending full leaderboard on every connection
   - See: [squashIntegers()](packages/leaderboard/index.js#L32-L38), [computeRootHash()](packages/leaderboard/index.js#L48-L56)
-
 - Connection Gating: Limit simultaneous P2P connections (3-5) to prevent resource exhaustion
   - Rationale: Browser tab resource constraints
   - See: [connectionGater.denyDialPeer](src/leaderboard.js#L170-L186)
-
 - Blacklist Invalid Peers: Disconnect and ban nodes failing protocol negotiation
   - Rationale: Prevents repeated connection attempts from incompatible clients
   - See: [blacklist Set](src/leaderboard.js#L49)
@@ -229,7 +210,6 @@ Not a traditional game-as-product, but a protocol-as-game:
   - `debug`: Enable console logging
   - `reload`: Auto-reload interval in seconds
   - See: [constants.js](src/constants.js#L1-L5)
-
 - Relay Fallback: Automatic relay switching on connection failure with 73-second retry interval
   - See: [restoreRelay()](src/leaderboard.js#L125-L137)
 
@@ -238,19 +218,15 @@ Not a traditional game-as-product, but a protocol-as-game:
 - Separation of Concerns: `stores.js` declares stores only; `persistence.js` provides generic utilities; business logic lives in components or domain modules
   - Rationale: Prevents circular dependencies, keeps persistence layer reusable
   - Pattern: Load functions passed to store factories, not embedded in persistence.js
-
 - Derived Store Chains: Use derived stores for computed values (e.g., `relaysStore` → `activeRelaysStore` → `relayPeerIdsStore`)
   - Rationale: Automatic reactivity without manual change detection
   - Anti-pattern: Manual `prevValue` tracking in subscriptions
-
 - Idempotent Migration: Relay migration runs on every load without persisting until user action
   - Rationale: localStorage is source of truth only when it differs from defaults; migration is cheap and deterministic
   - Pattern: `load()` transforms data, `save()` happens only on explicit `set()`/`update()`
-
 - LocalStorage as Cache: Client persistence must degrade to in-memory stores when localStorage is unavailable, full, private-mode restricted, or contains invalid JSON
   - Rationale: Mobile Safari can throw on storage reads/writes; gameplay must continue because local persistence is not part of deterministic validation
   - Pattern: Catch storage failures at persistence boundaries, keep reactive store updates synchronous, and reuse safe JSON loaders for custom migrations
-
 - Personal-Best Leaderboard Sync: localStorage personal records must be replay-validated and queued into the IndexedDB leaderboard without phase gating
   - Rationale: highCombo is saved during combo resolution; idle/gameOver-only sync can strand a valid local best until the user beats it again
   - Pattern: Add record type on a copy, call `LeaderboardCore.handleRecordWithValidation()`, then persist updated leaderboard snapshots
@@ -260,15 +236,12 @@ Not a traditional game-as-product, but a protocol-as-game:
 - Protocol vs Infrastructure Separation: Shared packages contain protocol logic (message formats, handlers); platform-specific code (libp2p config, storage backends) stays in consumers
   - Rationale: `@digifall/leaderboard` works in browser and Node.js; `createLibp2p()` config differs per environment
   - Pattern: Package exports handler factories; consumer wires them to platform-specific libp2p instance
-
 - Single Source of Truth for Constants: `DEFAULT_RELAYS` lives in `@digifall/leaderboard`, re-exported by `src/constants.js`
   - Rationale: Adding/removing relay requires change in one place
   - Anti-pattern: Duplicating relay lists across files
-
 - Callback-Based Integration: `LeaderboardCore` accepts `onUpdate` callback instead of hardcoding persistence
   - Rationale: Client persists to IndexedDB, server to JSON file—same core, different storage
   - Pattern: Dependency injection via constructor options
-
 - Public Dependency Surfaces: Shared protocol packages must consume dependency APIs through documented methods and compatibility shims before falling back to historical internals
   - Rationale: Deployed nodes can run stale dependency builds; `getQueueSnapshot()` supports current `snapshot()` and older iterable/data-based `@llblab/uniqueue` instances
 

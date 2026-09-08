@@ -3,9 +3,14 @@ import test from "node:test";
 
 import { get, readable, writable } from "svelte/store";
 
-import { INITIAL_VALUES, KEYS, PHASES } from "./constants.js";
-import { getBase64FromArray, getSeed, initCore, resetGame } from "./core.js";
-import { validateRecord } from "./validation.js";
+import { INITIAL_VALUES, KEYS, PHASES } from "../src/constants.js";
+import {
+  getBase64FromArray,
+  getSeed,
+  initCore,
+  resetGame,
+} from "../src/core.js";
+import { validateRecord } from "../src/validation.js";
 
 function withGet(store) {
   store.get = () => get(store);

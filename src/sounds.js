@@ -1,4 +1,6 @@
-import { Howl } from "howler";
+import { Howl, Howler } from "howler";
+import { createEnergySynth } from "./energy-synth.js";
+export { getEnergySoundRate } from "./energy-synth.js";
 
 const { random, round } = Math;
 
@@ -98,6 +100,77 @@ export function playBlink() {
 /** Plays low energy alert. */
 export function playLowEnergy() {
   SOUNDS.lowEnergy.play();
+}
+
+let energySynth;
+let energyContext;
+let energyRequest = 0;
+let visibleEnergy = 100;
+const energyVisible = () => typeof document === "undefined" || !document.hidden;
+
+function onEnergyContextState() {
+  if (energyContext.state !== "running") stopEnergySounds();
+}
+
+function getEnergySynth() {
+  const context = Howler.ctx;
+  if (!context || context.state !== "running" || !energyVisible()) return null;
+  if (energyContext !== context) {
+    energySynth?.stop();
+    energyContext?.removeEventListener("statechange", onEnergyContextState);
+    energyContext = context;
+    context.addEventListener("statechange", onEnergyContextState);
+    energySynth = createEnergySynth(context, Howler.masterGain);
+  }
+  return energySynth;
+}
+
+/** Silences sources and the shared room; old reverb cannot reappear after unmute. */
+export function stopEnergySounds() {
+  energyRequest++;
+  energySynth?.stop();
+}
+
+/** Early completion for reduced-motion and game-over drains. */
+export function releaseEnergyChange() {
+  energyRequest++;
+  energySynth?.releaseAccent();
+}
+
+/** Called from the same reactive visible value that positions the white bar. */
+export function updateEnergySound(energy) {
+  visibleEnergy = energy;
+  energySynth?.updateEnergy(energy);
+}
+
+/** Actual overflow owns the episode; its pitch still follows the visible reserve. */
+export function updateEnergyOverflow({ value }, energy) {
+  visibleEnergy = energy;
+  if (value > 100) getEnergySynth()?.overflow(true, energy);
+  else energySynth?.overflow(false, energy);
+}
+
+/** Resume only the current, unexpired animation; never replay a queued old event. */
+export function playEnergyChange({ amount }, energy, duration) {
+  if (!amount || duration <= 0 || !energyVisible() || !Howler.ctx) return;
+  visibleEnergy = energy;
+  const request = ++energyRequest;
+  const deadline = performance.now() + duration;
+  const play = () => {
+    const remaining = deadline - performance.now();
+    if (request !== energyRequest || remaining <= 0) return;
+    getEnergySynth()?.play(
+      amount > 0 ? "gain" : "spend",
+      visibleEnergy,
+      remaining / 1000,
+    );
+  };
+  if (Howler.ctx.state === "running") play();
+  else
+    Howler.ctx
+      .resume()
+      .then(play)
+      .catch(() => {});
 }
 
 /** Plays plus sound. */

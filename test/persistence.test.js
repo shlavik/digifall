@@ -1,10 +1,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createLocalStorageStore, loadLocalStorageJson } from "./persistence.js";
+import {
+  createLocalStorageStore,
+  loadLocalStorageJson,
+} from "../src/persistence.js";
 
 function withLocalStorage(localStorage, callback) {
-  const descriptor = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+  const descriptor = Object.getOwnPropertyDescriptor(
+    globalThis,
+    "localStorage",
+  );
   Object.defineProperty(globalThis, "localStorage", {
     configurable: true,
     value: localStorage,

@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## 0.16.0 Energy Feedback
+
+- `Energy`: Gains expose a continuously moving rainbow delta while the white bar pauses, then the white fill catches up; a downward settling wave and low-energy recovery wave make recharging visible
+- `Energy`: Spending trails transition from the card's old color to its new color, including `9 → 0`; overflow preserves the original right-growing colored band and complete split-color numeral
+- `Sound`: Energy now sustains a noisy/resonant tone through its animation, with pitch following the visible bar, including its delay; restrained stereo reverb, bounded crossfades and cancellation on mute/reset/backgrounding keep feedback controlled
+- `Overflow Bonus`: Energy above 100% adds a soft major chord with light noise; its pitch follows visible energy through conversion, with a short minimum hold for rapid-mode overflow
+- `Accessibility`: Reduced-motion preference suppresses decorative energy effects and warning flicker while keeping the energy counter and game-over message visible
+- `Reliability`: Presentation feedback stays silent during restoration/reset and does not treat overflow-to-score conversion as player spending; deterministic game rules and replay remain unchanged
+- `Dependencies`: Updated compatible Svelte, Vite, libp2p, styling tools, and Uniqueue releases, plus vulnerable fast-uri and js-yaml transitive dependencies
+- `Testing`: Consolidated all tests under root `test/`, added reproducible Playwright coverage for energy colors and lifecycle behavior, and included the test harness in Domain DAG validation
+
 ## 0.15.5 Match Animation Smoothness
 
 - `Rendering`: Matched cards visibly blink again — the match flash was hidden by a rendering issue with filtered layers on composited cards and now draws directly on the card layer

@@ -152,7 +152,7 @@ npm run build
 node android/compute-version-code.mjs
 node android/generate-release-notes.mjs
 node android/sync-twa-version.mjs
-node --test android/configure-sdk.test.mjs
+node --test test/configure-sdk.test.mjs
 node scripts/validate-records.mjs nodes/leaderboard/data.json
 ```
 

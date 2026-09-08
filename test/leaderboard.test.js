@@ -7,7 +7,7 @@ import {
   compare,
   parseMessage,
   toMessage,
-} from "./index.js";
+} from "../packages/leaderboard/index.js";
 
 test("compare sorts by value and then older timestamp", () => {
   assert.equal(

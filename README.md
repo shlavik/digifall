@@ -22,6 +22,11 @@ A deterministic survival puzzle game begins with a reserve of 100 energy points.
 - [Changelog](CHANGELOG.md)
 - [Docs index](docs/README.md)
 
+# Development
+
+- [Tests](test/README.md) — root `test/` suite, browser checks, and Domain DAG validation
+- [Sound design](public/sounds/README.md) — live energy synthesis, playback lifecycle, and reproducible auditions
+
 # Server Nodes
 
 ## Prerequisites

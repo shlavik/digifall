@@ -1,11 +1,13 @@
 {
-  "sourceRoots": ["src", "packages", "nodes", "scripts", "android"],
+  "sourceRoots": ["src", "packages", "nodes", "scripts", "android", "test"],
   "sourceExtensions": [".js", ".mjs", ".svelte"],
+  "excludePatterns": ["**/*.d.ts"],
   "entrypoints": [
     "src/main.js",
     "nodes/relay/relay.mjs",
     "nodes/leaderboard/leaderboard.mjs",
     "scripts/validate-records.mjs",
+    "scripts/generate-energy-sounds.mjs",
     "scripts/detect-version-bump.mjs",
     "android/compute-version-code.mjs",
     "android/generate-release-notes.mjs",
@@ -36,7 +38,13 @@
     {
       "name": "app-state",
       "rank": 2,
-      "files": ["src/stores.js", "src/sounds.js", "src/leaderboard.js"]
+      "files": [
+        "src/stores.js",
+        "src/sounds.js",
+        "src/energy-synth.js",
+        "src/energy-feedback.js",
+        "src/leaderboard.js"
+      ]
     },
     {
       "name": "ui",
@@ -52,6 +60,11 @@
       "name": "release-automation",
       "rank": 3,
       "files": ["android/**", ".github/workflows/**"]
+    },
+    {
+      "name": "test-harness",
+      "rank": 4,
+      "files": ["test/**"]
     }
   ],
   "forbiddenEdges": [

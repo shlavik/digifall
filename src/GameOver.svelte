@@ -69,7 +69,7 @@
     {/if}
   </div>
   <div class="section-4">
-    <Energy {gameOver} />
+    <Energy {gameOver} audible={false} />
   </div>
 </div>
 
