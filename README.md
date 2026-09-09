@@ -15,6 +15,10 @@ A deterministic survival puzzle game begins with a reserve of 100 energy points.
 - `Trustless P2P`: Leaderboard data synchronizes via libp2p relays
 - `Domain DAG`: `domain-dag.json` records the intended dependency layers and boundary checks; the validator skill is vendored in `.agents/skills/domain-dag`
 
+## Experimental on-chain protocol
+
+A standalone `no_std` FRAME pallet is under active development in [`chain/`](chain/README.md). It owns bounded current game state, stake custody, scheduled chain randomness, delegated session control, and reward settlement without changing the existing web client. See the [protocol contract and production gates](docs/on-chain-pallet.md).
+
 # Project Control
 
 - [Agent protocol](AGENTS.md)

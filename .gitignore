@@ -2,6 +2,7 @@
 .parcel-cache
 dist
 node_modules
+chain/target/
 nodes/*/peerstore
 .secrets/
 *.keystore

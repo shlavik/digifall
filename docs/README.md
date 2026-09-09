@@ -5,6 +5,7 @@ Root documentation index for architecture and project-control material.
 ## Architecture
 
 - [Domain DAG config](../domain-dag.json) — project-local dependency layer and boundary validation rules.
+- [On-chain pallet](on-chain-pallet.md) — standalone FRAME game protocol, runtime contracts, and production gates.
 - [Release flow](release-flow.md) — web deploy, TWA wrapper, versioning, GitHub Actions publishing, and Play Console setup.
 
 ## Project control

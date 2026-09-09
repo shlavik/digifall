@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- `On-chain Protocol`: Added an experimental standalone `no_std` FRAME pallet with a fixed-size deterministic 6×6 engine, bounded resumable transitions, one current game per owner, stake custody, delegated session control, and stake/score reward minting
+- `On-chain Fairness`: Bound each commitment to one bounded scheduled post-commit randomness sample, with owner refunds when the configured source cannot provide fresh entropy
+- `On-chain Safety`: Added transactional fault refunds, consumer-safe sufficient references for unfunded session accounts, game-ID/revision replay guards, configurable limits, and separate stake/reward fungible adapters
+- `On-chain Sponsorship`: Added a strict-current nonce transaction extension for state-dependent fee-free calls and composed it with `SkipCheckIfFeeless<ChargeTransactionPayment>` in the mock runtime, rejecting future-nonce duplicates and unrelated unfunded calls
+- `On-chain Runtime`: Added a minimal Polkadot SDK 2606 Cumulus parachain runtime that composes the pallet, native stake, asset rewards, sponsored transaction extensions, `ParachainSystem`, and a successful locked `substrate-wasm-builder` validation runtime
+- `On-chain Validation`: Added JavaScript parity vectors, SCALE-round-tripped signed-extrinsic runtime coverage for fee-free progress/replay/payment behavior, lifecycle/economic/fault/rollback/`no_std` tests, and a FRAME harness covering every weight path, queue bounds, active rotation, settlement, fault cleanup, and conservative per-budget resolution via full-replacement/high-group one-step benchmarks; the runtime exports FRAME's benchmark API and now uses generated weights from a full 50-step/20-repeat `frame-omni-bencher` run, with final production-hardware regeneration still gated on the chosen randomness and reward configuration
+
 ## 0.15.5 Match Animation Smoothness
 
 - `Rendering`: Matched cards visibly blink again — the match flash was hidden by a rendering issue with filtered layers on composited cards and now draws directly on the card layer

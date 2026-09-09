@@ -1,0 +1,28 @@
+[package]
+name = "pallet-digifall"
+description = "Bounded on-chain Digifall game state machine for FRAME"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+publish = false
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+
+[dependencies]
+codec.workspace = true
+frame = { workspace = true, features = ["experimental", "runtime"] }
+polkadot-sdk = { workspace = true, features = ["frame-support", "frame-system", "sp-runtime"] }
+scale-info.workspace = true
+
+[dev-dependencies]
+polkadot-sdk = { workspace = true, features = ["frame-support", "frame-system", "pallet-assets", "pallet-balances", "pallet-skip-feeless-payment", "pallet-transaction-payment", "sp-core", "sp-io", "sp-runtime", "sp-weights"] }
+
+[features]
+default = ["std"]
+std = ["codec/std", "frame/std", "polkadot-sdk/std", "scale-info/std"]
+runtime-benchmarks = ["frame/runtime-benchmarks", "polkadot-sdk/runtime-benchmarks"]
+try-runtime = ["frame/try-runtime", "polkadot-sdk/try-runtime"]
